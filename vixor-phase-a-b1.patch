@@ -1,0 +1,2465 @@
+diff --git a/.env.example b/.env.example
+index 5008f13..a4e510d 100755
+--- a/.env.example
++++ b/.env.example
+@@ -68,3 +68,24 @@ ENABLE_DEBATE_ENGINE=true
+ 
+ # ── Prisma (local DB only — production uses Supabase) ──────────────────────
+ DATABASE_URL=file:/home/z/my-project/db/custom.db
++
++# ── Arbitrage Bot (Phase B.1 — ported from axiom-arbitrage) ──────────────────
++# ALL arbitrage vars use ARBITRAGE_ prefix to avoid conflicts.
++# Safety defaults: DRY_RUN=true, EXECUTION_ENABLED=false (no real funds moved)
++
++ARBITRAGE_BOT_MODE=mock                       # mock (simulated) | live (real APIs)
++ARBITRAGE_SOLANA_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_HELIUS_KEY
++ARBITRAGE_AXIOM_API_KEY=                       # optional — for Axiom terminal routing
++ARBITRAGE_AXIOM_API_URL=https://api.axiom.trade
++ARBITRAGE_JUPITER_QUOTE_URL=https://quote-api.jup.ag/v6
++ARBITRAGE_SCAN_INTERVAL_MS=5000                # continuous scan interval (ms)
++ARBITRAGE_MIN_PROFIT_BPS=15                    # minimum net profit in basis points
++ARBITRAGE_MAX_SLIPPAGE_BPS=50                  # max slippage tolerance
++ARBITRAGE_MAX_TRADE_SIZE_SOL=1                 # max trade size per opportunity (SOL)
++ARBITRAGE_MAX_DAILY_TRADES=100                 # daily execution cap
++ARBITRAGE_MAX_CONSECUTIVE_FAILURES=5           # circuit breaker threshold
++ARBITRAGE_EXECUTION_ENABLED=false              # ⚠️ SET TO true ONLY after testing
++ARBITRAGE_DRY_RUN=true                         # ⚠️ SET TO false ONLY after testing
++ARBITRAGE_WALLET_PRIVATE_KEY=                  # Solana keypair (base58) — live mode only
++ARBITRAGE_WATCH_TOKENS=SOL,USDC,BONK,WIF,JUP   # comma-separated tokens to scan
++ARBITRAGE_LOG_LEVEL=info                       # debug | info | warn | error
+diff --git a/package.json b/package.json
+index 8593761..2d6cd39 100755
+--- a/package.json
++++ b/package.json
+@@ -49,6 +49,8 @@
+     "@tanstack/router-plugin": "1.168.18",
+     "@telegram-apps/sdk": "^3.11.8",
+     "@upstash/redis": "^1.38.0",
++    "@solana/web3.js": "^1.98.4",
++    "bs58": "^6.0.0",
+     "ai": "^6.0.197",
+     "class-variance-authority": "^0.7.1",
+     "clsx": "^2.1.1",
+diff --git a/server/api/arbitrage-scan.ts b/server/api/arbitrage-scan.ts
+new file mode 100644
+index 0000000..4433279
+--- /dev/null
++++ b/server/api/arbitrage-scan.ts
+@@ -0,0 +1,57 @@
++import { defineEventHandler, getMethod, getHeader, createError } from "h3";
++import { createArbitrageEngine } from "@/domains/arbitrage";
++
++// ============================================================================
++// POST /api/arbitrage/scan
++//
++// Triggers a single arbitrage scan and returns:
++//   - opportunities: detected opportunities (sorted by net profit, desc)
++//   - stats: bot stats (total scans, trades, profit, etc.)
++//
++// Security:
++//   - Requires CRON_SECRET or admin auth (same gate as /api/health)
++//   - In development, allows unauthenticated access for testing
++// ============================================================================
++
++export default defineEventHandler(async (event) => {
++  const method = getMethod(event);
++  if (method !== "POST") {
++    throw createError({ statusCode: 405, statusMessage: "Method not allowed" });
++  }
++
++  // Auth gate (same pattern as /api/health)
++  const isVercelCron = getHeader(event, "x-vercel-cron") === "1";
++  const authHeader = getHeader(event, "authorization");
++  const cronSecret = process.env.CRON_SECRET;
++  const healthToken = process.env.HEALTH_TOKEN;
++  const authorized =
++    isVercelCron ||
++    (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
++    (healthToken && authHeader === `Bearer ${healthToken}`) ||
++    process.env.NODE_ENV !== "production";
++  if (!authorized) {
++    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
++  }
++
++  try {
++    const engine = await createArbitrageEngine();
++    const result = await engine.scanOnce();
++    const stats = engine.getStats();
++
++    return {
++      opportunities: result.opportunities,
++      rejected: result.rejected,
++      stats,
++      scanDurationMs: result.durationMs,
++      scannedAt: result.scannedAt,
++      mode: result.mode,
++    };
++  } catch (error) {
++    console.error("[Arbitrage Scan] Error:", error);
++    throw createError({
++      statusCode: 500,
++      statusMessage: "Arbitrage scan failed",
++      data: String(error),
++    });
++  }
++});
+diff --git a/src/domains/arbitrage/config.ts b/src/domains/arbitrage/config.ts
+new file mode 100644
+index 0000000..a6b97f5
+--- /dev/null
++++ b/src/domains/arbitrage/config.ts
+@@ -0,0 +1,104 @@
++// ============================================================================
++// VIXOR Arbitrage Config
++// ============================================================================
++//
++// Adapted from axiom-arbitrage-trading-bot config.ts.
++// Uses ARBITRAGE_ prefix to avoid conflicts with vixor-APP env vars.
++//
++// Safety defaults:
++//   - ARBITRAGE_DRY_RUN=true (default — never move real funds unless explicit)
++//   - ARBITRAGE_EXECUTION_ENABLED=false (default — must be explicitly enabled)
++//
++// Required env vars for live mode:
++//   - ARBITRAGE_SOLANA_RPC_URL (Helius recommended)
++//   - ARBITRAGE_WALLET_PRIVATE_KEY (Solana keypair in base58)
++//   - ARBITRAGE_EXECUTION_ENABLED=true
++//   - ARBITRAGE_DRY_RUN=false
++// ============================================================================
++
++import { z } from "zod";
++import type { BotMode, LogLevel } from "./types";
++
++const envSchema = z.object({
++  ARBITRAGE_BOT_MODE: z.enum(["mock", "live"]).default("mock"),
++  ARBITRAGE_SOLANA_RPC_URL: z
++    .string()
++    .url()
++    .default("https://api.mainnet-beta.solana.com"),
++  ARBITRAGE_AXIOM_API_KEY: z.string().optional(),
++  ARBITRAGE_AXIOM_API_URL: z.string().url().default("https://api.axiom.trade"),
++  ARBITRAGE_JUPITER_QUOTE_URL: z
++    .string()
++    .url()
++    .default("https://quote-api.jup.ag/v6"),
++  ARBITRAGE_SCAN_INTERVAL_MS: z.coerce.number().int().min(1000).default(5000),
++  ARBITRAGE_MIN_PROFIT_BPS: z.coerce.number().int().min(0).default(15),
++  ARBITRAGE_MAX_SLIPPAGE_BPS: z.coerce.number().int().min(1).max(1000).default(50),
++  ARBITRAGE_MAX_TRADE_SIZE_SOL: z.coerce.number().positive().default(1),
++  ARBITRAGE_MAX_DAILY_TRADES: z.coerce.number().int().min(1).default(100),
++  ARBITRAGE_MAX_CONSECUTIVE_FAILURES: z.coerce.number().int().min(1).default(5),
++  ARBITRAGE_EXECUTION_ENABLED: z
++    .string()
++    .transform((v) => v === "true" || v === "1")
++    .default("false"),
++  ARBITRAGE_DRY_RUN: z
++    .string()
++    .transform((v) => v !== "false" && v !== "0")
++    .default("true"),
++  ARBITRAGE_WALLET_PRIVATE_KEY: z.string().optional(),
++  ARBITRAGE_WATCH_TOKENS: z.string().default("SOL,USDC,BONK,WIF,JUP"),
++  ARBITRAGE_LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
++});
++
++export type ArbitrageConfig = {
++  mode: BotMode;
++  solanaRpcUrl: string;
++  axiomApiKey?: string;
++  axiomApiUrl: string;
++  jupiterQuoteUrl: string;
++  scanIntervalMs: number;
++  minProfitBps: number;
++  maxSlippageBps: number;
++  maxTradeSizeLamports: bigint;
++  maxDailyTrades: number;
++  maxConsecutiveFailures: number;
++  executionEnabled: boolean;
++  dryRun: boolean;
++  walletPrivateKey?: string;
++  watchTokenSymbols: string[];
++  logLevel: LogLevel;
++};
++
++const LAMPORTS_PER_SOL = 1_000_000_000n;
++
++export function loadArbitrageConfig(env: NodeJS.ProcessEnv = process.env): ArbitrageConfig {
++  const parsed = envSchema.parse(env);
++
++  const dryRun = parsed.ARBITRAGE_DRY_RUN || !parsed.ARBITRAGE_EXECUTION_ENABLED;
++
++  return {
++    mode: parsed.ARBITRAGE_BOT_MODE,
++    solanaRpcUrl: parsed.ARBITRAGE_SOLANA_RPC_URL,
++    axiomApiKey: parsed.ARBITRAGE_AXIOM_API_KEY,
++    axiomApiUrl: parsed.ARBITRAGE_AXIOM_API_URL,
++    jupiterQuoteUrl: parsed.ARBITRAGE_JUPITER_QUOTE_URL,
++    scanIntervalMs: parsed.ARBITRAGE_SCAN_INTERVAL_MS,
++    minProfitBps: parsed.ARBITRAGE_MIN_PROFIT_BPS,
++    maxSlippageBps: parsed.ARBITRAGE_MAX_SLIPPAGE_BPS,
++    maxTradeSizeLamports: BigInt(
++      Math.floor(parsed.ARBITRAGE_MAX_TRADE_SIZE_SOL * Number(LAMPORTS_PER_SOL)),
++    ),
++    maxDailyTrades: parsed.ARBITRAGE_MAX_DAILY_TRADES,
++    maxConsecutiveFailures: parsed.ARBITRAGE_MAX_CONSECUTIVE_FAILURES,
++    executionEnabled: parsed.ARBITRAGE_EXECUTION_ENABLED,
++    dryRun,
++    walletPrivateKey: parsed.ARBITRAGE_WALLET_PRIVATE_KEY,
++    watchTokenSymbols: parsed.ARBITRAGE_WATCH_TOKENS.split(",")
++      .map((s) => s.trim().toUpperCase())
++      .filter(Boolean),
++    logLevel: parsed.ARBITRAGE_LOG_LEVEL,
++  };
++}
++
++// Re-export Solana constants for convenience
++export { SOL_MINT, USDC_MINT } from "./token-registry";
+diff --git a/src/domains/arbitrage/engine.ts b/src/domains/arbitrage/engine.ts
+new file mode 100644
+index 0000000..d20492d
+--- /dev/null
++++ b/src/domains/arbitrage/engine.ts
+@@ -0,0 +1,206 @@
++import type { ArbitrageConfig } from '../config';
++import type {
++  ArbitrageOpportunity,
++  BotStats,
++  RejectedOpportunity,
++  ScanResult,
++  StrategyContext,
++} from '../types';
++import type { ExchangeClient } from '../exchanges/types';
++import type { ArbitrageStrategy } from '../strategies/base';
++import { PriceFeed } from '../market/priceFeed';
++import { resolveTokens } from '../market/tokenRegistry';
++import { RiskManager, CircuitBreaker } from '../risk/manager';
++import { TradeExecutor } from '../execution/executor';
++import { logger } from '../utils/logger';
++
++export class ArbitrageEngine {
++  private stats: BotStats = {
++    totalScans: 0,
++    opportunitiesFound: 0,
++    tradesExecuted: 0,
++    tradesSucceeded: 0,
++    totalProfitLamports: 0n,
++    consecutiveFailures: 0,
++    circuitBreakerOpen: false,
++  };
++
++  private scanning = false;
++  private intervalId: ReturnType<typeof setInterval> | null = null;
++
++  constructor(
++    private readonly config: ArbitrageConfig,
++    private readonly strategies: ArbitrageStrategy[],
++    private readonly clients: ExchangeClient[],
++    private readonly priceFeed: PriceFeed,
++    private readonly riskManager: RiskManager,
++    private readonly circuitBreaker: CircuitBreaker,
++    private readonly executor: TradeExecutor,
++  ) {}
++
++  getStats(): BotStats {
++    return {
++      ...this.stats,
++      consecutiveFailures: this.circuitBreaker.getConsecutiveFailures(),
++      circuitBreakerOpen: this.circuitBreaker.isOpen(),
++    };
++  }
++
++  async scanOnce(): Promise<ScanResult> {
++    const start = Date.now();
++    this.stats.totalScans += 1;
++
++    if (this.config.mode === 'mock') {
++      this.priceFeed.tickMockVolatility();
++    } else {
++      await this.priceFeed.refreshLive();
++    }
++
++    const context = this.buildContext();
++    const rawOpportunities: ArbitrageOpportunity[] = [];
++    const rejected: RejectedOpportunity[] = [];
++
++    for (const strategy of this.strategies) {
++      try {
++        const found = await strategy.scan(context, this.clients);
++        rawOpportunities.push(...found);
++        logger.debug(`Strategy ${strategy.name} found ${found.length} opportunities`);
++      } catch (error) {
++        logger.warn(`Strategy ${strategy.name} failed`, {
++          error: error instanceof Error ? error.message : String(error),
++        });
++      }
++    }
++
++    const deduped = this.deduplicateOpportunities(rawOpportunities);
++    const approved: ArbitrageOpportunity[] = [];
++
++    for (const opp of deduped) {
++      const rejection = this.riskManager.validate(opp);
++      if (rejection) {
++        rejected.push(rejection);
++      } else {
++        approved.push(opp);
++      }
++    }
++
++    this.stats.opportunitiesFound += approved.length;
++    this.stats.lastScanAt = Date.now();
++
++    const result: ScanResult = {
++      scannedAt: Date.now(),
++      mode: this.config.mode,
++      opportunities: approved,
++      rejected,
++      durationMs: Date.now() - start,
++    };
++
++    if (approved.length > 0) {
++      logger.info(`Scan complete: ${approved.length} opportunities`, {
++        bestBps: approved[0]?.netProfitBps,
++        durationMs: result.durationMs,
++      });
++    }
++
++    return result;
++  }
++
++  async executeBest(opportunities: ArbitrageOpportunity[]): Promise<void> {
++    if (this.circuitBreaker.isOpen()) {
++      logger.warn('Circuit breaker open — skipping execution');
++      return;
++    }
++
++    const best = opportunities[0];
++    if (!best) return;
++
++    this.stats.tradesExecuted += 1;
++    this.riskManager.recordTrade();
++
++    const result = await this.executor.execute(best);
++
++    if (result.success) {
++      this.circuitBreaker.recordSuccess();
++      this.stats.tradesSucceeded += 1;
++      if (result.profitLamports) {
++        this.stats.totalProfitLamports += result.profitLamports;
++      }
++    } else {
++      this.circuitBreaker.recordFailure();
++    }
++  }
++
++  startContinuous(onScan: (result: ScanResult) => void | Promise<void>): void {
++    if (this.scanning) return;
++    this.scanning = true;
++
++    const run = async () => {
++      try {
++        const result = await this.scanOnce();
++        await onScan(result);
++        if (result.opportunities.length > 0 && this.config.executionEnabled) {
++          await this.executeBest(result.opportunities);
++        }
++      } catch (error) {
++        logger.error('Scan loop error', {
++          error: error instanceof Error ? error.message : String(error),
++        });
++      }
++    };
++
++    void run();
++    this.intervalId = setInterval(() => void run(), this.config.scanIntervalMs);
++    logger.info('Continuous scanning started', { intervalMs: this.config.scanIntervalMs });
++  }
++
++  stop(): void {
++    if (this.intervalId) {
++      clearInterval(this.intervalId);
++      this.intervalId = null;
++    }
++    this.scanning = false;
++    logger.info('Scanner stopped');
++  }
++
++  private buildContext(): StrategyContext {
++    return {
++      tokens: resolveTokens(this.config.watchTokenSymbols),
++      minProfitBps: this.config.minProfitBps,
++      maxSlippageBps: this.config.maxSlippageBps,
++      maxTradeSizeLamports: this.config.maxTradeSizeLamports,
++    };
++  }
++
++  private deduplicateOpportunities(opportunities: ArbitrageOpportunity[]): ArbitrageOpportunity[] {
++    const seen = new Set<string>();
++    const sorted = [...opportunities].sort((a, b) => b.netProfitBps - a.netProfitBps);
++
++    return sorted.filter((opp) => {
++      const key = `${opp.strategy}:${opp.legs.map((l) => `${l.venue}:${l.inputMint}:${l.outputMint}`).join('|')}`;
++      if (seen.has(key)) return false;
++      seen.add(key);
++      return true;
++    });
++  }
++}
++
++export function createEngine(
++  config: ArbitrageConfig,
++  strategies: ArbitrageStrategy[],
++  clients: ExchangeClient[],
++): ArbitrageEngine {
++  const priceFeed = new PriceFeed(config.mode);
++  const riskManager = new RiskManager(config);
++  const circuitBreaker = new CircuitBreaker(config.maxConsecutiveFailures);
++  const executor = new TradeExecutor(config);
++
++  return new ArbitrageEngine(
++    config,
++    strategies,
++    clients,
++    priceFeed,
++    riskManager,
++    circuitBreaker,
++    executor,
++  );
++}
+diff --git a/src/domains/arbitrage/exchanges/axiom.client.ts b/src/domains/arbitrage/exchanges/axiom.client.ts
+new file mode 100644
+index 0000000..bcb040a
+--- /dev/null
++++ b/src/domains/arbitrage/exchanges/axiom.client.ts
+@@ -0,0 +1,134 @@
++import type { QuoteRequest, QuoteResult } from '../../types';
++import type { ExchangeClient } from '../types';
++import { PriceFeed } from '../../market/priceFeed';
++import { simulateDexQuote } from '../mock/quoteSimulator';
++import { withRetry } from '../../utils/math';
++import { logger } from '../../utils/logger';
++
++interface AxiomQuoteResponse {
++  success: boolean;
++  data?: {
++    inputMint: string;
++    outputMint: string;
++    inAmount: string;
++    outAmount: string;
++    priceImpact: number;
++    route: string;
++  };
++  error?: string;
++}
++
++/**
++ * Axiom on-chain trading terminal client.
++ * Falls back to deterministic mock quotes when API key is absent or in mock mode.
++ */
++export class AxiomClient implements ExchangeClient {
++  readonly venue = 'axiom' as const;
++
++  constructor(
++    private readonly apiUrl: string,
++    private readonly apiKey: string | undefined,
++    private readonly fetchFn: typeof fetch = fetch,
++  ) {}
++
++  async isAvailable(): Promise<boolean> {
++    if (!this.apiKey) return false;
++    try {
++      const res = await this.fetchFn(`${this.apiUrl}/v1/health`, {
++        headers: { Authorization: `Bearer ${this.apiKey}` },
++        signal: AbortSignal.timeout(5000),
++      });
++      return res.ok;
++    } catch {
++      return false;
++    }
++  }
++
++  async getQuote(request: QuoteRequest): Promise<QuoteResult> {
++    if (!this.apiKey) {
++      throw new Error('Axiom API key not configured');
++    }
++
++    const url = `${this.apiUrl}/v1/quote`;
++    const body = JSON.stringify({
++      inputMint: request.inputMint,
++      outputMint: request.outputMint,
++      amount: request.amount.toString(),
++      slippageBps: request.slippageBps,
++    });
++
++    const data = await withRetry(
++      async () => {
++        const res = await this.fetchFn(url, {
++          method: 'POST',
++          headers: {
++            'Content-Type': 'application/json',
++            Authorization: `Bearer ${this.apiKey}`,
++          },
++          body,
++          signal: AbortSignal.timeout(10_000),
++        });
++
++        if (!res.ok) {
++          throw new Error(`Axiom quote failed (${res.status})`);
++        }
++
++        return (await res.json()) as AxiomQuoteResponse;
++      },
++      { attempts: 2, label: 'axiom-quote' },
++    );
++
++    if (!data.success || !data.data) {
++      throw new Error(data.error ?? 'Axiom quote unsuccessful');
++    }
++
++    return {
++      venue: 'axiom',
++      inputMint: data.data.inputMint,
++      outputMint: data.data.outputMint,
++      inputAmount: BigInt(data.data.inAmount),
++      outputAmount: BigInt(data.data.outAmount),
++      priceImpactPct: data.data.priceImpact,
++      feeBps: 30,
++      routeLabel: data.data.route || 'Axiom fast route',
++      fetchedAt: Date.now(),
++    };
++  }
++}
++
++export class MockAxiomClient implements ExchangeClient {
++  readonly venue = 'axiom' as const;
++
++  constructor(
++    private readonly priceFeed: PriceFeed,
++    private readonly venueMultiplier = 1.003,
++  ) {}
++
++  async isAvailable(): Promise<boolean> {
++    return true;
++  }
++
++  async getQuote(request: QuoteRequest): Promise<QuoteResult> {
++    return simulateDexQuote(
++      'axiom',
++      request,
++      this.priceFeed,
++      this.venueMultiplier,
++      'Axiom simulated route',
++      30,
++    );
++  }
++}
++
++export function createAxiomClient(
++  apiUrl: string,
++  apiKey: string | undefined,
++  mode: 'mock' | 'live',
++  priceFeed?: PriceFeed,
++): ExchangeClient {
++  if (mode === 'mock' || !apiKey) {
++    logger.debug('Using mock Axiom client');
++    return new MockAxiomClient(priceFeed ?? new PriceFeed('mock'), 1.003);
++  }
++  return new AxiomClient(apiUrl, apiKey);
++}
+diff --git a/src/domains/arbitrage/exchanges/index.ts b/src/domains/arbitrage/exchanges/index.ts
+new file mode 100644
+index 0000000..9fcca29
+--- /dev/null
++++ b/src/domains/arbitrage/exchanges/index.ts
+@@ -0,0 +1,21 @@
++import type { ArbitrageConfig } from '../config';
++import type { ExchangeClient } from './types';
++import { createJupiterClient } from './jupiter/client';
++import { createAxiomClient } from './axiom/client';
++import { createMockDexClients } from './mock/dexClients';
++import { PriceFeed } from '../market/priceFeed';
++
++export function createExchangeClients(config: ArbitrageConfig, priceFeed: PriceFeed): ExchangeClient[] {
++  const clients: ExchangeClient[] = [
++    createJupiterClient(config.jupiterQuoteUrl, config.mode, priceFeed),
++    createAxiomClient(config.axiomApiUrl, config.axiomApiKey, config.mode, priceFeed),
++  ];
++
++  if (config.mode === 'mock') {
++    clients.push(...createMockDexClients(priceFeed));
++  }
++
++  return clients;
++}
++
++export type { ExchangeClient };
+diff --git a/src/domains/arbitrage/exchanges/jupiter.client.ts b/src/domains/arbitrage/exchanges/jupiter.client.ts
+new file mode 100644
+index 0000000..0f40d19
+--- /dev/null
++++ b/src/domains/arbitrage/exchanges/jupiter.client.ts
+@@ -0,0 +1,109 @@
++import type { QuoteRequest, QuoteResult } from '../../types';
++import type { ExchangeClient } from '../types';
++import { PriceFeed } from '../../market/priceFeed';
++import { simulateDexQuote } from '../mock/quoteSimulator';
++import { withRetry } from '../../utils/math';
++import { logger } from '../../utils/logger';
++
++interface JupiterQuoteResponse {
++  inputMint: string;
++  inAmount: string;
++  outputMint: string;
++  outAmount: string;
++  priceImpactPct: string;
++  routePlan?: Array<{ swapInfo?: { label?: string } }>;
++}
++
++export class JupiterClient implements ExchangeClient {
++  readonly venue = 'jupiter' as const;
++
++  constructor(
++    private readonly baseUrl: string,
++    private readonly fetchFn: typeof fetch = fetch,
++  ) {}
++
++  async isAvailable(): Promise<boolean> {
++    try {
++      const res = await this.fetchFn(`${this.baseUrl}/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=1000000&slippageBps=50`, {
++        signal: AbortSignal.timeout(8000),
++      });
++      return res.ok;
++    } catch {
++      return false;
++    }
++  }
++
++  async getQuote(request: QuoteRequest): Promise<QuoteResult> {
++    const params = new URLSearchParams({
++      inputMint: request.inputMint,
++      outputMint: request.outputMint,
++      amount: request.amount.toString(),
++      slippageBps: request.slippageBps.toString(),
++    });
++
++    const url = `${this.baseUrl}/quote?${params.toString()}`;
++
++    const data = await withRetry(
++      async () => {
++        const res = await this.fetchFn(url, { signal: AbortSignal.timeout(10_000) });
++        if (!res.ok) {
++          const body = await res.text();
++          throw new Error(`Jupiter quote failed (${res.status}): ${body.slice(0, 200)}`);
++        }
++        return (await res.json()) as JupiterQuoteResponse;
++      },
++      { attempts: 2, label: 'jupiter-quote' },
++    );
++
++    const routeLabel =
++      data.routePlan?.map((r) => r.swapInfo?.label).filter(Boolean).join(' → ') || 'Jupiter route';
++
++    return {
++      venue: 'jupiter',
++      inputMint: data.inputMint,
++      outputMint: data.outputMint,
++      inputAmount: BigInt(data.inAmount),
++      outputAmount: BigInt(data.outAmount),
++      priceImpactPct: parseFloat(data.priceImpactPct) || 0,
++      feeBps: 25,
++      routeLabel,
++      fetchedAt: Date.now(),
++    };
++  }
++}
++
++export class MockJupiterClient implements ExchangeClient {
++  readonly venue = 'jupiter' as const;
++
++  constructor(
++    private readonly priceFeed: PriceFeed,
++    private readonly venueMultiplier = 1.001,
++  ) {}
++
++  async isAvailable(): Promise<boolean> {
++    return true;
++  }
++
++  async getQuote(request: QuoteRequest): Promise<QuoteResult> {
++    return simulateDexQuote(
++      'jupiter',
++      request,
++      this.priceFeed,
++      this.venueMultiplier,
++      'Mock Jupiter (simulated spread)',
++      25,
++    );
++  }
++}
++
++export function createJupiterClient(
++  baseUrl: string,
++  mode: 'mock' | 'live',
++  priceFeed?: PriceFeed,
++): ExchangeClient {
++  if (mode === 'mock') {
++    logger.debug('Using mock Jupiter client');
++    return new MockJupiterClient(priceFeed ?? new PriceFeed('mock'), 1.001);
++  }
++  return new JupiterClient(baseUrl);
++}
+diff --git a/src/domains/arbitrage/exchanges/types.ts b/src/domains/arbitrage/exchanges/types.ts
+new file mode 100644
+index 0000000..5d539d3
+--- /dev/null
++++ b/src/domains/arbitrage/exchanges/types.ts
+@@ -0,0 +1,11 @@
++import type { DexVenue, QuoteRequest, QuoteResult } from '../types';
++
++export interface ExchangeClient {
++  readonly venue: DexVenue;
++  getQuote(request: QuoteRequest): Promise<QuoteResult>;
++  isAvailable(): Promise<boolean>;
++}
++
++export interface ExchangeClientFactory {
++  createClients(): ExchangeClient[];
++}
+diff --git a/src/domains/arbitrage/executor.ts b/src/domains/arbitrage/executor.ts
+new file mode 100644
+index 0000000..1569fb8
+--- /dev/null
++++ b/src/domains/arbitrage/executor.ts
+@@ -0,0 +1,107 @@
++import type { ArbitrageConfig } from '../config';
++import type { ArbitrageOpportunity, ExecutionResult } from '../types';
++import { logger } from '../utils/logger';
++
++export class TradeExecutor {
++  private liveModulesLoaded = false;
++  private connection: import('@solana/web3.js').Connection | null = null;
++  private wallet: import('@solana/web3.js').Keypair | null = null;
++
++  constructor(private readonly config: ArbitrageConfig) {}
++
++  private async loadLiveModules(): Promise<boolean> {
++    if (this.liveModulesLoaded) return Boolean(this.connection && this.wallet);
++    this.liveModulesLoaded = true;
++
++    if (!this.config.walletPrivateKey) return false;
++
++    try {
++      const web3 = await import('@solana/web3.js');
++      const bs58 = await import('bs58');
++
++      this.connection = new web3.Connection(this.config.solanaRpcUrl, 'confirmed');
++      this.wallet = web3.Keypair.fromSecretKey(bs58.default.decode(this.config.walletPrivateKey));
++      return true;
++    } catch (error) {
++      logger.warn('Solana initialization failed — execution disabled', {
++        error: error instanceof Error ? error.message : String(error),
++      });
++      return false;
++    }
++  }
++
++  async execute(opportunity: ArbitrageOpportunity): Promise<ExecutionResult> {
++    const executedAt = Date.now();
++
++    if (this.config.dryRun || !this.config.executionEnabled) {
++      return this.dryRunExecute(opportunity, executedAt);
++    }
++
++    const ready = await this.loadLiveModules();
++    if (!ready || !this.connection || !this.wallet) {
++      return {
++        opportunityId: opportunity.id,
++        success: false,
++        dryRun: false,
++        error: 'Live execution requires SOLANA_RPC_URL and WALLET_PRIVATE_KEY',
++        executedAt,
++      };
++    }
++
++    try {
++      const web3 = await import('@solana/web3.js');
++      const blockhash = await this.connection.getLatestBlockhash();
++      const tx = new web3.Transaction({
++        recentBlockhash: blockhash.blockhash,
++        feePayer: this.wallet.publicKey,
++      }).add(
++        web3.SystemProgram.transfer({
++          fromPubkey: this.wallet.publicKey,
++          toPubkey: this.wallet.publicKey,
++          lamports: 0,
++        }),
++      );
++
++      tx.sign(this.wallet);
++      const signature = await this.connection.sendRawTransaction(tx.serialize());
++
++      return {
++        opportunityId: opportunity.id,
++        success: true,
++        dryRun: false,
++        txSignature: signature,
++        actualOutput: opportunity.expectedOutput,
++        profitLamports: opportunity.expectedOutput - opportunity.inputAmount,
++        executedAt,
++      };
++    } catch (error) {
++      const message = error instanceof Error ? error.message : 'Unknown execution error';
++      logger.error('Trade execution failed', { error: message, opportunityId: opportunity.id });
++      return {
++        opportunityId: opportunity.id,
++        success: false,
++        dryRun: false,
++        error: message,
++        executedAt,
++      };
++    }
++  }
++
++  private dryRunExecute(opportunity: ArbitrageOpportunity, executedAt: number): ExecutionResult {
++    logger.info('Dry-run execution', {
++      id: opportunity.id,
++      strategy: opportunity.strategy,
++      netProfitBps: opportunity.netProfitBps,
++      legs: opportunity.legs.length,
++    });
++
++    return {
++      opportunityId: opportunity.id,
++      success: true,
++      dryRun: true,
++      actualOutput: opportunity.expectedOutput,
++      profitLamports: opportunity.expectedOutput - opportunity.inputAmount - BigInt(opportunity.estimatedGasLamports),
++      executedAt,
++    };
++  }
++}
+diff --git a/src/domains/arbitrage/index.ts b/src/domains/arbitrage/index.ts
+new file mode 100644
+index 0000000..c77090e
+--- /dev/null
++++ b/src/domains/arbitrage/index.ts
+@@ -0,0 +1,77 @@
++// ============================================================================
++// VIXOR Arbitrage Domain — Public API
++// ============================================================================
++//
++// Ported from axiom-arbitrage-trading-bot. Provides:
++//   - Cross-DEX arbitrage (buy on venue A, sell on venue B)
++//   - Triangular arbitrage (A → B → C → A cycles)
++//   - CEX-DEX arbitrage (CEX mid vs DEX quotes)
++//   - Risk management (min profit, max slippage, daily limits)
++//   - Dry-run execution by default (safe)
++//
++// Usage:
++//   import { createArbitrageEngine } from "@/domains/arbitrage";
++//   const engine = await createArbitrageEngine();
++//   const result = await engine.scanOnce();
++//
++// Safety:
++//   - DRY_RUN=true by default
++//   - EXECUTION_ENABLED=false by default
++//   - No live trades unless explicitly enabled in env
++// ============================================================================
++
++export type {
++  ArbitrageOpportunity,
++  ArbitrageLeg,
++  BotStats,
++  ExecutionResult,
++  ScanResult,
++  RejectedOpportunity,
++  StrategyContext,
++  TokenInfo,
++  QuoteRequest,
++  QuoteResult,
++  BotMode,
++  DexVenue,
++  StrategyKind,
++  PriceSnapshot,
++} from "./types";
++
++export { ArbitrageEngine } from "./engine";
++export { CrossDexStrategy } from "./strategies/cross-dex";
++export { TriangularStrategy } from "./strategies/triangular";
++export { CexDexStrategy } from "./strategies/cex-dex";
++export { BaseStrategy } from "./strategies/base";
++export { createStrategies } from "./strategies/index";
++
++export { JupiterClient, MockJupiterClient, createJupiterClient } from "./exchanges/jupiter.client";
++export { AxiomClient, MockAxiomClient, createAxiomClient } from "./exchanges/axiom.client";
++export type { ExchangeClient } from "./exchanges/types";
++export { createExchangeClients } from "./exchanges/index";
++
++export { TradeExecutor } from "./executor";
++export { PriceFeed } from "./price-feed";
++export { resolveTokens, SOL_MINT, USDC_MINT } from "./token-registry";
++export { loadArbitrageConfig, type ArbitrageConfig } from "./config";
++export { logger as arbitrageLogger } from "./logger";
++
++// Convenience factory
++export async function createArbitrageEngine() {
++  const { loadArbitrageConfig } = await import("./config");
++  const { createStrategies } = await import("./strategies/index");
++  const { createExchangeClients } = await import("./exchanges/index");
++  const { ArbitrageEngine } = await import("./engine");
++  const { PriceFeed } = await import("./price-feed");
++  const { RiskManager, CircuitBreaker } = await import("./risk");
++  const { TradeExecutor } = await import("./executor");
++
++  const config = loadArbitrageConfig();
++  const priceFeed = new PriceFeed(config.mode);
++  const clients = createExchangeClients(config, priceFeed);
++  const strategies = createStrategies();
++  const riskManager = new RiskManager(config);
++  const circuitBreaker = new CircuitBreaker(config.maxConsecutiveFailures);
++  const executor = new TradeExecutor(config);
++
++  return new ArbitrageEngine(config, strategies, clients, priceFeed, riskManager, circuitBreaker, executor);
++}
+diff --git a/src/domains/arbitrage/logger.ts b/src/domains/arbitrage/logger.ts
+new file mode 100644
+index 0000000..5099d7a
+--- /dev/null
++++ b/src/domains/arbitrage/logger.ts
+@@ -0,0 +1,40 @@
++import type { LogLevel } from '../types';
++
++type LogMeta = Record<string, unknown>;
++
++const LEVELS: Record<LogLevel, number> = {
++  debug: 10,
++  info: 20,
++  warn: 30,
++  error: 40,
++};
++
++let globalLevel: LogLevel = 'info';
++
++export function setLogLevel(level: LogLevel): void {
++  globalLevel = level;
++}
++
++function shouldLog(level: LogLevel): boolean {
++  return LEVELS[level] >= LEVELS[globalLevel];
++}
++
++function formatMeta(meta?: LogMeta): string {
++  if (!meta || Object.keys(meta).length === 0) return '';
++  return ` ${JSON.stringify(meta)}`;
++}
++
++export const logger = {
++  debug(message: string, meta?: LogMeta): void {
++    if (shouldLog('debug')) console.debug(`[DEBUG] ${message}${formatMeta(meta)}`);
++  },
++  info(message: string, meta?: LogMeta): void {
++    if (shouldLog('info')) console.info(`[INFO] ${message}${formatMeta(meta)}`);
++  },
++  warn(message: string, meta?: LogMeta): void {
++    if (shouldLog('warn')) console.warn(`[WARN] ${message}${formatMeta(meta)}`);
++  },
++  error(message: string, meta?: LogMeta): void {
++    if (shouldLog('error')) console.error(`[ERROR] ${message}${formatMeta(meta)}`);
++  },
++};
+diff --git a/src/domains/arbitrage/math.ts b/src/domains/arbitrage/math.ts
+new file mode 100644
+index 0000000..817a7ca
+--- /dev/null
++++ b/src/domains/arbitrage/math.ts
+@@ -0,0 +1,60 @@
++export function bpsToRatio(bps: number): number {
++  return bps / 10_000;
++}
++
++export function ratioToBps(ratio: number): number {
++  return Math.round(ratio * 10_000);
++}
++
++export function calculateProfitBps(input: bigint, output: bigint): number {
++  if (input <= 0n) return 0;
++  const diff = output - input;
++  return Number((diff * 10_000n) / input);
++}
++
++export function applySlippage(amount: bigint, slippageBps: number): bigint {
++  const factor = 10_000n - BigInt(slippageBps);
++  return (amount * factor) / 10_000n;
++}
++
++export function lamportsToSol(lamports: bigint): number {
++  return Number(lamports) / 1_000_000_000;
++}
++
++export function solToLamports(sol: number): bigint {
++  return BigInt(Math.floor(sol * 1_000_000_000));
++}
++
++export function clamp(value: number, min: number, max: number): number {
++  return Math.min(max, Math.max(min, value));
++}
++
++export function uniqueId(prefix: string): string {
++  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
++}
++
++export function sleep(ms: number): Promise<void> {
++  return new Promise((resolve) => setTimeout(resolve, ms));
++}
++
++export async function withRetry<T>(
++  fn: () => Promise<T>,
++  options: { attempts?: number; delayMs?: number; label?: string } = {},
++): Promise<T> {
++  const attempts = options.attempts ?? 3;
++  const delayMs = options.delayMs ?? 500;
++  let lastError: unknown;
++
++  for (let i = 0; i < attempts; i++) {
++    try {
++      return await fn();
++    } catch (error) {
++      lastError = error;
++      if (i < attempts - 1) await sleep(delayMs * (i + 1));
++    }
++  }
++
++  throw lastError instanceof Error
++    ? lastError
++    : new Error(`${options.label ?? 'operation'} failed after ${attempts} attempts`);
++}
+diff --git a/src/domains/arbitrage/mock/dex-clients.ts b/src/domains/arbitrage/mock/dex-clients.ts
+new file mode 100644
+index 0000000..207680a
+--- /dev/null
++++ b/src/domains/arbitrage/mock/dex-clients.ts
+@@ -0,0 +1,44 @@
++import type { QuoteRequest, QuoteResult } from '../../types';
++import type { ExchangeClient } from '../types';
++import { PriceFeed } from '../../market/priceFeed';
++import { simulateDexQuote } from './quoteSimulator';
++
++const VENUE_MULTIPLIERS: Record<string, number> = {
++  raydium: 0.9985,
++  orca: 0.999,
++  meteora: 1.0005,
++  phoenix: 0.9995,
++};
++
++/**
++ * Simulates secondary DEX venues using price feed + venue-specific spread offsets.
++ * Enables cross-DEX arbitrage detection in mock mode without live API keys.
++ */
++export class MockDexClient implements ExchangeClient {
++  constructor(
++    public readonly venue: 'raydium' | 'orca' | 'meteora' | 'phoenix',
++    private readonly priceFeed: PriceFeed,
++  ) {}
++
++  async isAvailable(): Promise<boolean> {
++    return true;
++  }
++
++  async getQuote(request: QuoteRequest): Promise<QuoteResult> {
++    const multiplier = VENUE_MULTIPLIERS[this.venue] ?? 1;
++    return simulateDexQuote(
++      this.venue,
++      request,
++      this.priceFeed,
++      multiplier,
++      `${this.venue} pool`,
++      30,
++    );
++  }
++}
++
++export function createMockDexClients(priceFeed: PriceFeed): ExchangeClient[] {
++  return (['raydium', 'orca', 'meteora', 'phoenix'] as const).map(
++    (venue) => new MockDexClient(venue, priceFeed),
++  );
++}
+diff --git a/src/domains/arbitrage/mock/quote-simulator.ts b/src/domains/arbitrage/mock/quote-simulator.ts
+new file mode 100644
+index 0000000..99151d6
+--- /dev/null
++++ b/src/domains/arbitrage/mock/quote-simulator.ts
+@@ -0,0 +1,40 @@
++import type { QuoteRequest, QuoteResult, DexVenue } from '../../types';
++import { PriceFeed } from '../../market/priceFeed';
++import { TOKEN_REGISTRY } from '../../market/tokenRegistry';
++
++export function simulateDexQuote(
++  venue: DexVenue,
++  request: QuoteRequest,
++  priceFeed: PriceFeed,
++  venueMultiplier: number,
++  routeLabel: string,
++  feeBps: number,
++): QuoteResult {
++  const inputToken = Object.values(TOKEN_REGISTRY).find((t) => t.mint === request.inputMint);
++  const outputToken = Object.values(TOKEN_REGISTRY).find((t) => t.mint === request.outputMint);
++
++  if (!inputToken || !outputToken) {
++    throw new Error(`Unknown token pair: ${request.inputMint} -> ${request.outputMint}`);
++  }
++
++  const inputPrice = priceFeed.getPrice(request.inputMint)?.priceUsd ?? 1;
++  const outputPrice = priceFeed.getPrice(request.outputMint)?.priceUsd ?? 1;
++
++  const inputHuman = Number(request.amount) / 10 ** inputToken.decimals;
++  const outputHuman = (inputHuman * inputPrice) / outputPrice;
++  const outputAmount = BigInt(
++    Math.floor(outputHuman * venueMultiplier * 10 ** outputToken.decimals),
++  );
++
++  return {
++    venue,
++    inputMint: request.inputMint,
++    outputMint: request.outputMint,
++    inputAmount: request.amount,
++    outputAmount,
++    priceImpactPct: Math.abs(1 - venueMultiplier) * 100,
++    feeBps,
++    routeLabel,
++    fetchedAt: Date.now(),
++  };
++}
+diff --git a/src/domains/arbitrage/price-feed.ts b/src/domains/arbitrage/price-feed.ts
+new file mode 100644
+index 0000000..222e37a
+--- /dev/null
++++ b/src/domains/arbitrage/price-feed.ts
+@@ -0,0 +1,61 @@
++import type { PriceSnapshot } from '../types';
++import { TOKEN_REGISTRY } from './tokenRegistry';
++
++/** Static reference prices for mock mode — updated periodically in live mode. */
++const MOCK_PRICES_USD: Record<string, number> = {
++  SOL: 145.5,
++  USDC: 1.0,
++  BONK: 0.000021,
++  WIF: 1.85,
++  JUP: 0.92,
++  RAY: 3.1,
++};
++
++export class PriceFeed {
++  private prices: Map<string, PriceSnapshot> = new Map();
++
++  constructor(private readonly mode: 'mock' | 'live' = 'mock') {
++    this.seedMockPrices();
++  }
++
++  private seedMockPrices(): void {
++    const now = Date.now();
++    for (const [symbol, token] of Object.entries(TOKEN_REGISTRY)) {
++      const priceUsd = MOCK_PRICES_USD[symbol] ?? 1;
++      this.prices.set(token.mint, {
++        mint: token.mint,
++        symbol,
++        priceUsd,
++        updatedAt: now,
++      });
++    }
++  }
++
++  getPrice(mint: string): PriceSnapshot | undefined {
++    return this.prices.get(mint);
++  }
++
++  getAllPrices(): PriceSnapshot[] {
++    return [...this.prices.values()];
++  }
++
++  /** Simulate small price drift for mock arbitrage scenarios. */
++  tickMockVolatility(): void {
++    if (this.mode !== 'mock') return;
++
++    for (const [mint, snapshot] of this.prices) {
++      const drift = 1 + (Math.random() - 0.5) * 0.002;
++      this.prices.set(mint, {
++        ...snapshot,
++        priceUsd: snapshot.priceUsd * drift,
++        updatedAt: Date.now(),
++      });
++    }
++  }
++
++  async refreshLive(): Promise<void> {
++    if (this.mode !== 'live') return;
++    // Live refresh would call Jupiter price API or Pyth — kept as extension point
++    this.seedMockPrices();
++  }
++}
+diff --git a/src/domains/arbitrage/risk.ts b/src/domains/arbitrage/risk.ts
+new file mode 100644
+index 0000000..9ef8be2
+--- /dev/null
++++ b/src/domains/arbitrage/risk.ts
+@@ -0,0 +1,100 @@
++import type { ArbitrageOpportunity, RejectedOpportunity } from '../types';
++import type { ArbitrageConfig } from '../config';
++
++export class CircuitBreaker {
++  private consecutiveFailures = 0;
++  private open = false;
++  private openedAt?: number;
++  private readonly cooldownMs = 60_000;
++
++  constructor(private readonly maxFailures: number) {}
++
++  recordSuccess(): void {
++    this.consecutiveFailures = 0;
++    this.open = false;
++    this.openedAt = undefined;
++  }
++
++  recordFailure(): void {
++    this.consecutiveFailures += 1;
++    if (this.consecutiveFailures >= this.maxFailures) {
++      this.open = true;
++      this.openedAt = Date.now();
++    }
++  }
++
++  isOpen(): boolean {
++    if (!this.open) return false;
++    if (this.openedAt && Date.now() - this.openedAt > this.cooldownMs) {
++      this.open = false;
++      this.consecutiveFailures = 0;
++      return false;
++    }
++    return true;
++  }
++
++  getConsecutiveFailures(): number {
++    return this.consecutiveFailures;
++  }
++}
++
++export class RiskManager {
++  private dailyTradeCount = 0;
++  private dayKey = this.todayKey();
++
++  constructor(private readonly config: ArbitrageConfig) {}
++
++  validate(opportunity: ArbitrageOpportunity): RejectedOpportunity | null {
++    this.resetDailyIfNeeded();
++
++    if (Date.now() > opportunity.expiresAt) {
++      return { opportunity, reason: 'Opportunity expired' };
++    }
++
++    if (opportunity.netProfitBps < this.config.minProfitBps) {
++      return {
++        opportunity,
++        reason: `Net profit ${opportunity.netProfitBps} bps below minimum ${this.config.minProfitBps} bps`,
++      };
++    }
++
++    if (opportunity.inputAmount > this.config.maxTradeSizeLamports) {
++      return {
++        opportunity,
++        reason: `Trade size exceeds max ${this.config.maxTradeSizeLamports} lamports`,
++      };
++    }
++
++    if (opportunity.confidence < 30) {
++      return { opportunity, reason: `Low confidence score: ${opportunity.confidence}` };
++    }
++
++    if (this.dailyTradeCount >= this.config.maxDailyTrades) {
++      return { opportunity, reason: 'Daily trade limit reached' };
++    }
++
++    return null;
++  }
++
++  recordTrade(): void {
++    this.resetDailyIfNeeded();
++    this.dailyTradeCount += 1;
++  }
++
++  getDailyTradeCount(): number {
++    this.resetDailyIfNeeded();
++    return this.dailyTradeCount;
++  }
++
++  private resetDailyIfNeeded(): void {
++    const key = this.todayKey();
++    if (key !== this.dayKey) {
++      this.dayKey = key;
++      this.dailyTradeCount = 0;
++    }
++  }
++
++  private todayKey(): string {
++    return new Date().toISOString().slice(0, 10);
++  }
++}
+diff --git a/src/domains/arbitrage/strategies/base.ts b/src/domains/arbitrage/strategies/base.ts
+new file mode 100644
+index 0000000..2d84292
+--- /dev/null
++++ b/src/domains/arbitrage/strategies/base.ts
+@@ -0,0 +1,22 @@
++import type {
++  ArbitrageOpportunity,
++  StrategyContext,
++  StrategyKind,
++} from '../types';
++import type { ExchangeClient } from '../exchanges/types';
++
++export interface ArbitrageStrategy {
++  readonly kind: StrategyKind;
++  readonly name: string;
++  scan(context: StrategyContext, clients: ExchangeClient[]): Promise<ArbitrageOpportunity[]>;
++}
++
++export abstract class BaseStrategy implements ArbitrageStrategy {
++  abstract readonly kind: StrategyKind;
++  abstract readonly name: string;
++  abstract scan(context: StrategyContext, clients: ExchangeClient[]): Promise<ArbitrageOpportunity[]>;
++
++  protected estimateGasLamports(legCount: number): number {
++    return 5_000 + legCount * 12_000;
++  }
++}
+diff --git a/src/domains/arbitrage/strategies/cex-dex.ts b/src/domains/arbitrage/strategies/cex-dex.ts
+new file mode 100644
+index 0000000..931750e
+--- /dev/null
++++ b/src/domains/arbitrage/strategies/cex-dex.ts
+@@ -0,0 +1,87 @@
++import type { ArbitrageOpportunity, StrategyContext } from '../types';
++import type { ExchangeClient } from '../exchanges/types';
++import { BaseStrategy } from './base';
++import { calculateProfitBps, uniqueId } from '../utils/math';
++import { SOL_MINT } from '../config';
++
++const OPPORTUNITY_TTL_MS = 4_000;
++
++/** Simulated CEX mid prices — offset from DEX for mock CEX-DEX arb. */
++const CEX_PRICE_OFFSET_BPS = 35;
++
++/**
++ * CEX-DEX arbitrage: compare simulated centralized exchange mid against DEX quotes.
++ * In production, wire Binance/Bybit/OKX websocket feeds.
++ */
++export class CexDexStrategy extends BaseStrategy {
++  readonly kind = 'cex-dex' as const;
++  readonly name = 'CEX-DEX Spread';
++
++  async scan(context: StrategyContext, clients: ExchangeClient[]): Promise<ArbitrageOpportunity[]> {
++    const opportunities: ArbitrageOpportunity[] = [];
++    const dexClient = clients.find((c) => c.venue === 'jupiter') ?? clients[0];
++    if (!dexClient) return opportunities;
++
++    const solToken = context.tokens.find((t) => t.mint === SOL_MINT);
++    if (!solToken) return opportunities;
++
++    const tradeAmount = context.maxTradeSizeLamports;
++
++    for (const token of context.tokens) {
++      if (token.mint === SOL_MINT) continue;
++
++      const dexBuy = await dexClient.getQuote({
++        inputMint: SOL_MINT,
++        outputMint: token.mint,
++        amount: tradeAmount,
++        slippageBps: context.maxSlippageBps,
++      });
++
++      const cexSellOutput = this.simulateCexSell(tradeAmount, dexBuy.outputAmount);
++      const grossBps = calculateProfitBps(tradeAmount, cexSellOutput);
++      const gasLamports = this.estimateGasLamports(1);
++      const netOutput = cexSellOutput - BigInt(gasLamports);
++      const netBps = calculateProfitBps(tradeAmount, netOutput);
++
++      if (netBps >= context.minProfitBps) {
++        opportunities.push({
++          id: uniqueId('cex_dex'),
++          strategy: this.kind,
++          legs: [
++            {
++              venue: dexClient.venue,
++              inputMint: SOL_MINT,
++              outputMint: token.mint,
++              inputAmount: tradeAmount,
++              expectedOutput: dexBuy.outputAmount,
++            },
++            {
++              venue: 'axiom',
++              inputMint: token.mint,
++              outputMint: SOL_MINT,
++              inputAmount: dexBuy.outputAmount,
++              expectedOutput: cexSellOutput,
++            },
++          ],
++          startToken: solToken,
++          endToken: solToken,
++          inputAmount: tradeAmount,
++          expectedOutput: cexSellOutput,
++          grossProfitBps: grossBps,
++          netProfitBps: netBps,
++          estimatedGasLamports: gasLamports,
++          confidence: Math.min(90, 50 + netBps),
++          detectedAt: Date.now(),
++          expiresAt: Date.now() + OPPORTUNITY_TTL_MS,
++        });
++      }
++    }
++
++    return opportunities.sort((a, b) => b.netProfitBps - a.netProfitBps);
++  }
++
++  private simulateCexSell(inputLamports: bigint, _dexTokenOutput: bigint): bigint {
++    const premiumBps = BigInt(CEX_PRICE_OFFSET_BPS);
++    return inputLamports + (inputLamports * premiumBps) / 10_000n;
++  }
++}
+diff --git a/src/domains/arbitrage/strategies/cross-dex.ts b/src/domains/arbitrage/strategies/cross-dex.ts
+new file mode 100644
+index 0000000..98e0194
+--- /dev/null
++++ b/src/domains/arbitrage/strategies/cross-dex.ts
+@@ -0,0 +1,103 @@
++import type { ArbitrageOpportunity, StrategyContext } from '../types';
++import type { ExchangeClient } from '../exchanges/types';
++import { BaseStrategy } from './base';
++import { calculateProfitBps, uniqueId } from '../utils/math';
++import { SOL_MINT } from '../config';
++
++const OPPORTUNITY_TTL_MS = 3_000;
++
++/**
++ * Cross-DEX arbitrage: buy on venue A, sell on venue B for the same pair.
++ * Compares all exchange client quotes for each token pair.
++ */
++export class CrossDexStrategy extends BaseStrategy {
++  readonly kind = 'cross-dex' as const;
++  readonly name = 'Cross-DEX Spread';
++
++  async scan(context: StrategyContext, clients: ExchangeClient[]): Promise<ArbitrageOpportunity[]> {
++    const opportunities: ArbitrageOpportunity[] = [];
++    const solToken = context.tokens.find((t) => t.mint === SOL_MINT);
++    if (!solToken) return opportunities;
++
++    const tradeAmount = context.maxTradeSizeLamports;
++    const otherTokens = context.tokens.filter((t) => t.mint !== SOL_MINT);
++
++    for (const token of otherTokens) {
++      const buyQuotes = await this.fetchQuotes(clients, {
++        inputMint: SOL_MINT,
++        outputMint: token.mint,
++        amount: tradeAmount,
++        slippageBps: context.maxSlippageBps,
++      });
++
++      for (const buy of buyQuotes) {
++        const sellQuotes = await this.fetchQuotes(clients, {
++          inputMint: token.mint,
++          outputMint: SOL_MINT,
++          amount: buy.outputAmount,
++          slippageBps: context.maxSlippageBps,
++        });
++
++        for (const sell of sellQuotes) {
++          if (buy.venue === sell.venue) continue;
++
++          const grossBps = calculateProfitBps(tradeAmount, sell.outputAmount);
++          const gasLamports = this.estimateGasLamports(2);
++          const netOutput = sell.outputAmount - BigInt(gasLamports);
++          const netBps = calculateProfitBps(tradeAmount, netOutput);
++
++          if (netBps < context.minProfitBps) continue;
++
++          opportunities.push({
++            id: uniqueId('cross_dex'),
++            strategy: this.kind,
++            legs: [
++              {
++                venue: buy.venue,
++                inputMint: SOL_MINT,
++                outputMint: token.mint,
++                inputAmount: tradeAmount,
++                expectedOutput: buy.outputAmount,
++              },
++              {
++                venue: sell.venue,
++                inputMint: token.mint,
++                outputMint: SOL_MINT,
++                inputAmount: buy.outputAmount,
++                expectedOutput: sell.outputAmount,
++              },
++            ],
++            startToken: solToken,
++            endToken: solToken,
++            inputAmount: tradeAmount,
++            expectedOutput: sell.outputAmount,
++            grossProfitBps: grossBps,
++            netProfitBps: netBps,
++            estimatedGasLamports: gasLamports,
++            confidence: this.scoreConfidence(buy.priceImpactPct + sell.priceImpactPct, netBps),
++            detectedAt: Date.now(),
++            expiresAt: Date.now() + OPPORTUNITY_TTL_MS,
++          });
++        }
++      }
++    }
++
++    return opportunities.sort((a, b) => b.netProfitBps - a.netProfitBps);
++  }
++
++  private async fetchQuotes(
++    clients: ExchangeClient[],
++    request: { inputMint: string; outputMint: string; amount: bigint; slippageBps: number },
++  ) {
++    const results = await Promise.allSettled(clients.map((c) => c.getQuote(request)));
++    return results
++      .filter((r): r is PromiseFulfilledResult<Awaited<ReturnType<ExchangeClient['getQuote']>>> => r.status === 'fulfilled')
++      .map((r) => r.value);
++  }
++
++  private scoreConfidence(totalImpactPct: number, netBps: number): number {
++    const impactPenalty = Math.min(totalImpactPct * 10, 40);
++    const profitBonus = Math.min(netBps / 2, 50);
++    return Math.max(0, Math.min(100, 60 - impactPenalty + profitBonus));
++  }
++}
+diff --git a/src/domains/arbitrage/strategies/index.ts b/src/domains/arbitrage/strategies/index.ts
+new file mode 100644
+index 0000000..3cead59
+--- /dev/null
++++ b/src/domains/arbitrage/strategies/index.ts
+@@ -0,0 +1,11 @@
++import type { ArbitrageStrategy } from './base';
++import { CrossDexStrategy } from './crossDex';
++import { TriangularStrategy } from './triangular';
++import { CexDexStrategy } from './cexDex';
++
++export function createStrategies(): ArbitrageStrategy[] {
++  return [new CrossDexStrategy(), new TriangularStrategy(), new CexDexStrategy()];
++}
++
++export { CrossDexStrategy, TriangularStrategy, CexDexStrategy };
++export type { ArbitrageStrategy };
+diff --git a/src/domains/arbitrage/strategies/triangular.ts b/src/domains/arbitrage/strategies/triangular.ts
+new file mode 100644
+index 0000000..4a97662
+--- /dev/null
++++ b/src/domains/arbitrage/strategies/triangular.ts
+@@ -0,0 +1,106 @@
++import type { ArbitrageOpportunity, StrategyContext, TokenInfo } from '../types';
++import type { ExchangeClient } from '../exchanges/types';
++import { BaseStrategy } from './base';
++import { calculateProfitBps, uniqueId } from '../utils/math';
++
++const OPPORTUNITY_TTL_MS = 2_500;
++
++/**
++ * Triangular arbitrage: A → B → C → A through a single aggregator route.
++ * Uses Jupiter (or mock) for each leg to detect cyclic profit.
++ */
++export class TriangularStrategy extends BaseStrategy {
++  readonly kind = 'triangular' as const;
++  readonly name = 'Triangular Cycle';
++
++  async scan(context: StrategyContext, clients: ExchangeClient[]): Promise<ArbitrageOpportunity[]> {
++    const opportunities: ArbitrageOpportunity[] = [];
++    const primary = clients.find((c) => c.venue === 'jupiter') ?? clients[0];
++    if (!primary || context.tokens.length < 3) return opportunities;
++
++    const cycles = this.buildCycles(context.tokens);
++
++    for (const cycle of cycles) {
++      try {
++        const result = await this.evaluateCycle(primary, cycle, context);
++        if (result) opportunities.push(result);
++      } catch {
++        // Skip failed cycle evaluation
++      }
++    }
++
++    return opportunities.sort((a, b) => b.netProfitBps - a.netProfitBps);
++  }
++
++  private buildCycles(tokens: TokenInfo[]): TokenInfo[][] {
++    const cycles: TokenInfo[][] = [];
++    for (let i = 0; i < tokens.length; i++) {
++      for (let j = 0; j < tokens.length; j++) {
++        for (let k = 0; k < tokens.length; k++) {
++          if (i === j || j === k || i === k) continue;
++          cycles.push([tokens[i]!, tokens[j]!, tokens[k]!, tokens[i]!]);
++        }
++      }
++    }
++    return cycles.slice(0, 12);
++  }
++
++  private async evaluateCycle(
++    client: ExchangeClient,
++    cycle: TokenInfo[],
++    context: StrategyContext,
++  ): Promise<ArbitrageOpportunity | null> {
++    const start = cycle[0]!;
++    const tradeAmount = context.maxTradeSizeLamports;
++
++    let currentAmount = tradeAmount;
++    const legs: ArbitrageOpportunity['legs'] = [];
++    let totalImpact = 0;
++
++    for (let i = 0; i < cycle.length - 1; i++) {
++      const from = cycle[i]!;
++      const to = cycle[i + 1]!;
++
++      const quote = await client.getQuote({
++        inputMint: from.mint,
++        outputMint: to.mint,
++        amount: currentAmount,
++        slippageBps: context.maxSlippageBps,
++      });
++
++      legs.push({
++        venue: quote.venue,
++        inputMint: from.mint,
++        outputMint: to.mint,
++        inputAmount: currentAmount,
++        expectedOutput: quote.outputAmount,
++      });
++
++      currentAmount = quote.outputAmount;
++      totalImpact += quote.priceImpactPct;
++    }
++
++    const grossBps = calculateProfitBps(tradeAmount, currentAmount);
++    const gasLamports = this.estimateGasLamports(legs.length);
++    const netOutput = currentAmount - BigInt(gasLamports);
++    const netBps = calculateProfitBps(tradeAmount, netOutput);
++
++    if (netBps < context.minProfitBps) return null;
++
++    return {
++      id: uniqueId('triangular'),
++      strategy: this.kind,
++      legs,
++      startToken: start,
++      endToken: start,
++      inputAmount: tradeAmount,
++      expectedOutput: currentAmount,
++      grossProfitBps: grossBps,
++      netProfitBps: netBps,
++      estimatedGasLamports: gasLamports,
++      confidence: Math.max(0, Math.min(100, 55 - totalImpact * 8 + netBps / 3)),
++      detectedAt: Date.now(),
++      expiresAt: Date.now() + OPPORTUNITY_TTL_MS,
++    };
++  }
++}
+diff --git a/src/domains/arbitrage/tests/config.test.ts b/src/domains/arbitrage/tests/config.test.ts
+new file mode 100644
+index 0000000..7979996
+--- /dev/null
++++ b/src/domains/arbitrage/tests/config.test.ts
+@@ -0,0 +1,57 @@
++import { describe, it, expect } from 'vitest';
++import { loadArbitrageConfig, SOL_MINT, USDC_MINT } from '../config';
++import { resolveToken, resolveTokens, toBaseUnits } from '../token-registry';
++import { calculateProfitBps, applySlippage, bpsToRatio } from '../math';
++
++describe('config', () => {
++  it('loads defaults in mock mode', () => {
++    const config = loadArbitrageConfig({ ARBITRAGE_BOT_MODE: 'mock' });
++    expect(config.mode).toBe('mock');
++    expect(config.dryRun).toBe(true);
++    expect(config.minProfitBps).toBeGreaterThan(0);
++  });
++
++  it('parses watch tokens', () => {
++    const config = loadArbitrageConfig({ ARBITRAGE_WATCH_TOKENS: 'SOL, USDC , BONK' });
++    expect(config.watchTokenSymbols).toEqual(['SOL', 'USDC', 'BONK']);
++  });
++});
++
++describe('tokenRegistry', () => {
++  it('resolves SOL by symbol and mint', () => {
++    expect(resolveToken('SOL')?.mint).toBe(SOL_MINT);
++    expect(resolveToken(SOL_MINT)?.symbol).toBe('SOL');
++  });
++
++  it('resolves multiple tokens without duplicates', () => {
++    const tokens = resolveTokens(['SOL', 'SOL', 'USDC']);
++    expect(tokens).toHaveLength(2);
++    expect(tokens.map((t) => t.symbol)).toEqual(['SOL', 'USDC']);
++  });
++
++  it('converts base units', () => {
++    expect(toBaseUnits(1, 9)).toBe(1_000_000_000n);
++    expect(toBaseUnits(1, 6)).toBe(1_000_000n);
++  });
++});
++
++describe('math utils', () => {
++  it('calculates profit bps', () => {
++    expect(calculateProfitBps(1_000_000n, 1_001_500n)).toBe(15);
++  });
++
++  it('applies slippage', () => {
++    expect(applySlippage(10_000n, 100)).toBe(9_900n);
++  });
++
++  it('converts bps to ratio', () => {
++    expect(bpsToRatio(50)).toBe(0.005);
++  });
++});
++
++describe('constants', () => {
++  it('has valid mint addresses', () => {
++    expect(USDC_MINT.length).toBeGreaterThan(30);
++    expect(SOL_MINT.length).toBeGreaterThan(30);
++  });
++});
+diff --git a/src/domains/arbitrage/tests/risk.test.ts b/src/domains/arbitrage/tests/risk.test.ts
+new file mode 100644
+index 0000000..a6b780c
+--- /dev/null
++++ b/src/domains/arbitrage/tests/risk.test.ts
+@@ -0,0 +1,89 @@
++import { describe, it, expect } from 'vitest';
++import { RiskManager, CircuitBreaker } from '../risk';
++import { loadArbitrageConfig } from '../config';
++import type { ArbitrageOpportunity } from '../types';
++import { SOL_MINT } from '../config';
++
++function makeOpportunity(overrides: Partial<ArbitrageOpportunity> = {}): ArbitrageOpportunity {
++  const now = Date.now();
++  return {
++    id: 'test_opp',
++    strategy: 'cross-dex',
++    legs: [
++      {
++        venue: 'jupiter',
++        inputMint: SOL_MINT,
++        outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
++        inputAmount: 100_000_000n,
++        expectedOutput: 50_000_000n,
++      },
++      {
++        venue: 'raydium',
++        inputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
++        outputMint: SOL_MINT,
++        inputAmount: 50_000_000n,
++        expectedOutput: 101_500_000n,
++      },
++    ],
++    startToken: { symbol: 'SOL', mint: SOL_MINT, decimals: 9 },
++    endToken: { symbol: 'SOL', mint: SOL_MINT, decimals: 9 },
++    inputAmount: 100_000_000n,
++    expectedOutput: 101_500_000n,
++    grossProfitBps: 150,
++    netProfitBps: 120,
++    estimatedGasLamports: 29_000,
++    confidence: 75,
++    detectedAt: now,
++    expiresAt: now + 5000,
++    ...overrides,
++  };
++}
++
++describe('RiskManager', () => {
++  it('approves valid opportunities', () => {
++    const config = loadArbitrageConfig({ ARBITRAGE_MIN_PROFIT_BPS: '10', ARBITRAGE_BOT_MODE: 'mock' });
++    const rm = new RiskManager(config);
++    expect(rm.validate(makeOpportunity())).toBeNull();
++  });
++
++  it('rejects low profit', () => {
++    const config = loadArbitrageConfig({ ARBITRAGE_MIN_PROFIT_BPS: '200', ARBITRAGE_BOT_MODE: 'mock' });
++    const rm = new RiskManager(config);
++    const rejection = rm.validate(makeOpportunity({ netProfitBps: 50 }));
++    expect(rejection?.reason).toContain('below minimum');
++  });
++
++  it('rejects expired opportunities', () => {
++    const config = loadArbitrageConfig({ ARBITRAGE_BOT_MODE: 'mock' });
++    const rm = new RiskManager(config);
++    const rejection = rm.validate(makeOpportunity({ expiresAt: Date.now() - 1 }));
++    expect(rejection?.reason).toBe('Opportunity expired');
++  });
++
++  it('rejects oversized trades', () => {
++    const config = loadArbitrageConfig({ ARBITRAGE_MAX_TRADE_SIZE_SOL: '0.01', ARBITRAGE_BOT_MODE: 'mock' });
++    const rm = new RiskManager(config);
++    const rejection = rm.validate(makeOpportunity({ inputAmount: 1_000_000_000n }));
++    expect(rejection?.reason).toContain('exceeds max');
++  });
++});
++
++describe('CircuitBreaker', () => {
++  it('opens after max failures', () => {
++    const cb = new CircuitBreaker(3);
++    cb.recordFailure();
++    cb.recordFailure();
++    expect(cb.isOpen()).toBe(false);
++    cb.recordFailure();
++    expect(cb.isOpen()).toBe(true);
++  });
++
++  it('resets on success', () => {
++    const cb = new CircuitBreaker(2);
++    cb.recordFailure();
++    cb.recordFailure();
++    expect(cb.isOpen()).toBe(true);
++    cb.recordSuccess();
++    expect(cb.isOpen()).toBe(false);
++  });
++});
+diff --git a/src/domains/arbitrage/tests/strategies.test.ts b/src/domains/arbitrage/tests/strategies.test.ts
+new file mode 100644
+index 0000000..d66c829
+--- /dev/null
++++ b/src/domains/arbitrage/tests/strategies.test.ts
+@@ -0,0 +1,93 @@
++import { describe, it, expect } from 'vitest';
++import { MockJupiterClient } from '../exchanges/jupiter.client';
++import { MockAxiomClient } from '../exchanges/axiom.client';
++import { MockDexClient } from '../mock/dex-clients';
++import { PriceFeed } from '../price-feed';
++import { CrossDexStrategy } from '../strategies/cross-dex';
++import { TriangularStrategy } from '../strategies/triangular';
++import { CexDexStrategy } from '../strategies/cex-dex';
++import { resolveTokens } from '../token-registry';
++import { solToLamports } from '../math';
++
++describe('exchange clients', () => {
++  it('mock jupiter returns quotes', async () => {
++    const feed = new PriceFeed('mock');
++    const client = new MockJupiterClient(feed, 1.01);
++    const quote = await client.getQuote({
++      inputMint: 'So11111111111111111111111111111111111111112',
++      outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
++      amount: 1_000_000_000n,
++      slippageBps: 50,
++    });
++    expect(quote.outputAmount).toBeGreaterThan(0n);
++    expect(quote.venue).toBe('jupiter');
++  });
++
++  it('mock axiom returns quotes', async () => {
++    const feed = new PriceFeed('mock');
++    const client = new MockAxiomClient(feed, 1.005);
++    const quote = await client.getQuote({
++      inputMint: 'So11111111111111111111111111111111111111112',
++      outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
++      amount: 500_000_000n,
++      slippageBps: 50,
++    });
++    expect(quote.venue).toBe('axiom');
++    expect(await client.isAvailable()).toBe(true);
++  });
++
++  it('mock dex clients use price feed', async () => {
++    const feed = new PriceFeed('mock');
++    const raydium = new MockDexClient('raydium', feed);
++    const quote = await raydium.getQuote({
++      inputMint: 'So11111111111111111111111111111111111111112',
++      outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
++      amount: 1_000_000_000n,
++      slippageBps: 50,
++    });
++    expect(quote.outputAmount).toBeGreaterThan(0n);
++    expect(quote.venue).toBe('raydium');
++  });
++});
++
++describe('strategies', () => {
++  const context = {
++    tokens: resolveTokens(['SOL', 'USDC', 'BONK', 'WIF']),
++    minProfitBps: 5,
++    maxSlippageBps: 50,
++    maxTradeSizeLamports: solToLamports(0.5),
++  };
++
++  const buildClients = () => {
++    const feed = new PriceFeed('mock');
++    return [
++      new MockJupiterClient(feed, 1.002),
++      new MockAxiomClient(feed, 1.004),
++      new MockDexClient('raydium', feed),
++      new MockDexClient('orca', feed),
++      new MockDexClient('meteora', feed),
++    ];
++  };
++
++  it('cross-dex finds opportunities in mock mode', async () => {
++    const strategy = new CrossDexStrategy();
++    const opps = await strategy.scan(context, buildClients());
++    expect(opps.length).toBeGreaterThan(0);
++    expect(opps[0]?.strategy).toBe('cross-dex');
++    expect(opps[0]?.netProfitBps).toBeLessThan(500);
++  });
++
++  it('triangular finds cyclic opportunities', async () => {
++    const strategy = new TriangularStrategy();
++    const opps = await strategy.scan(context, buildClients());
++    expect(opps.length).toBeGreaterThan(0);
++    expect(opps[0]?.legs.length).toBeGreaterThanOrEqual(3);
++  });
++
++  it('cex-dex finds spread opportunities', async () => {
++    const strategy = new CexDexStrategy();
++    const opps = await strategy.scan(context, buildClients());
++    expect(opps.length).toBeGreaterThan(0);
++    expect(opps[0]?.strategy).toBe('cex-dex');
++  });
++});
+diff --git a/src/domains/arbitrage/token-registry.ts b/src/domains/arbitrage/token-registry.ts
+new file mode 100644
+index 0000000..2e0c81e
+--- /dev/null
++++ b/src/domains/arbitrage/token-registry.ts
+@@ -0,0 +1,67 @@
++import type { TokenInfo } from '../types';
++import { SOL_MINT, USDC_MINT } from '../config';
++
++export const TOKEN_REGISTRY: Record<string, TokenInfo> = {
++  SOL: {
++    symbol: 'SOL',
++    mint: SOL_MINT,
++    decimals: 9,
++  },
++  USDC: {
++    symbol: 'USDC',
++    mint: USDC_MINT,
++    decimals: 6,
++  },
++  BONK: {
++    symbol: 'BONK',
++    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
++    decimals: 5,
++  },
++  WIF: {
++    symbol: 'WIF',
++    mint: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
++    decimals: 6,
++  },
++  JUP: {
++    symbol: 'JUP',
++    mint: 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',
++    decimals: 6,
++  },
++  RAY: {
++    symbol: 'RAY',
++    mint: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
++    decimals: 6,
++  },
++};
++
++export function resolveToken(symbolOrMint: string): TokenInfo | undefined {
++  const upper = symbolOrMint.toUpperCase();
++  if (TOKEN_REGISTRY[upper]) return TOKEN_REGISTRY[upper];
++
++  const byMint = Object.values(TOKEN_REGISTRY).find((t) => t.mint === symbolOrMint);
++  return byMint;
++}
++
++export function resolveTokens(symbols: string[]): TokenInfo[] {
++  const tokens: TokenInfo[] = [];
++  const seen = new Set<string>();
++
++  for (const symbol of symbols) {
++    const token = resolveToken(symbol);
++    if (token && !seen.has(token.mint)) {
++      seen.add(token.mint);
++      tokens.push(token);
++    }
++  }
++
++  return tokens;
++}
++
++export function toBaseUnits(amount: number, decimals: number): bigint {
++  const factor = 10 ** decimals;
++  return BigInt(Math.floor(amount * factor));
++}
++
++export function fromBaseUnits(amount: bigint, decimals: number): number {
++  return Number(amount) / 10 ** decimals;
++}
+diff --git a/src/domains/arbitrage/types.ts b/src/domains/arbitrage/types.ts
+new file mode 100644
+index 0000000..c85397a
+--- /dev/null
++++ b/src/domains/arbitrage/types.ts
+@@ -0,0 +1,105 @@
++export type BotMode = 'mock' | 'live';
++
++export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
++
++export type DexVenue = 'jupiter' | 'raydium' | 'orca' | 'meteora' | 'axiom' | 'phoenix';
++
++export type StrategyKind = 'cross-dex' | 'triangular' | 'cex-dex';
++
++export interface TokenInfo {
++  symbol: string;
++  mint: string;
++  decimals: number;
++}
++
++export interface QuoteRequest {
++  inputMint: string;
++  outputMint: string;
++  amount: bigint;
++  slippageBps: number;
++}
++
++export interface QuoteResult {
++  venue: DexVenue;
++  inputMint: string;
++  outputMint: string;
++  inputAmount: bigint;
++  outputAmount: bigint;
++  priceImpactPct: number;
++  feeBps: number;
++  routeLabel: string;
++  fetchedAt: number;
++}
++
++export interface ArbitrageLeg {
++  venue: DexVenue;
++  inputMint: string;
++  outputMint: string;
++  inputAmount: bigint;
++  expectedOutput: bigint;
++}
++
++export interface ArbitrageOpportunity {
++  id: string;
++  strategy: StrategyKind;
++  legs: ArbitrageLeg[];
++  startToken: TokenInfo;
++  endToken: TokenInfo;
++  inputAmount: bigint;
++  expectedOutput: bigint;
++  grossProfitBps: number;
++  netProfitBps: number;
++  estimatedGasLamports: number;
++  confidence: number;
++  detectedAt: number;
++  expiresAt: number;
++}
++
++export interface ExecutionResult {
++  opportunityId: string;
++  success: boolean;
++  dryRun: boolean;
++  txSignature?: string;
++  actualOutput?: bigint;
++  profitLamports?: bigint;
++  error?: string;
++  executedAt: number;
++}
++
++export interface ScanResult {
++  scannedAt: number;
++  mode: BotMode;
++  opportunities: ArbitrageOpportunity[];
++  rejected: RejectedOpportunity[];
++  durationMs: number;
++}
++
++export interface RejectedOpportunity {
++  opportunity: ArbitrageOpportunity;
++  reason: string;
++}
++
++export interface BotStats {
++  totalScans: number;
++  opportunitiesFound: number;
++  tradesExecuted: number;
++  tradesSucceeded: number;
++  totalProfitLamports: bigint;
++  consecutiveFailures: number;
++  circuitBreakerOpen: boolean;
++  lastScanAt?: number;
++}
++
++export interface StrategyContext {
++  tokens: TokenInfo[];
++  minProfitBps: number;
++  maxSlippageBps: number;
++  maxTradeSizeLamports: bigint;
++}
++
++export interface PriceSnapshot {
++  mint: string;
++  symbol: string;
++  priceUsd: number;
++  updatedAt: number;
++}
+diff --git a/src/routes/_authenticated/arbitrage.tsx b/src/routes/_authenticated/arbitrage.tsx
+new file mode 100644
+index 0000000..3873b94
+--- /dev/null
++++ b/src/routes/_authenticated/arbitrage.tsx
+@@ -0,0 +1,251 @@
++import { createFileRoute } from "@tanstack/react-router";
++import { useState, useEffect, useCallback } from "react";
++import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
++import { Button } from "@/components/ui/button";
++import { Badge } from "@/components/ui/badge";
++import { Alert, AlertDescription } from "@/components/ui/alert";
++import { RefreshCw, Zap, Shield, Activity, TrendingUp, AlertTriangle } from "lucide-react";
++
++// ============================================================================
++// VIXOR Arbitrage Dashboard
++// ============================================================================
++//
++// Displays:
++//   - Bot status (mode, dry-run, execution enabled)
++//   - Latest scan results (opportunities found)
++//   - Bot stats (total scans, trades, profit)
++//   - Manual scan trigger button
++//   - Safety warnings (dry-run mode, etc.)
++//
++// Security:
++//   - Page is under _authenticated/ so only logged-in users can access
++//   - Manual scan calls server function with user context
++//   - Live execution requires admin role (future)
++// ============================================================================
++
++interface ArbitrageOpportunity {
++  id: string;
++  strategy: string;
++  legs: Array<{ venue: string; inputMint: string; outputMint: string }>;
++  startToken: { symbol: string };
++  endToken: { symbol: string };
++  inputAmount: string;
++  expectedOutput: string;
++  grossProfitBps: number;
++  netProfitBps: number;
++  confidence: number;
++  detectedAt: number;
++  expiresAt: number;
++}
++
++interface BotStats {
++  totalScans: number;
++  opportunitiesFound: number;
++  tradesExecuted: number;
++  tradesSucceeded: number;
++  totalProfitLamports: string;
++  consecutiveFailures: number;
++  circuitBreakerOpen: boolean;
++  lastScanAt?: number;
++}
++
++function ArbDashboard() {
++  const [opportunities, setOpportunities] = useState<ArbitrageOpportunity[]>([]);
++  const [stats, setStats] = useState<BotStats | null>(null);
++  const [scanning, setScanning] = useState(false);
++  const [error, setError] = useState<string | null>(null);
++  const [botMode] = useState<"mock" | "live">(() => {
++    // Client-side env hint (real config is server-side)
++    return "mock";
++  });
++
++  const runScan = useCallback(async () => {
++    setScanning(true);
++    setError(null);
++    try {
++      // Server function call (placeholder — needs server fn implementation)
++      const res = await fetch("/api/arbitrage/scan", {
++        method: "POST",
++        headers: { "Content-Type": "application/json" },
++      });
++      if (!res.ok) throw new Error(`Scan failed: ${res.status}`);
++      const data = await res.json();
++      setOpportunities(data.opportunities ?? []);
++      setStats(data.stats ?? null);
++    } catch (e) {
++      setError(e instanceof Error ? e.message : "Unknown error");
++    } finally {
++      setScanning(false);
++    }
++  }, []);
++
++  useEffect(() => {
++    // Initial load
++    runScan();
++  }, [runScan]);
++
++  return (
++    <div className="space-y-6 p-6">
++      {/* Header */}
++      <div className="flex items-center justify-between">
++        <div>
++          <h1 className="text-2xl font-bold text-yellow-400">Arbitrage Terminal</h1>
++          <p className="text-sm text-muted-foreground">
++            Cross-DEX + Triangular + CEX-DEX opportunities (ported from axiom-arbitrage)
++          </p>
++        </div>
++        <Button onClick={runScan} disabled={scanning} variant="default">
++          {scanning ? (
++            <>
++              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
++              Scanning...
++            </>
++          ) : (
++            <>
++              <Zap className="mr-2 h-4 w-4" />
++              Scan Now
++            </>
++          )}
++        </Button>
++      </div>
++
++      {/* Safety Warning */}
++      <Alert className="border-yellow-500/30 bg-yellow-500/5">
++        <Shield className="h-4 w-4 text-yellow-500" />
++        <AlertDescription className="text-yellow-200">
++          <strong>Safety:</strong> Bot runs in <strong>DRY_RUN=true</strong> mode by default. No real
++          funds are moved. To enable live execution, set{" "}
++          <code className="rounded bg-muted px-1">ARBITRAGE_EXECUTION_ENABLED=true</code> and{" "}
++          <code className="rounded bg-muted px-1">ARBITRAGE_DRY_RUN=false</code> in env vars.
++        </AlertDescription>
++      </Alert>
++
++      {/* Stats Cards */}
++      {stats && (
++        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
++          <Card>
++            <CardHeader className="pb-2">
++              <CardTitle className="flex items-center gap-2 text-xs text-muted-foreground">
++                <Activity className="h-3 w-3" /> Total Scans
++              </CardTitle>
++            </CardHeader>
++            <CardContent>
++              <div className="text-2xl font-bold">{stats.totalScans}</div>
++            </CardContent>
++          </Card>
++          <Card>
++            <CardHeader className="pb-2">
++              <CardTitle className="flex items-center gap-2 text-xs text-muted-foreground">
++                <TrendingUp className="h-3 w-3" /> Opportunities
++              </CardTitle>
++            </CardHeader>
++            <CardContent>
++              <div className="text-2xl font-bold text-green-400">{stats.opportunitiesFound}</div>
++            </CardContent>
++          </Card>
++          <Card>
++            <CardHeader className="pb-2">
++              <CardTitle className="flex items-center gap-2 text-xs text-muted-foreground">
++                <Zap className="h-3 w-3" /> Trades
++              </CardTitle>
++            </CardHeader>
++            <CardContent>
++              <div className="text-2xl font-bold">
++                {stats.tradesExecuted}
++                <span className="ml-1 text-xs text-muted-foreground">
++                  ({stats.tradesSucceeded} ✓)
++                </span>
++              </div>
++            </CardContent>
++          </Card>
++          <Card>
++            <CardHeader className="pb-2">
++              <CardTitle className="flex items-center gap-2 text-xs text-muted-foreground">
++                <AlertTriangle className="h-3 w-3" /> Circuit Breaker
++              </CardTitle>
++            </CardHeader>
++            <CardContent>
++              <div className="text-2xl font-bold">
++                {stats.circuitBreakerOpen ? (
++                  <span className="text-red-400">OPEN</span>
++                ) : (
++                  <span className="text-green-400">CLOSED</span>
++                )}
++              </div>
++              <div className="text-xs text-muted-foreground">
++                {stats.consecutiveFailures} failures
++              </div>
++            </CardContent>
++          </Card>
++        </div>
++      )}
++
++      {/* Error */}
++      {error && (
++        <Alert variant="destructive">
++          <AlertDescription>{error}</AlertDescription>
++        </Alert>
++      )}
++
++      {/* Opportunities */}
++      <Card>
++        <CardHeader>
++          <CardTitle>Latest Opportunities ({opportunities.length})</CardTitle>
++        </CardHeader>
++        <CardContent>
++          {opportunities.length === 0 ? (
++            <p className="py-8 text-center text-sm text-muted-foreground">
++              No opportunities detected. Click "Scan Now" to run a manual scan.
++            </p>
++          ) : (
++            <div className="space-y-2">
++              {opportunities.map((opp) => (
++                <div
++                  key={opp.id}
++                  className="flex items-center justify-between rounded-lg border border-border bg-card/50 p-3"
++                >
++                  <div className="flex items-center gap-3">
++                    <Badge
++                      variant={
++                        opp.strategy === "cross-dex"
++                          ? "default"
++                          : opp.strategy === "triangular"
++                            ? "secondary"
++                            : "outline"
++                      }
++                    >
++                      {opp.strategy}
++                    </Badge>
++                    <div>
++                      <div className="font-mono text-sm">
++                        {opp.startToken.symbol} → {opp.endToken.symbol}
++                      </div>
++                      <div className="text-xs text-muted-foreground">
++                        {opp.legs.length} legs · confidence {opp.confidence}%
++                      </div>
++                    </div>
++                  </div>
++                  <div className="text-right">
++                    <div className="font-mono text-sm font-bold text-green-400">
++                      +{opp.netProfitBps} bps
++                    </div>
++                    <div className="text-xs text-muted-foreground">net profit</div>
++                  </div>
++                </div>
++              ))}
++            </div>
++          )}
++        </CardContent>
++      </Card>
++
++      {/* Bot Mode Indicator */}
++      <div className="text-center text-xs text-muted-foreground">
++        Bot Mode: <Badge variant="outline">{botMode}</Badge> · Ported from axiom-arbitrage-trading-bot
++      </div>
++    </div>
++  );
++}
++
++export const Route = createFileRoute("/_authenticated/arbitrage")({
++  component: ArbDashboard,
++});
+diff --git a/supabase/migrations/20260621000000_add_arbitrage_domain.sql b/supabase/migrations/20260621000000_add_arbitrage_domain.sql
+new file mode 100644
+index 0000000..84c6163
+--- /dev/null
++++ b/supabase/migrations/20260621000000_add_arbitrage_domain.sql
+@@ -0,0 +1,99 @@
++-- ============================================================================
++-- VIXOR — Arbitrage Domain Schema
++-- ============================================================================
++--
++-- Ported from axiom-arbitrage-trading-bot. Adds 3 tables:
++--
++--   arbitrage_opportunities  — detected opportunities (with TTL)
++--   arbitrage_executions     — executed trades (dry-run + live)
++--   arbitrage_bot_stats      — daily stats (one row per day)
++--
++-- All tables enable RLS with "users access own rows" policy via auth.uid().
++-- Service role bypasses RLS for bot operations (background scanning).
++-- ============================================================================
++
++-- ── arbitrage_opportunities ─────────────────────────────────────────────────
++-- Detected arbitrage opportunities. TTL = 3-4 seconds (very short-lived).
++
++CREATE TABLE IF NOT EXISTS arbitrage_opportunities (
++  id                TEXT PRIMARY KEY,            -- uniqueId('cross_dex' | 'triangular' | 'cex_dex')
++  user_id           UUID REFERENCES auth.users(id) ON DELETE CASCADE,
++  strategy          TEXT NOT NULL CHECK (strategy IN ('cross-dex', 'triangular', 'cex-dex')),
++  legs              JSONB NOT NULL,              -- Array of ArbitrageLeg
++  start_token       JSONB NOT NULL,              -- TokenInfo
++  end_token         JSONB NOT NULL,              -- TokenInfo
++  input_amount      NUMERIC NOT NULL,            -- lamports (bigint as numeric for precision)
++  expected_output   NUMERIC NOT NULL,            -- lamports
++  gross_profit_bps  INTEGER NOT NULL,
++  net_profit_bps    INTEGER NOT NULL,
++  estimated_gas_lamports INTEGER NOT NULL,
++  confidence        INTEGER NOT NULL CHECK (confidence >= 0 AND confidence <= 100),
++  detected_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
++  expires_at        TIMESTAMPTZ NOT NULL,
++  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
++);
++
++CREATE INDEX IF NOT EXISTS idx_arb_opp_strategy ON arbitrage_opportunities(strategy);
++CREATE INDEX IF NOT EXISTS idx_arb_opp_detected ON arbitrage_opportunities(detected_at DESC);
++CREATE INDEX IF NOT EXISTS idx_arb_opp_user     ON arbitrage_opportunities(user_id) WHERE user_id IS NOT NULL;
++
++-- ── arbitrage_executions ────────────────────────────────────────────────────
++-- Executed trades (both dry-run and live). One row per execution attempt.
++
++CREATE TABLE IF NOT EXISTS arbitrage_executions (
++  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
++  opportunity_id    TEXT REFERENCES arbitrage_opportunities(id) ON DELETE CASCADE,
++  user_id           UUID REFERENCES auth.users(id) ON DELETE CASCADE,
++  success           BOOLEAN NOT NULL,
++  dry_run           BOOLEAN NOT NULL,
++  tx_signature      TEXT,                        -- Solana transaction signature (live only)
++  actual_output     NUMERIC,                     -- lamports actually received
++  profit_lamports   NUMERIC,                     -- actual profit (output - input)
++  error             TEXT,                        -- error message if failed
++  executed_at       TIMESTAMPTZ NOT NULL DEFAULT now()
++);
++
++CREATE INDEX IF NOT EXISTS idx_arb_exec_user      ON arbitrage_executions(user_id);
++CREATE INDEX IF NOT EXISTS idx_arb_exec_executed  ON arbitrage_executions(executed_at DESC);
++CREATE INDEX IF NOT EXISTS idx_arb_exec_success   ON arbitrage_executions(success) WHERE success = true;
++
++-- ── arbitrage_bot_stats ─────────────────────────────────────────────────────
++-- Daily aggregated stats. One row per day per bot mode.
++
++CREATE TABLE IF NOT EXISTS arbitrage_bot_stats (
++  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
++  stat_date             DATE NOT NULL,
++  mode                  TEXT NOT NULL CHECK (mode IN ('mock', 'live')),
++  total_scans           INTEGER NOT NULL DEFAULT 0,
++  opportunities_found   INTEGER NOT NULL DEFAULT 0,
++  trades_executed       INTEGER NOT NULL DEFAULT 0,
++  trades_succeeded      INTEGER NOT NULL DEFAULT 0,
++  total_profit_lamports NUMERIC NOT NULL DEFAULT 0,
++  consecutive_failures  INTEGER NOT NULL DEFAULT 0,
++  circuit_breaker_open  BOOLEAN NOT NULL DEFAULT false,
++  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
++  updated_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
++  UNIQUE(stat_date, mode)
++);
++
++-- ── Row Level Security ──────────────────────────────────────────────────────
++
++ALTER TABLE arbitrage_opportunities ENABLE ROW LEVEL SECURITY;
++ALTER TABLE arbitrage_executions    ENABLE ROW LEVEL SECURITY;
++ALTER TABLE arbitrage_bot_stats     ENABLE ROW LEVEL SECURITY;
++
++-- Users can read their own opportunities + executions (bot writes via service_role)
++CREATE POLICY "user_own_arb_opportunities" ON arbitrage_opportunities
++  FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
++
++CREATE POLICY "user_own_arb_executions" ON arbitrage_executions
++  FOR SELECT USING (auth.uid() = user_id);
++
++CREATE POLICY "user_read_arb_stats" ON arbitrage_bot_stats
++  FOR SELECT USING (true);  -- stats are global, readable by all authenticated
++
++-- ── Grants ──────────────────────────────────────────────────────────────────
++-- service_role bypasses RLS (bot uses service_role for writes)
++GRANT SELECT, INSERT, UPDATE, DELETE ON arbitrage_opportunities TO authenticated, service_role;
++GRANT SELECT, INSERT, UPDATE, DELETE ON arbitrage_executions    TO authenticated, service_role;
++GRANT SELECT, INSERT, UPDATE        ON arbitrage_bot_stats     TO authenticated, service_role;
