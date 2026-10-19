@@ -125,3 +125,30 @@ The connector's available Actions listing exposes public run results but did not
 8. Deliver a verified implementation sequence with file-level scope, acceptance tests, rollback plan and explicit approval gates.
 
 **No production code, production settings, secrets, database migrations, live webhooks or deployments were changed in producing this matrix.**
+
+
+## H. Workflow-tree verification (additional evidence, 2026-10-20)
+
+Recursive Git tree queries were performed for the current default branches. These are tree-level findings, not assumptions from an empty Actions API response.
+
+| Repository | Current tree result | Audit consequence |
+|---|---|---|
+| `vixor-APP` | `.github/workflows/ci.yml` and `.github/workflows/block-force-push.yml` are present | CI is configured in GitHub Actions; the latest visible CI result is still 2026-09-30 |
+| `vixor-hunt` | `.github/workflows/ci.yml` is present | CI is configured; latest visible run is 2026-10-09 |
+| `vixor-shield` | `.github/workflows/ci.yml` is present | CI is configured; latest visible run is failing on 2026-10-09 |
+| `vixor-trade` | `.github/workflows/ci.yml` is present | Full CI is configured; the most recent run we could retrieve was batch-compute, not that CI workflow |
+| `tg-content-bot` | No `.github/workflows/` paths in current tree | No GitHub Actions workflow is defined in this repository tree. Verify any external Cloudflare/Vercel build pipeline and add a documented CI gate before integration changes |
+| `vixor-packages` | No `.github/workflows/` paths in current tree | No GitHub Actions workflow is defined in this repository tree. Shared packages currently lack a repo-local CI gate in the inspected source |
+| `vixor-deliverables` | No `.github/workflows/` paths in current tree | Documentation repo has no repo-local GitHub Actions workflow; this is not itself a production blocker |
+
+This corrects the weaker earlier wording “no run returned” for tg-content-bot, vixor-packages and vixor-deliverables: the current default-branch trees contain no GitHub Actions workflow files. This does not rule out external provider build/deploy pipelines, which were not inspected.
+
+## I. Revised Phase 0 risk order
+
+1. **P0:** Securely triage the tracked VIXOR root `.env` without reading or exposing its values.
+2. **P0:** Resolve tg-content-bot's broad anon-role RLS policies and webhook fail-open/early-ack reliability design before connecting engines.
+3. **P0:** Extract `VIXOR_MASTER.pdf` and reconcile it with GLM5/PODs.
+4. **P0/P1:** Reconcile archived-only Arbitrage source with the claimed active implementation and migration state.
+5. **P1:** Obtain current private CI/deploy evidence; add repository-local CI for tg-content-bot and vixor-packages through approved changes.
+6. **P1:** Resolve Shield's known red test and complete route-by-route authentication, replay and schema-validation review.
+7. **P1:** Confirm migration history and the canonical `020_auto_publisher` file before any migration operation.
