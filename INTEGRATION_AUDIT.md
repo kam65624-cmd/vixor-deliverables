@@ -52,8 +52,8 @@ The repositories are separate deployable systems, not one runtime or one databas
 - Wrangler config sets production `ENVIRONMENT`, `APP_URL=https://tg-content-app.pages.dev`, two KV bindings and a per-minute cron. Secrets are documented for Telegram, Supabase and AI providers.
 - Migration 001 creates the base channel/content pipeline, including `app_settings`, `niches`, `channels`, `content_types`, `source_posts`, and `classifications`. It uses UUID IDs, JSONB media/entities and source-post uniqueness by Telegram chat/message.
 - Migration 019 introduces affiliate/airdrop/channel-template concepts and inserts seed affiliate records with obvious placeholder values such as `YOUR_AXIOM_REF`. Those placeholders must not be treated as real referral links.
-- `020_auto_publisher.sql` and `ADD_020_auto_publisher.sql` have the same visible opening and migration intent. They appear to be duplicate/alternate migration artifacts; inspect full-file hashes, history and deployment migration ledger before deciding which is canonical. Do not execute both blindly.
-- CORS in the Worker entrypoint visibly allows `*` and includes `X-Telegram-Init-Data`. This is not by itself proof of exploitable access, but each affected endpoint must independently validate Telegram init data, authorization and request origin; CORS is not an auth boundary.
+- `020_auto_publisher.sql` and `ADD_020_auto_publisher.sql` were fetched in full and are **byte-for-byte identical** (3,295 characters, 71 lines). This is confirmed duplicate migration content, not merely a similar opening. Determine which file the migration runner actually discovers and retain one canonical path in a reviewed cleanup PR; do not run both blindly.
+- CORS in the Worker entrypoint visibly allows `*` and includes `X-Telegram-Init-Data`. This is not by itself proof of exploitable access, but each affected endpoint must independently validate Telegram init data, authorization and request origin; CORS is not an auth boundary. The cron also runs scheduled publishing/outbox, workflow recovery, radar discovery and auto-publisher paths each minute; their safety gates and per-channel kill switches need code-path review before any cross-service event is connected.
 
 ### vixor-packages
 
@@ -93,7 +93,7 @@ The repositories are separate deployable systems, not one runtime or one databas
 - **PDF extraction pending:** `VIXOR_MASTER.pdf` exists in deliverables, but the GitHub file tool returned encoded binary rather than extracted text. The architecture PDF must be extracted/read before implementation decisions.
 - **Current deployed commits unknown:** repository contents do not prove which commit is running in Vercel/Cloudflare/Pages.
 - **Database state unknown:** migrations do not prove they have been applied to live or staging databases.
-- **Endpoint contracts unknown:** no end-to-end authenticated request was executed across services.
+- **Endpoint contracts only partly mapped:** Hunt exposes public POST calculation routes under `/engine/*`; Shield exposes `POST /ingest/blocklist` with timestamped HMAC; Trade exposes `POST /ingest/signals` with timestamped HMAC. No end-to-end authenticated request was executed. The ingest handlers use a five-minute timestamp window but no visible one-time nonce; database conflict handling helps idempotency for some records, but explicit replay/idempotency contract tests are still required. Trade also exposes `GET /debug/brief` guarded by the webhook secret in a query parameter; assess replacing query-string secret auth with a signed request/header because URLs can be captured in logs/history.
 - **App source path gap:** the requested arbitrage index path returned 404; confirm current tree paths and branch before assessing the feature's existence.
 - **No secret values were read or used.** This audit relies on variable names/configuration only.
 
