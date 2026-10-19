@@ -68,7 +68,7 @@
 | File / path | Observed state | Action | Priority / risk | Evidence still required |
 |---|---|---|---|---|
 | `src/index.ts` | Telegram webhook has secret/path check; `POST /ingest/blocklist` validates timestamped HMAC and caps body size; inserts use conflict handling | **KEEP; harden later** | P1 — timestamp window alone is not a replay store; payload item schema/JSON error handling needs testing | Test malformed JSON, malformed item types, replay of identical signed request within five minutes, key rotation and auth failures |
-| `test/engine2.test.ts` | Contains punycode/shortener case associated with previously failed CI | **MODIFY only after reproducing** | P0 for integration readiness — risk scoring cannot be trusted as a hard publish gate while its relevant test is red | Re-run current CI, capture exact assertion and commit; fix test or behavior based on intended security rule |
+| `test/engine2.test.ts` | Latest retrieved test log: 147/148 passed; `punycode + shortener detected` expected factor `U03`, got no factor | **MODIFY only after reproducing** | P0 for integration readiness — risk scoring cannot be trusted as a hard publish gate while its relevant test is red | Re-run current CI; determine whether URL parser or test expectation is wrong; add regression tests for punycode and shorteners |
 | `.github/workflows/ci.yml` | Typecheck, tests, wording check, secret scan and bundle check are configured | **KEEP; resolve current red run** | P0/P1 — last visible CI run failed on 2026-10-09 | Recheck current Actions run and require all required jobs green before connecting Shield to auto-publish |
 
 ### Trade — `kam65624-cmd/vixor-trade`
