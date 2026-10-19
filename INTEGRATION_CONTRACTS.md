@@ -6,11 +6,11 @@
 
 ## 1. Contract principles
 
-- Use HTTPS JSON APIs between services; no direct cross-database reads.
+- Use HTTPS JSON APIs between services; no direct cross-database reads. Existing Shield `POST /ingest/blocklist` and Trade `POST /ingest/signals` handlers already demonstrate timestamped HMAC headers (`x-vixor-timestamp`, `x-vixor-signature`); these are existing service-specific contracts, not a universal contract. Inspect their full validation behavior before reusing or standardizing them. Hunt's visible `/engine/*` POST routes do not show an equivalent auth check in the route handlers reviewed, so do not expose them as trusted integration endpoints without a security review.
 - Treat each existing store as private to its owning service.
 - Every event has a stable `event_id`, `schema_version`, `occurred_at`, `producer`, and trace/correlation ID.
 - Authenticate service-to-service calls using scoped credentials and request signing (HMAC over method, path, timestamp, nonce and body digest) or a managed identity mechanism supported by the hosting platform. Never put service secrets in Mini App/browser code.
-- Enforce timestamp tolerance, nonce/replay protection, request-size limits, schema validation, rate limits and explicit timeouts.
+- Enforce timestamp tolerance, nonce/replay protection, request-size limits, schema validation, rate limits and explicit timeouts. Current Shield and Trade ingest handlers have a ±5 minute timestamp window, but a one-time nonce is not visible in the reviewed handlers; the proposed standard should close that gap. Trade's `GET /debug/brief` currently compares a query parameter with `WEBHOOK_SECRET`; do not copy this pattern into new contracts.
 - Use idempotency keys and unique constraints for all event ingestion and publishing.
 - Never treat missing risk data as safe. Use `unknown` and prevent automatic publication when risk cannot be verified.
 - Do not send wallet private keys, service keys, full Telegram init data, or unnecessary personal data in event payloads.
