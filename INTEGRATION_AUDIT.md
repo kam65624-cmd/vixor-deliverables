@@ -87,6 +87,22 @@ The repositories are separate deployable systems, not one runtime or one databas
 | Trading side effects | Publishing should never initiate financial actions | Separate service permissions; dry-run default; explicit approval for live trading |
 | Claims vs actual state | Deliverables describe features as done | Verify source paths, CI runs and deployed commit before relying on claims |
 
+## CI evidence snapshot (latest runs returned by GitHub API)
+
+This is historical CI evidence from repository workflows, not a fresh test run in this audit:
+
+| Repository | Latest returned run | Result | Interpretation |
+|---|---|---|---|
+| vixor-APP | CI on main, 2026-09-30, commit `3e08e8e8d45842d5d16ce93879fe80874f737988` | Success | Green at that commit, but not recent enough to certify current state. [Run](https://github.com/kam65624-cmd/vixor-APP/actions/runs/36697373078) |
+| vixor-hunt | CI on main, 2026-10-09, commit `ceeb2474d3b20cf556e45abd0e9798739a0d887f` | Success | Green at that commit only. [Run](https://github.com/kam65624-cmd/vixor-hunt/actions/runs/37870183208) |
+| vixor-shield | CI on main, 2026-10-09, commit `5eefa4cf6d490d4b71c0991d8cbb318a70d54510` | **Failure** | Bundle and typecheck passed; test suite failed 1 test: `test/engine2.test.ts` → “punycode + shortener detected”, expected factor `U03`, received empty list. 147 passed / 1 failed. [Run](https://github.com/kam65624-cmd/vixor-shield/actions/runs/37870169067) |
+| vixor-trade | Batch compute workflow, 2026-10-19, commit `6fab976c65bedf5b351cb65307b9d38dfdd2df96` | Success | The returned latest runs were batch-compute jobs; this does **not** establish that the full test/typecheck/build CI is green. [Run](https://github.com/kam65624-cmd/vixor-trade/actions/runs/39328574029) |
+| tg-content-bot | No workflow runs returned in the queried Actions endpoint | Unknown | Inspect workflow files and repository Actions configuration; do not infer that tests passed or that workflows do not exist. |
+| vixor-packages | No workflow runs returned in the queried Actions endpoint | Unknown | Root package advertises build/typecheck/lint scripts, but they were not executed here. |
+| vixor-deliverables | No workflow runs returned in the queried Actions endpoint | Unknown | Documentation-only repository; no test result inferred. |
+
+The Shield failure is a concrete blocker for relying on its risk engine in a rollout. Reproduce/fix it in a separate Shield PR and get green CI before integrating risk scores; do not mix that repair into this documentation PR.
+
 ## Phase 0 blockers / evidence gaps
 
 - **No runtime verification:** no package installation, typecheck, build, tests, browser testing, webhook request, D1 query, Supabase query or deployment check was run in this audit.
