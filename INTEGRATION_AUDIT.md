@@ -145,3 +145,87 @@ The Shield failure is a concrete blocker for relying on its risk engine in a rol
 ## Rollback principle
 
 Every integration must be independently disableable by config/feature flag. On error: stop consuming new events, leave queued records intact, disable publisher, retain audit history, and revert the integration PR. Do not delete source records or run destructive migrations as a rollback strategy.
+
+
+---
+
+## Phase 0 Evidence Update — 2026-10-20
+
+This appendix records additional read-only repository checks performed after the initial audit. It does not supersede the need for local builds, full test runs, staging validation, or PDF review.
+
+### Evidence reviewed
+
+- Read `GLM5_MASTER_PROMPT.md` and all six POD files: AI/ML, Backend, DevOps, Frontend, Lead Developer, and QA/Security.
+- Confirmed the six PODs describe the VIXOR implementation workflow and quality gates, but they are planning documents; checked boxes and stated completion in these documents are not independent proof that the code or deployed system satisfies them.
+- Inspected current `vixor-APP` repository tree at main commit `3e08e8e8d45842d5d16ce93879fe80874f737988`.
+- Inspected current `tg-content-bot` repository tree at main commit `925b4e40a6ad242446d7234e5e0b491c6ede9c20`, plus its Worker entry point and Telegram Mini App auth helper.
+- Inspected the arbitrage migration `supabase/migrations/20260621000000_add_arbitrage_domain.sql` and the current VIXOR package scripts.
+- Rechecked the existing documentation PR separately; it remains an open draft and has not been merged.
+
+### Material findings and discrepancies
+
+#### P0 — VIXOR arbitrage implementation does not match the master prompt's claimed active path
+
+The master prompt states that Phase B.1 is complete and describes active files under `src/domains/arbitrage/` and an authenticated arbitrage route. The current `vixor-APP` main tree contains the arbitrage engine under `archive/domains/arbitrage/`; direct requests for `src/domains/arbitrage/index.ts`, `src/domains/arbitrage/engine.ts`, `src/domains/arbitrage/strategies/cross-dex.ts`, and `src/routes/_authenticated/arbitrage.tsx` returned 404. The arbitrage SQL migration is present under `supabase/migrations/`. Therefore, the repository proves that the migration and archived source exist, but does **not** prove the claimed active route/domain is deployed or wired. Treat Phase B.1 as **not verified / likely incomplete in the active source tree** until route tree, imports, migration application history, and a passing CI/test run establish otherwise. Do not delete archived files or re-port code during Phase 0.
+
+#### P0 — Tracked `.env` path in VIXOR repository
+
+The Git tree lists a root `.env` file in `vixor-APP` (blob SHA `769ebf2805af57a8e66acf4a1d25a4e2a6be556d`). Its contents were intentionally not read. This is a secret-hygiene incident candidate, not proof that the file contains a live credential. An authorized maintainer should inspect it in a secure environment, check history and ignore rules, and rotate any real credentials if present. Never copy values into reports or chat.
+
+#### P1 — Package and test gate mismatch
+
+The current `vixor-APP/package.json` advertises `build`, `lint`, and `typecheck`, but the inspected scripts block does not advertise a `test` script even though GLM5/POD quality gates require Vitest and CI tests. Test tooling/files exist in the tree, so this is a **workflow/script evidence gap**, not proof that no tests can run. Verify the actual CI workflow commands and package-manager invocation before treating the test gate as enforced. The latest inspected commit has no combined commit-status entries returned by the status endpoint; that response is not equivalent to a green CI run. Re-run or inspect workflow runs before making a current health claim.
+
+#### P1 — Migration policy review required
+
+The arbitrage migration enables RLS on all three arbitrage tables and creates SELECT policies. In particular, `user_read_arb_stats` uses `USING (true)`; the comment says stats are globally readable by authenticated users, but the policy predicate itself does not express that role restriction. Confirm table grants, role behavior, and intended public/authenticated visibility in a disposable/staging database before approving this migration. Also confirm that writes are restricted to the intended service role and that nullable `user_id` rows cannot disclose sensitive opportunity data. No database was queried and no migration was applied.
+
+#### P1 — tg-content-bot's current tree and runtime shape
+
+- The Worker has a one-minute Cron Trigger and invokes multiple jobs in sequence, including scheduled publishing, outbox publishing, workflow processing, ATH monitoring, radar discovery, auto-publisher, reminders, and notification dispatch. Before adding new engine consumers, map execution duration, idempotency, concurrency, and per-job failure isolation to avoid compounding the current scheduled workload.
+- The Worker entry point sets `Access-Control-Allow-Origin: *`. CORS is not authentication; verify every route's auth/authorization individually. The Mini App auth helper verifies Telegram initData signature, freshness (24-hour limit), and owner allowlist, but this helper alone does not prove every AI/admin/publishing route calls it correctly.
+- The current tree has both `supabase/migrations/020_auto_publisher.sql` and `supabase/migrations/ADD_020_auto_publisher.sql`. Their contents were not both re-fetched and compared in this update. The duplicate-path concern remains open; identify the migration runner's discovery rules and applied migration ledger before any cleanup or migration action.
+
+#### P1 — Hunt / Shield / Trade integration gates
+
+- Hunt's inspected `src/index.ts` includes deterministic `POST /engine/accel`, `/engine/filter`, and `/engine/confluence` endpoints without a visible service-auth gate in those handlers. Treat them as untrusted until route-level protection, request limits, schema validation, and abuse controls are verified. This is an integration-readiness finding, not an assertion that every route in the service is unprotected.
+- Shield's current test file still contains the punycode test asserting factor `U03`. The previously recorded CI failure for this test must be rechecked against the latest workflow run and source revision. Until it passes for the current commit, Shield must not be treated as a mandatory trusted risk gate for auto-publishing.
+- Trade's inspected `GET /debug/brief` compares a secret supplied as query parameter `k` to `WEBHOOK_SECRET`. This can leak through URL logs/history; replace with header-based authenticated ops access in a future approved change, not during this read-only audit.
+- Trade's `POST /ingest/signals` uses timestamped HMAC according to the handler comments. End-to-end signature verification, timestamp skew, replay handling, request size limits, and idempotency remain to be proven with tests.
+
+#### P1 — Binary master PDF remains a blocker
+
+The GitHub file API returned the PDF as base64 content, while the standard text fetch endpoint rejects it because it is not UTF-8. This session has **not extracted or reviewed the actual PDF text**. Do not treat the PDF review requirement as complete. Use an authorized local download and PDF text extraction, then record the PDF SHA, page count, extracted text checksum, and any requirements that conflict with GLM5/PODs. Do not guess its contents.
+
+### POD / master-prompt alignment summary
+
+- **Lead Developer:** demands architecture review, CI quality gates, risk register, and approval before merges. This supports the audit-first sequence.
+- **Backend:** requires Zod input validation, auth gates, RLS, webhook HMAC, rate limiting/circuit breakers, staging-tested migrations.
+- **DevOps:** calls for separate staging resources, CI gates, backups, monitoring, runbooks, and rollback.
+- **QA/Security:** requires unit/E2E/security/secret scans, OWASP review, and Web3-specific checks.
+- **Frontend:** includes broad Web3 Terminal UI work and browser/responsive/accessibility tests; no evidence in this Phase 0 update establishes all listed UI tasks as complete.
+- **AI/ML:** includes four agents, prompt versioning, feedback loops, and no PII sent to external LLMs; no evidence here establishes these as production-complete.
+- **GLM5:** declares Phase A and B.1 complete, but the active-tree mismatch above means those declarations must be reconciled against commit history, route wiring, and CI rather than accepted as proof.
+
+### Updated evidence register
+
+| Item | Status | Evidence / next check |
+|---|---|---|
+| GLM5 master prompt | Read | Claims compared to active repository tree; contradictions recorded above |
+| Six POD files | Read | Requirements summarized; completion claims still require implementation evidence |
+| VIXOR_MASTER.pdf | **Blocked / not reviewed** | Obtain PDF text extraction through authorized local workflow |
+| VIXOR active arbitrage domain/route | **Not verified** | Source paths absent under active `src/`; engine appears under `archive/`; trace route tree and CI |
+| VIXOR arbitrage migration | Present, not applied here | Review grants/RLS and migration history in staging |
+| VIXOR root `.env` path | **P0 hygiene check** | Do not read in chat; authorized secure review + rotate real credentials if present |
+| VIXOR tests/CI current status | **Unverified** | Inspect latest workflow run; combined status returned no entries |
+| tg-content-bot Cron workload | Verified in source | Measure execution budget/concurrency before adding consumers |
+| tg-content-bot route auth coverage | Partial | Trace every route to auth helper and authorization policy |
+| Duplicate publisher migration names | Both paths present | Compare bytes and migration discovery/applied-history before any cleanup |
+| Hunt engine route auth | Needs review | Protect/limit endpoints before trusted integration |
+| Shield punycode CI issue | Needs current recheck | Do not rely on Shield gate until current CI passes |
+| Trade query-secret ops endpoint | Risk confirmed in source | Future approved hardening; no changes made |
+| Production deployment / live integration | Not tested | No production changes, database access, live requests, or deployment performed |
+
+### Phase 0 exit criteria
+
+Phase 0 is **not complete** until: (1) PDF is extracted and reconciled, (2) latest CI results are captured for all relevant repositories, (3) active-vs-archived arbitrage status is resolved, (4) root `.env` is securely triaged, (5) route-by-route auth and RLS/grants are mapped, (6) duplicate migration handling is proven, and (7) a read-only file-by-file implementation matrix is delivered. No production code, production settings, live webhooks, or database migrations were changed as part of this update.
