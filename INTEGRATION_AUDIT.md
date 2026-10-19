@@ -293,3 +293,9 @@ VIXOR's current tree lists root `.env` and `.env.example`, despite `.gitignore` 
 | Production changes | None |
 
 Phase 0 remains open until the PDF is extracted/reconciled, the tracked `.env` is securely triaged, current private Actions evidence is confirmed, active-vs-archived Arbitrage is resolved, effective RLS/grants and route authorization are mapped, and migration history is confirmed.
+
+
+### Additional check — GitHub Actions workflow presence
+
+Recursive default-branch tree checks confirm `.github/workflows/ci.yml` in VIXOR App, Hunt, Shield and Trade. They show **no `.github/workflows/` paths** in the current trees for `tg-content-bot`, `vixor-packages` or `vixor-deliverables`. Therefore, these three repositories have no repository-local GitHub Actions workflow in the inspected tree. This does not rule out external provider pipelines; those still need verification. For the command-center plan, tg-content-bot and shared packages should have an approved CI gate before integration work is merged.
+
