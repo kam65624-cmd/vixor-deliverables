@@ -229,3 +229,73 @@ The GitHub file API returned the PDF as base64 content, while the standard text 
 ### Phase 0 exit criteria
 
 Phase 0 is **not complete** until: (1) PDF is extracted and reconciled, (2) latest CI results are captured for all relevant repositories, (3) active-vs-archived arbitrage status is resolved, (4) root `.env` is securely triaged, (5) route-by-route auth and RLS/grants are mapped, (6) duplicate migration handling is proven, and (7) a read-only file-by-file implementation matrix is delivered. No production code, production settings, live webhooks, or database migrations were changed as part of this update.
+
+
+---
+
+## Deep Phase 0 Evidence Update — 2026-10-20
+
+Documentation-only review. No production source, secrets, databases, live webhooks or deployments were changed.
+
+### VIXOR_MASTER.pdf
+
+The PDF exists (Git blob SHA `7425764414000ca609c048548b8b742f2fa8e5b3`). The available GitHub connector returned base64 binary, but this session's extraction runtime could not parse/decompress its PDF streams. **The PDF text has not been reviewed.** Do not infer its content from GLM5/PODs. This remains blocked until an attached PDF or extracted text is available; then record page count and text checksum before reconciliation.
+
+### GLM5/POD claims vs current source
+
+GLM5 §1.4 and POD Backend/QA mark Phase B.1 Arbitrage complete under `src/domains/arbitrage/`. Current VIXOR main tree at `3e08e8e8d45842d5d16ce93879fe80874f737988` instead contains the engine and three tests under `archive/domains/arbitrage/`; expected active `src/domains/arbitrage/` paths are absent, and the migration `supabase/migrations/20260621000000_add_arbitrage_domain.sql` is present but does not prove it was applied. **Phase B.1 is not verified in the active application.** Keep archived files until commit history, route tree/imports, migration ledger and CI are reconciled.
+
+Correction to the previous evidence note: VIXOR's `.github/workflows/ci.yml` directly runs `pnpm vitest run` along with typecheck, lint, Prettier and build. The lack of a standalone `test` script in package.json is a convenience-script mismatch, not evidence that CI omits tests.
+
+### Latest CI evidence and limits
+
+- VIXOR App: run 36697373078 — success 2026-09-30, commit `3e08e8e8d45842d5d16ce93879fe80874f737988`.
+- Hunt: run 37870183208 — success 2026-10-09, commit `ceeb2474d3b20cf556e45abd0e9798739a0d887f`.
+- Shield: run 37870169067 — failure 2026-10-09, commit `5eefa4cf6d490d4b71c0991d8cbb318a70d54510`.
+- Trade: run 39328574029 — scheduled batch-compute success 2026-10-19, not full CI.
+
+Workflow files for Hunt/Shield/Trade configure typecheck, tests, wording-policy and secret-scan/bundle checks. The available Actions listing did not return private-repository run lists for tg-content-bot, vixor-packages, or other current private full-CI evidence. Combined commit-status queries returned empty arrays for latest SHAs; empty status arrays mean unknown, not passing. A maintainer must verify the latest private Actions runs.
+
+### Critical security findings
+
+**P0 — tg-content-bot Supabase policies:** `supabase/migrations/001_schema.sql` enables RLS but creates `anon_full_access` policies with `FOR ALL TO anon USING (true) WITH CHECK (true)` across core tables (settings, channels, drafts, source posts, published posts, logs, etc.). RLS being enabled does not make these policies restrictive. If table grants allow it, a public anon key can be used outside the Mini App API guard. Verify effective grants/direct anon-role access in staging and replace broad policies with least-privilege policies through a reviewed migration. Do not migrate during Phase 0.
+
+**P0 — webhook dedupe/recovery:** `bot-worker/src/telegram/webhook.ts` validates the Telegram secret header, then returns HTTP 200 while work runs in `ctx.waitUntil`. Its `idempotency_keys` dedupe explicitly fails open on DB errors. A DB outage can therefore permit duplicate processing, while background failure after early acknowledgement may be logged without Telegram retry. Design durable inbox/queue, ack/retry and dead-letter behavior before engine events are connected.
+
+**P1 — Mini App auth:** `bot-worker/src/http/auth.ts` validates Telegram initData HMAC, age (24h) and owner allowlist; it does not explicitly reject future `auth_date`. `bot-worker/src/http/ai-routes.ts` calls the helper, but each operation still needs object-level authorization for requested draft/channel IDs and schema validation. Wildcard CORS is not authorization.
+
+**P1 — VIXOR arbitrage RLS/grants:** `user_read_arb_stats` uses `USING (true)` although its comment says authenticated global stats; `user_own_arb_opportunities` allows all eligible readers to select rows with `user_id IS NULL`; broad authenticated CRUD grants exist for opportunities/executions. Effective exposure depends on grants and RLS. Confirm intent, deployed schema and role behavior in staging before a fix.
+
+**P1 — Trade/Shield ingestion:** Trade `GET /debug/brief` accepts a secret in query parameter `k`, risking URL/log exposure. Trade HMAC ingestion has ±5-minute freshness, a body cap and conflict-handled writes, but `batch_id` is not itself deduplicated and stale updates/shallow schema validation need tests. Shield's timestamp window is not a replay store; malformed JSON/items and repeated signed payloads inside the window need tests. Do not make Shield a required auto-publish safety gate while its known CI test remains unresolved.
+
+**P1 — Hunt endpoints:** `POST /engine/accel`, `/engine/filter` and `/engine/confluence` do not show service-auth gates in their handlers. They may intentionally be public stateless calculators; classify them explicitly before using them as trusted internal APIs. If internal, add signed service auth, rate limits, size limits and schema validation.
+
+### Tracked .env and migration duplicates
+
+VIXOR's current tree lists root `.env` and `.env.example`, despite `.gitignore` containing `.env*`. The `.env` contents were deliberately not read. A tracked file remains tracked despite an ignore rule. This is a potential exposure, not proof of a live secret. An authorized maintainer must securely inspect current contents/history, rotate any real credentials, and remove it from tracking through an approved change if needed.
+
+`supabase/migrations/020_auto_publisher.sql` and `ADD_020_auto_publisher.sql` share Git blob SHA `9248e6132c840147635f11e1d41fc659212072c7`, proving identical committed contents. README setup describes manual SQL Editor setup through migration 019; no migration runner was found in the tree. Many statements use `IF NOT EXISTS`, but that alone does not prove the whole file is safely repeatable. Do not delete or run either file until the deployed migration ledger and operator procedure are confirmed.
+
+### Evidence register
+
+| Requirement | Status |
+|---|---|
+| GLM5 + six PODs | Read and compared; completion claims need implementation proof |
+| VIXOR_MASTER.pdf | **Blocked — actual text not reviewed** |
+| Current public CI evidence | Captured; VIXOR/Hunt results are historical; Shield red |
+| Current private CI evidence | **Not returned by available Actions listing; maintainer verification required** |
+| Active Arbitrage implementation | **Not verified; files currently under archive** |
+| VIXOR root `.env` | **P0 secure triage; contents not read** |
+| tg-content-bot anon RLS | **P0 access-control blocker** |
+| Webhook idempotency/recovery | **P0 design gate** |
+| Duplicate 020 migration | Identical blob; migration ledger/operator procedure unknown |
+| File-by-file matrix | Added as `PHASE0_FILE_MATRIX.md` on audit branch |
+| Production changes | None |
+
+Phase 0 remains open until the PDF is extracted/reconciled, the tracked `.env` is securely triaged, current private Actions evidence is confirmed, active-vs-archived Arbitrage is resolved, effective RLS/grants and route authorization are mapped, and migration history is confirmed.
+
+
+### Additional check — GitHub Actions workflow presence
+
+Recursive default-branch tree checks confirm `.github/workflows/ci.yml` in VIXOR App, Hunt, Shield and Trade. They show **no `.github/workflows/` paths** in the current trees for `tg-content-bot`, `vixor-packages` or `vixor-deliverables`. Therefore, these three repositories have no repository-local GitHub Actions workflow in the inspected tree. This does not rule out external provider pipelines; those still need verification. For the command-center plan, tg-content-bot and shared packages should have an approved CI gate before integration work is merged.
+
