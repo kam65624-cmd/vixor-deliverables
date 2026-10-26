@@ -1,0 +1,133 @@
+{
+ "id": "T24-01",
+ "remediated_by_task": "TASK 25",
+ "executed_at_utc": "2026-10-26T22:39:06.660555+00:00",
+ "executed_by_script": "scripts/t25_redact.py (persisted)",
+ "finding": "eight non-empty ephemeral GitHub temp_clone_token values embedded in raw TASK 22 API-response evidence (Repository objects inside *_t22.json dumps)",
+ "token_type": "GitHub ephemeral repository clone token — documented field of Repository API responses; short-lived by design",
+ "status_evidence": {
+  "probe": "GET https://api.github.com/user with each value as Bearer (read-only; value in memory only)",
+  "probe_time_utc": "2026-10-26T22:36:48Z",
+  "result": "all 8 -> HTTP 401 Bad credentials",
+  "controls": {
+   "positive_audit_token": "200 (methodology valid)",
+   "negative_bogus": "401 (detection valid)"
+  },
+  "log": "task25-evidence/t25_token_probe.json (outer evidence; statuses only, no values)",
+  "conclusion": "no value potentially valid at remediation time; no owner revocation REQUIRED for these 8 (auto-expired ephemeral tokens); hygiene redaction applied anyway"
+ },
+ "policy": {
+  "replacement": "value bytes removed (empty string) at the exact captured span — JSON remains valid",
+  "originals": "quarantined locally under task25-evidence/quarantine/ (mode 600) — NOT published, NOT part of the package; historical published bytes remain in git history by design (no history rewrite permitted)",
+  "fingerprints": "sha256 of original and redacted files recorded; value fingerprint = first 12 hex of sha256(value) — non-reversible identifier",
+  "honest_limit": "fingerprinting does not protect an exposed secret and does not replace revocation; the operative mitigation here is the proven expiry (401 evidence) plus the fact the repository is public (values were public on the branch already)",
+  "raw_copies_in_final_package": "forbidden — final package ships ONLY the redacted versions"
+ },
+ "files": [
+  {
+   "path": "evidence/raw/repo_JAMRA_t22.json",
+   "hits": 1,
+   "offset": 5129,
+   "value_len": 29,
+   "value_sha12": "6d503377c4f7",
+   "original_bytes": 5569,
+   "original_sha256": "cce07b0b93cc39f881cd96441fb1f6f9bd0bb4a707938edd0145e447ed52f10f",
+   "redacted_bytes": 5540,
+   "redacted_sha256": "9bda629d5775466f0d88917cd26e3641362c83caf10a26f78b9820ae003d6c5a",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/repo_poplix-movie-app_t22.json",
+   "hits": 1,
+   "offset": 5678,
+   "value_len": 29,
+   "value_sha12": "874ce2cb46a8",
+   "original_bytes": 6118,
+   "original_sha256": "bec56a686b4a4619accf0a08e6886afaf0a589802dd4d5a29058f2abad4c5da2",
+   "redacted_bytes": 6089,
+   "redacted_sha256": "bc40f98ea67ca7f926a8e4ed521f09af170f172582e0dfb6f644871c174ee59d",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/repo_tg-content-bot_t22.json",
+   "hits": 1,
+   "offset": 5610,
+   "value_len": 29,
+   "value_sha12": "7d2c1cd17367",
+   "original_bytes": 6050,
+   "original_sha256": "a74bcc1651d9931783214177d97ff4c5a539ad96910b82bfd416a916baefd115",
+   "redacted_bytes": 6021,
+   "redacted_sha256": "0f21592d6b4d74b8c99aca7a80365030ce30e2b3e31197b7e923d0cf4ff9337f",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/repo_vixor-hunt_t22.json",
+   "hits": 1,
+   "offset": 5319,
+   "value_len": 29,
+   "value_sha12": "c75f13517bad",
+   "original_bytes": 5759,
+   "original_sha256": "84d53d65b77d215ae745a669a4a6ad5bacf78673121ab2494b128fd4d734026b",
+   "redacted_bytes": 5730,
+   "redacted_sha256": "b6500ec27fe8b21a3986ce366b59d549bfb249c8dcbb3b6e191a9b24ec2467b5",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/repo_vixor-packages_t22.json",
+   "hits": 1,
+   "offset": 5493,
+   "value_len": 29,
+   "value_sha12": "f16cf07ac9b8",
+   "original_bytes": 5933,
+   "original_sha256": "22b1eacaa2821c8b9084ed1d0d2f2e3a0c3d263275d60587f7ffdf358eac102d",
+   "redacted_bytes": 5904,
+   "redacted_sha256": "809f617c93fe994ccec7529599c3b3206ae74b0ef77419c4088c65a065b2a624",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/repo_vixor-shield_t22.json",
+   "hits": 1,
+   "offset": 5407,
+   "value_len": 29,
+   "value_sha12": "8380f8a0ec0e",
+   "original_bytes": 5847,
+   "original_sha256": "51d9f3799cea7f2c36dc283969525bc88924b9fcf452ca7164ff4c62bf835ba1",
+   "redacted_bytes": 5818,
+   "redacted_sha256": "74bfb8c7810544b3c8b722252f5fa76f11779fb97d6d0c96924cbd0841ad6fc3",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/repo_vixor-trade_t22.json",
+   "hits": 1,
+   "offset": 5363,
+   "value_len": 29,
+   "value_sha12": "fbf53794146c",
+   "original_bytes": 5803,
+   "original_sha256": "2363a774cc1adeb383d3ba6869ddd06362b47c90a2f09e567f8b2f43c2386390",
+   "redacted_bytes": 5774,
+   "redacted_sha256": "d0bfc2960af761a2bf88a497a579083436ab33a5145651fcb8a31dd1a3598908",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  },
+  {
+   "path": "evidence/raw/tgcb_repo_t22.json",
+   "hits": 1,
+   "offset": 5610,
+   "value_len": 29,
+   "value_sha12": "7fb53f11053f",
+   "original_bytes": 6050,
+   "original_sha256": "d72ee3ed35828e1543f03f1a4c55b0989ba8eab2e649247e0bf92fe9e7ba8b87",
+   "redacted_bytes": 6021,
+   "redacted_sha256": "0f21592d6b4d74b8c99aca7a80365030ce30e2b3e31197b7e923d0cf4ff9337f",
+   "baseline_binding": "original sha256 == entry in MANIFEST.json v3 registered 2026-10-26T21:35Z",
+   "quarantine": "local-only copy retained with mode 600; not part of any deliverable"
+  }
+ ],
+ "pattern_control": "scanner extended with a pattern matching any non-empty value of this field (self-citation inside MANIFEST.json's own pattern list is whitelisted with reason)"
+}

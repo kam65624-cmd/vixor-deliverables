@@ -1,0 +1,65 @@
+{
+ "id": "T24-01",
+ "method": "byte scan of three package copies (work source / extracted-from-GitHub published ZIP / download copy) for any non-empty value of the temp_clone_token field",
+ "copies_agree": true,
+ "files": [
+  {
+   "path": "evidence/raw/repo_JAMRA_t22.json",
+   "offset": 5110,
+   "value_len": 29,
+   "value_sha12": "6d503377c4f7",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/repo_poplix-movie-app_t22.json",
+   "offset": 5659,
+   "value_len": 29,
+   "value_sha12": "874ce2cb46a8",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/repo_tg-content-bot_t22.json",
+   "offset": 5591,
+   "value_len": 29,
+   "value_sha12": "7d2c1cd17367",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/repo_vixor-hunt_t22.json",
+   "offset": 5300,
+   "value_len": 29,
+   "value_sha12": "c75f13517bad",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/repo_vixor-packages_t22.json",
+   "offset": 5474,
+   "value_len": 29,
+   "value_sha12": "f16cf07ac9b8",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/repo_vixor-shield_t22.json",
+   "offset": 5388,
+   "value_len": 29,
+   "value_sha12": "8380f8a0ec0e",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/repo_vixor-trade_t22.json",
+   "offset": 5344,
+   "value_len": 29,
+   "value_sha12": "fbf53794146c",
+   "confirmed_in_copies": 3
+  },
+  {
+   "path": "evidence/raw/tgcb_repo_t22.json",
+   "offset": 5591,
+   "value_len": 29,
+   "value_sha12": "7fb53f11053f",
+   "confirmed_in_copies": 3
+  }
+ ],
+ "note": "value_sha12 = first 12 hex of sha256(value) — non-reversible identifier; no value or fragment stored here",
+ "benign_occurrences": "the same field name appears with EMPTY values in t23_*.json raw dumps — not affected"
+}

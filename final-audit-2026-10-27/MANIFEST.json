@@ -1,9 +1,58 @@
 {
- "package": "VIXOR TASK 23 FINAL AUDIT PACKAGE (post-merge repair, verifier v3, tested)",
- "manifest_version": 3,
- "generated_at": "2026-10-26T21:35:23.700305Z",
- "generated_by_task": "TASK 23 (PR #11 package repair + verifier v3 + tests + ZIP) — manifest regenerated LAST (R21-02)",
- "supersedes": "MANIFEST.json v2 (TASK 22 edition) and v1 MANIFEST — superseded entries remain in git history untouched; v3 adds full-inventory coverage (missing/unregistered/traversal/symlink/types/duplicates) per owner directive",
+ "package": "VIXOR TASK 23 FINAL AUDIT PACKAGE (post-merge repair, verifier v3, tested) — T24-01 redacted edition (TASK 25)",
+ "manifest_version": 4,
+ "generated_at": "2026-10-26T22:43:56.669819Z",
+ "generated_by_task": "TASK 25 (T24-01 credential redaction + package rebuild) — manifest regenerated LAST after all edits (R21-02); supersedes v3 with redacted evidence copies",
+ "supersedes": "MANIFEST.json v3 (TASK 23 edition) and all earlier editions — superseded entries remain in git history untouched; v4 ships REDACTED copies of 8 raw-evidence files (T24-01), adds a scanner pattern for any non-empty value of that field, and registers 5 new files",
+ "t24_01_redaction": {
+  "log": "evidence/T24_01_REDACTION_LOG.json",
+  "summary": "8 raw-evidence files carry REDACTED bytes (ephemeral values removed at exact spans; JSON valid)",
+  "all_values_proven_expired": "evidence/t25_token_probe.json (8x HTTP 401 with 200/401 controls, values in memory only)",
+  "originals": "quarantined local-only (mode 600), never published; historical git bytes unchanged by design",
+  "files": [
+   {
+    "path": "evidence/raw/repo_JAMRA_t22.json",
+    "original_sha256_12": "cce07b0b93cc",
+    "redacted_sha256_12": "9bda629d5775"
+   },
+   {
+    "path": "evidence/raw/repo_poplix-movie-app_t22.json",
+    "original_sha256_12": "bec56a686b4a",
+    "redacted_sha256_12": "bc40f98ea67c"
+   },
+   {
+    "path": "evidence/raw/repo_tg-content-bot_t22.json",
+    "original_sha256_12": "a74bcc1651d9",
+    "redacted_sha256_12": "0f21592d6b4d"
+   },
+   {
+    "path": "evidence/raw/repo_vixor-hunt_t22.json",
+    "original_sha256_12": "84d53d65b77d",
+    "redacted_sha256_12": "b6500ec27fe8"
+   },
+   {
+    "path": "evidence/raw/repo_vixor-packages_t22.json",
+    "original_sha256_12": "22b1eacaa282",
+    "redacted_sha256_12": "809f617c93fe"
+   },
+   {
+    "path": "evidence/raw/repo_vixor-shield_t22.json",
+    "original_sha256_12": "51d9f3799cea",
+    "redacted_sha256_12": "74bfb8c78105"
+   },
+   {
+    "path": "evidence/raw/repo_vixor-trade_t22.json",
+    "original_sha256_12": "2363a774cc1a",
+    "redacted_sha256_12": "d0bfc2960af7"
+   },
+   {
+    "path": "evidence/raw/tgcb_repo_t22.json",
+    "original_sha256_12": "d72ee3ed3582",
+    "redacted_sha256_12": "0f21592d6b4d"
+   }
+  ],
+  "note": "fingerprints identify files, they do not protect secrets; the operative mitigation is the proven expiry plus public-repo context; raw exposed copies are FORBIDDEN in shipped packages"
+ },
  "historical_manifest_v1": {
   "bytes": 3226,
   "sha256": "8f618d08b92a54aea79fc88d9c903a1897a038770ab781b365df808c9635c88c",
@@ -12,7 +61,7 @@
   "note": "v1 claims stay historical; its bytes are now a verified package entry"
  },
  "language": "ar (content) / en (filenames)",
- "verdict": "AUDIT INCOMPLETE (blockers: SEC-03 owner, ALERT-08 preflight owner, ALERT-07 §A owner; decisions: A/C, H1/H2, PR merges) — unchanged by PR #10 merge",
+ "verdict": "AUDIT INCOMPLETE (blockers: SEC-03 owner, ALERT-08 preflight owner, ALERT-07 §A owner; decisions: A/C, H1/H2, PR merges) — unchanged by T24-01 remediation",
  "pr10_head_verified": "4b3eebe0e6033431ec6819cd9b0e303dec5a8a0c",
  "pr10_merged": {
   "merged_at": "2026-10-26T20:52:59Z",
@@ -55,8 +104,8 @@
    "note": "historical manifest v1 (TASK 21 edition) — content frozen; hash RE-VERIFIABLE from current files as this registered entry"
   },
   "OWNER_ACTIONS.md": {
-   "bytes": 11528,
-   "sha256": "3203ad942c05f78d066c08909a6ba475774d908d68c1f94a20230ff9dc010e72"
+   "bytes": 13045,
+   "sha256": "4a2305fa807c06afc002cc4972e0de290fd5e21d44b84a0690b900590c199118"
   },
   "PHASE0_BASELINE.md": {
    "bytes": 5658,
@@ -76,24 +125,29 @@
    "sha256": "38e31b30221ff8178f4982e33e42a2466dfd0dc0cf9265afcd0354cb23c71dba"
   },
   "REPRODUCIBILITY.md": {
-   "bytes": 9089,
-   "sha256": "1aae3eabe8c04dd9fe5e6e31448c82ce5969ce7c217bfdca79d89a75a6621663"
+   "bytes": 11716,
+   "sha256": "02f08d3dd92135219de9fcc9185803499993425b653122c3c948216b928ed941"
   },
   "RISK_REGISTER.md": {
-   "bytes": 10254,
-   "sha256": "be0918c872497ef808a48e0df88f31e4685009998b229c83a1748a17d4a63597"
+   "bytes": 12953,
+   "sha256": "94a8ca5fc5480f41f7d6e0b5c20c8702747d0b87deee7964a9068020e2feed3b"
+  },
+  "T24_01_REMEDIATION_REPORT_AR.md": {
+   "bytes": 6441,
+   "sha256": "bcabe1081ffb8a1767b497142a17350f3d85215feee59a952d771b1a10aba75c",
+   "note": "TASK 25 T24-01 remediation report (redaction + rebuild + verification)"
   },
   "TASK_STATUS.md": {
-   "bytes": 8554,
-   "sha256": "17a0dc1e7ca75cc4b100211ef110f05c79c5cb8e5fb6d8638f091f17917e4077"
+   "bytes": 10302,
+   "sha256": "d0ce428d0885327d77080fec456ecd9f5107e18dd34f8cd8e00bab4e76601179"
   },
   "TEST_EVIDENCE.md": {
    "bytes": 14774,
    "sha256": "aaf48be7ef1efad678b42c6c5ebe91151ee725d44feaa41fee6e8f1c04d454f7"
   },
   "WORKLOG.md": {
-   "bytes": 12289,
-   "sha256": "9c28e112620d026950cff557aa6ab3ebe54ccc27c337d71d80292c851a509f60"
+   "bytes": 17114,
+   "sha256": "fb1ebfbd86b7d3591bafc0df761a9ab1085cf921d6c52a719380d385bcc893c1"
   },
   "WORKLOG_APPEND_ONLY.md": {
    "bytes": 9770,
@@ -114,6 +168,10 @@
   "evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md": {
    "bytes": 5438,
    "sha256": "f9e7131168695b48de056ec8ff6dbad0667e3bbb54a380a72c61b40c993f402f"
+  },
+  "evidence/T24_01_REDACTION_LOG.json": {
+   "bytes": 6663,
+   "sha256": "cf1258390cc4b5c33f6d700a6ba6c1b04cd29983c9332eb48002045d648e8264"
   },
   "evidence/t22_digest.json": {
    "bytes": 15790,
@@ -138,6 +196,18 @@
   "evidence/t23_verifier_tests_output.log": {
    "bytes": 46959,
    "sha256": "1cde6a5b68fee2525dbbfb774ff9bd72eff2db1bc84e28094f737d231b108537"
+  },
+  "evidence/t25_enumeration_summary.json": {
+   "bytes": 1763,
+   "sha256": "abce3f468ea040c46673f84498a2b6d9af5d83ffd36225204681baab87a8af74"
+  },
+  "evidence/t25_token_probe.json": {
+   "bytes": 2354,
+   "sha256": "3c9081aa6a1d46bd50b5fa920aac4912476017e7052353362703483bf02919ff"
+  },
+  "evidence/t25_verifier_tests_output.log": {
+   "bytes": 49720,
+   "sha256": "5c44d2f37b2bb96db6d67a0d43f722da15339b1b6ab7e7a37864dad5dc08032d"
   },
   "evidence/test-evidence-r19_fresh_main_2026-10-27.log": {
    "bytes": 10099,
@@ -204,24 +274,24 @@
    "sha256": "2907bf62a5ad67d7548dbc1fa82fae0cf7e2a077aa9c463f8c4ba2e4a9f27445"
   },
   "evidence/raw/repo_JAMRA_t22.json": {
-   "bytes": 5569,
-   "sha256": "cce07b0b93cc39f881cd96441fb1f6f9bd0bb4a707938edd0145e447ed52f10f"
+   "bytes": 5540,
+   "sha256": "9bda629d5775466f0d88917cd26e3641362c83caf10a26f78b9820ae003d6c5a"
   },
   "evidence/raw/repo_poplix-movie-app_branch_t22.json": {
    "bytes": 3116,
    "sha256": "0c7d6a6db395ba585bc8a8a1411fcd8b9f123993057abe69a561698ff26e98b5"
   },
   "evidence/raw/repo_poplix-movie-app_t22.json": {
-   "bytes": 6118,
-   "sha256": "bec56a686b4a4619accf0a08e6886afaf0a589802dd4d5a29058f2abad4c5da2"
+   "bytes": 6089,
+   "sha256": "bc40f98ea67ca7f926a8e4ed521f09af170f172582e0dfb6f644871c174ee59d"
   },
   "evidence/raw/repo_tg-content-bot_branch_t22.json": {
    "bytes": 5391,
    "sha256": "ee83e9cb12f1651b46b940e8adae8b45cc80fd1249f7a7d494d237950d549c03"
   },
   "evidence/raw/repo_tg-content-bot_t22.json": {
-   "bytes": 6050,
-   "sha256": "a74bcc1651d9931783214177d97ff4c5a539ad96910b82bfd416a916baefd115"
+   "bytes": 6021,
+   "sha256": "0f21592d6b4d74b8c99aca7a80365030ce30e2b3e31197b7e923d0cf4ff9337f"
   },
   "evidence/raw/repo_vixor-APP_branch_t22.json": {
    "bytes": 5237,
@@ -244,32 +314,32 @@
    "sha256": "f32af7929ff313c1e575c6a337ef03c55d4c6b48ea0db2d2f799e3e0b6d6e236"
   },
   "evidence/raw/repo_vixor-hunt_t22.json": {
-   "bytes": 5759,
-   "sha256": "84d53d65b77d215ae745a669a4a6ad5bacf78673121ab2494b128fd4d734026b"
+   "bytes": 5730,
+   "sha256": "b6500ec27fe8b21a3986ce366b59d549bfb249c8dcbb3b6e191a9b24ec2467b5"
   },
   "evidence/raw/repo_vixor-packages_branch_t22.json": {
    "bytes": 5377,
    "sha256": "cd600f42d7369b841d2a6b05abe625f897d6d5363663a6a44c8b5a3ad9740738"
   },
   "evidence/raw/repo_vixor-packages_t22.json": {
-   "bytes": 5933,
-   "sha256": "22b1eacaa2821c8b9084ed1d0d2f2e3a0c3d263275d60587f7ffdf358eac102d"
+   "bytes": 5904,
+   "sha256": "809f617c93fe994ccec7529599c3b3206ae74b0ef77419c4088c65a065b2a624"
   },
   "evidence/raw/repo_vixor-shield_branch_t22.json": {
    "bytes": 5453,
    "sha256": "0f1e758d1b8b3751831a11a95b56a60624a73e49edfab14b54e80570be3cf2f8"
   },
   "evidence/raw/repo_vixor-shield_t22.json": {
-   "bytes": 5847,
-   "sha256": "51d9f3799cea7f2c36dc283969525bc88924b9fcf452ca7164ff4c62bf835ba1"
+   "bytes": 5818,
+   "sha256": "74bfb8c7810544b3c8b722252f5fa76f11779fb97d6d0c96924cbd0841ad6fc3"
   },
   "evidence/raw/repo_vixor-trade_branch_t22.json": {
    "bytes": 2512,
    "sha256": "c31a509196f43e8bc12a6811452ea972884301b8adb8d5c37d3bebe8a0aea7ee"
   },
   "evidence/raw/repo_vixor-trade_t22.json": {
-   "bytes": 5803,
-   "sha256": "2363a774cc1adeb383d3ba6869ddd06362b47c90a2f09e567f8b2f43c2386390"
+   "bytes": 5774,
+   "sha256": "d0bfc2960af761a2bf88a497a579083436ab33a5145651fcb8a31dd1a3598908"
   },
   "evidence/raw/t23_PHASE0_BASELINE_copy.md": {
    "bytes": 5658,
@@ -400,8 +470,8 @@
    "sha256": "12a053f2e9d01abe058a3f0383d8a68e7aa6989fbd1fb0d1fb014bd0dad1b126"
   },
   "evidence/raw/tgcb_repo_t22.json": {
-   "bytes": 6050,
-   "sha256": "d72ee3ed35828e1543f03f1a4c55b0989ba8eab2e649247e0bf92fe9e7ba8b87"
+   "bytes": 6021,
+   "sha256": "0f21592d6b4d74b8c99aca7a80365030ce30e2b3e31197b7e923d0cf4ff9337f"
   },
   "evidence/raw/tgcb_status_main_t22.json": {
    "bytes": 4956,
@@ -416,7 +486,7 @@
   "MANIFEST.json": {
    "reason": "self-referential: a manifest cannot contain its own sha256 — validated structurally only (parse + schema + duplicate-key check) by verify_manifest.py",
    "scope": "single file: the manifest itself",
-   "added_by_task": "TASK 22 (retained and enforced in v3)"
+   "added_by_task": "TASK 22 (retained and enforced in v3/v4)"
   }
  },
  "secret_scan": {
@@ -430,14 +500,15 @@
     "cfat_[A-Za-z0-9_-]{10,}",
     "eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{5,}",
     "sk-[A-Za-z0-9]{20,}",
-    "sbp_[A-Za-z0-9]{20,}"
+    "sbp_[A-Za-z0-9]{20,}",
+    "temp_clone_token\":\"[^\"]+\""
    ],
    "hits": [],
    "whitelist_disposition": [
     {
-     "file": "WORKLOG.md",
+     "file": "MANIFEST.json",
      "pattern": "db_conn_string",
-     "reason": "the TASK 23 worklog entry DESCRIBES the scan dispositions and cites the same literal placeholder 'postgres://user:pass@/' as text — documentation about the scan, not a credential"
+     "reason": "the manifest's own pattern list / whitelist text cites the same placeholder"
     },
     {
      "file": "REPRODUCIBILITY.md",
@@ -445,9 +516,9 @@
      "reason": "literal documentation placeholder 'postgres://user:pass@/' inside the pattern-enumeration methodology text (user:pass) — TASK 21/22 disposition retained"
     },
     {
-     "file": "MANIFEST.json",
+     "file": "WORKLOG.md",
      "pattern": "db_conn_string",
-     "reason": "the manifest's own pattern list / whitelist text cites the same placeholder"
+     "reason": "worklog entries DESCRIBE the scan dispositions and cite the same literal placeholder 'postgres://user:pass@/' as text — documentation about the scan, not a credential"
     },
     {
      "file": "evidence/raw/t23_pr11_files.json",
@@ -473,11 +544,13 @@
     "service_role",
     "supabase_service"
    ],
-   "hits_count": 0,
-   "hits_files": [],
+   "hits_count": 1,
+   "hits_files": [
+    "evidence/t25_token_probe.json"
+   ],
    "disposition": "all name-hits are documentation/evidence filenames that describe the scan itself or cite alert/token context — no credential values (value scan is the binding check)"
   },
   "result": "CLEAN (after documented whitelist dispositions)"
  },
- "notes": "manifest build r2-final: files=19 evidence=75"
+ "notes": "manifest build r2-final: files=20 evidence=79"
 }
