@@ -1,9 +1,9 @@
 {
- "package": "VIXOR TASK 23 FINAL AUDIT PACKAGE (post-merge repair, verifier v3, tested) — T24-01 redacted edition (TASK 25)",
- "manifest_version": 4,
- "generated_at": "2026-10-26T22:43:56.669819Z",
- "generated_by_task": "TASK 25 (T24-01 credential redaction + package rebuild) — manifest regenerated LAST after all edits (R21-02); supersedes v3 with redacted evidence copies",
- "supersedes": "MANIFEST.json v3 (TASK 23 edition) and all earlier editions — superseded entries remain in git history untouched; v4 ships REDACTED copies of 8 raw-evidence files (T24-01), adds a scanner pattern for any non-empty value of that field, and registers 5 new files",
+ "package": "VIXOR TASK 23 FINAL AUDIT PACKAGE (post-merge repair, verifier v3, tested) — T24-01 redacted edition (TASK 25) + ALERT-01 evidence update & post-merge state registration (TASK 26)",
+ "manifest_version": 5,
+ "generated_at": "2026-10-26T23:37:20.750520Z",
+ "generated_by_task": "TASK 26 (ALERT-01 regression evidence update verified + post-merge state registration) — manifest regenerated LAST after all edits (R21-02); supersedes v4; built ON TOP of owner-merged vd main content (c46b8fef…, which includes the owner's PR #12 append-only corrections)",
+ "supersedes": "MANIFEST.json v4 (TASK 25 edition) and all earlier editions — superseded entries remain in git history untouched; v5 ships the TASK 26 evidence file + dated doc appends + this manifest; the T24-01 redactions of v4 carry forward unchanged",
  "t24_01_redaction": {
   "log": "evidence/T24_01_REDACTION_LOG.json",
   "summary": "8 raw-evidence files carry REDACTED bytes (ephemeral values removed at exact spans; JSON valid)",
@@ -53,6 +53,15 @@
   ],
   "note": "fingerprints identify files, they do not protect secrets; the operative mitigation is the proven expiry plus public-repo context; raw exposed copies are FORBIDDEN in shipped packages"
  },
+ "task26_alert01_evidence_update": {
+  "owner_update_registered": "evidence/ALERT01_REGRESSION_EVIDENCE_UPDATE_2026-10-27.md",
+  "report": "T26_ALERT01_UPDATE_REPORT_AR.md",
+  "summary": "owner-provided ALERT-01 regression update (npm run regression -> 'ALERT-01 regression: 20 passed, 0 failed', R1-R19) registered VERBATIM and independently re-verified via two channels: CI run 40416117388 on owner-merged tb main 2d8933ed… (success, exact line in job log) and a byte-pinned clean tarball rerun (4 blob pins match; 5 mandatory steps exit 0; regression 20/0 twice; smoke 86/0)",
+  "scope": "regression suite output only — per the owner's own scope limitation, NOT production runtime behavior",
+  "r21_01_r22_01_closure": "closed per pre-declared conditions: owner merge of PR #19 (merge 2d8933ed…) + green CI (run 40416117388) on main containing the change",
+  "post_merge_state": "owner merged PR #11 (a2db53e5…, 2026-10-26T22:55:22Z), PR #19 (2d8933ed…, 22:55:39Z), PR #12 (c46b8fef…, 23:05:19Z = current vd main); auditor merged nothing",
+  "verdict_impact": "none on cumulative verdict — AUDIT INCOMPLETE unchanged (SEC-03 / ALERT-08 / ALERT-07 §A owner-gated)"
+ },
  "historical_manifest_v1": {
   "bytes": 3226,
   "sha256": "8f618d08b92a54aea79fc88d9c903a1897a038770ab781b365df808c9635c88c",
@@ -61,7 +70,7 @@
   "note": "v1 claims stay historical; its bytes are now a verified package entry"
  },
  "language": "ar (content) / en (filenames)",
- "verdict": "AUDIT INCOMPLETE (blockers: SEC-03 owner, ALERT-08 preflight owner, ALERT-07 §A owner; decisions: A/C, H1/H2, PR merges) — unchanged by T24-01 remediation",
+ "verdict": "AUDIT INCOMPLETE (blockers: SEC-03 owner, ALERT-08 preflight owner, ALERT-07 §A owner; decisions: A/C, H1/H2, TASK 26 draft-PR review) — unchanged by TASK 26 evidence verification",
  "pr10_head_verified": "4b3eebe0e6033431ec6819cd9b0e303dec5a8a0c",
  "pr10_merged": {
   "merged_at": "2026-10-26T20:52:59Z",
@@ -79,8 +88,8 @@
  },
  "files": {
   "ALERT_STATUS.md": {
-   "bytes": 10695,
-   "sha256": "524e8460a705065c2361b3a19e79bb3ebb0d35e7c0ac2ed15842744447f5c096"
+   "bytes": 13132,
+   "sha256": "50acd205ee8015a48d605612d27ae580de4697cdde108ae7a7a3d3369004bee3"
   },
   "EXECUTIVE_SUMMARY_AR.md": {
    "bytes": 7848,
@@ -104,8 +113,8 @@
    "note": "historical manifest v1 (TASK 21 edition) — content frozen; hash RE-VERIFIABLE from current files as this registered entry"
   },
   "OWNER_ACTIONS.md": {
-   "bytes": 13045,
-   "sha256": "4a2305fa807c06afc002cc4972e0de290fd5e21d44b84a0690b900590c199118"
+   "bytes": 17350,
+   "sha256": "8abc2618d960104d35c512085239cfc074d36189f434bcc9fc3a8d0c5b7bc2f2"
   },
   "PHASE0_BASELINE.md": {
    "bytes": 5658,
@@ -125,33 +134,38 @@
    "sha256": "38e31b30221ff8178f4982e33e42a2466dfd0dc0cf9265afcd0354cb23c71dba"
   },
   "REPRODUCIBILITY.md": {
-   "bytes": 11716,
-   "sha256": "02f08d3dd92135219de9fcc9185803499993425b653122c3c948216b928ed941"
+   "bytes": 14761,
+   "sha256": "f6685e276c6aff5ce7b3a45f5e82fb55be21fd0516709f81f9b787efd45d3573"
   },
   "RISK_REGISTER.md": {
-   "bytes": 12953,
-   "sha256": "94a8ca5fc5480f41f7d6e0b5c20c8702747d0b87deee7964a9068020e2feed3b"
+   "bytes": 18517,
+   "sha256": "31c95cb669de5b517948705cbc6b808a671cd2a776496d8d0bf9f11782fdc7ae"
   },
   "T24_01_REMEDIATION_REPORT_AR.md": {
    "bytes": 6441,
    "sha256": "bcabe1081ffb8a1767b497142a17350f3d85215feee59a952d771b1a10aba75c",
    "note": "TASK 25 T24-01 remediation report (redaction + rebuild + verification)"
   },
+  "T26_ALERT01_UPDATE_REPORT_AR.md": {
+   "bytes": 6526,
+   "sha256": "db2089a88451f1661eb3f9ceb16ae5ce15a4f9b88d1352ac7004b0273fae69d4",
+   "note": "TASK 26 report: ALERT-01 regression evidence update (owner-provided, independently re-verified) + post-merge state registration"
+  },
   "TASK_STATUS.md": {
-   "bytes": 10302,
-   "sha256": "d0ce428d0885327d77080fec456ecd9f5107e18dd34f8cd8e00bab4e76601179"
+   "bytes": 12878,
+   "sha256": "268ac488c1f956455927a29137b9e1dea34990b8e14d5b8df38650b68d26f9b6"
   },
   "TEST_EVIDENCE.md": {
    "bytes": 14774,
    "sha256": "aaf48be7ef1efad678b42c6c5ebe91151ee725d44feaa41fee6e8f1c04d454f7"
   },
   "WORKLOG.md": {
-   "bytes": 17114,
-   "sha256": "fb1ebfbd86b7d3591bafc0df761a9ab1085cf921d6c52a719380d385bcc893c1"
+   "bytes": 20893,
+   "sha256": "439b3f0cb646003470c34171a28910f08e7737bd9861f336a388d5563809825c"
   },
   "WORKLOG_APPEND_ONLY.md": {
-   "bytes": 9770,
-   "sha256": "8da2220e0c185f793e98038041bdeb8ef576f9db8342de9856d343de38b98e63"
+   "bytes": 13293,
+   "sha256": "0ccd1c20188bda18e78c7c22c944b34ae1328de445354377f2e4650f5d041a71"
   },
   "verify_manifest.py": {
    "bytes": 14665,
@@ -165,6 +179,10 @@
   }
  },
  "evidence": {
+  "evidence/ALERT01_REGRESSION_EVIDENCE_UPDATE_2026-10-27.md": {
+   "bytes": 6190,
+   "sha256": "c2a2f2ab24298d6c68ccf1702ad8c889e720ac40653f70cf003093ae420d3d02"
+  },
   "evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md": {
    "bytes": 5438,
    "sha256": "f9e7131168695b48de056ec8ff6dbad0667e3bbb54a380a72c61b40c993f402f"
@@ -208,6 +226,10 @@
   "evidence/t25_verifier_tests_output.log": {
    "bytes": 49720,
    "sha256": "5c44d2f37b2bb96db6d67a0d43f722da15339b1b6ab7e7a37864dad5dc08032d"
+  },
+  "evidence/t26_verifier_tests_output.log": {
+   "bytes": 52858,
+   "sha256": "ba2760a255253869111d092aad58abced9f2825de800236303eb2018513bb723"
   },
   "evidence/test-evidence-r19_fresh_main_2026-10-27.log": {
    "bytes": 10099,
@@ -486,7 +508,7 @@
   "MANIFEST.json": {
    "reason": "self-referential: a manifest cannot contain its own sha256 — validated structurally only (parse + schema + duplicate-key check) by verify_manifest.py",
    "scope": "single file: the manifest itself",
-   "added_by_task": "TASK 22 (retained and enforced in v3/v4)"
+   "added_by_task": "TASK 22 (retained and enforced in v3/v4/v5)"
   }
  },
  "secret_scan": {
@@ -552,5 +574,5 @@
   },
   "result": "CLEAN (after documented whitelist dispositions)"
  },
- "notes": "manifest build r2-final: files=20 evidence=79"
+ "notes": "manifest build r2-final: files=21 evidence=81"
 }
