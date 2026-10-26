@@ -80,3 +80,23 @@
 | ALERT-07 §A | بلا تغيير — أدلة اللوحة الخمسة (منها تفسير فشل بناء CF على فرع PR، Build ID موثق) بانتظار المالك؛ فحص TASK 25 الطازج أعاد نفس الحالة (failure على رأس PR #19 / success على main) | `BLOCKED_OWNER_ACTION` | أدلة TASK 25 الطازجة (الخارجية) |
 | R21-01/R22-01 | بلا تغيير — PR #19 ما يزال draft غير مدموج؛ الإغلاق بعد دمج المالك + CI أخضر على main يحوي التغيير | `BLOCKED_OWNER_ACTION` (الدمج) | فحص TASK 25 الطازج |
 | ALERT-02/05/06 وقرارات A/C وH1/H2 | بلا تغيير — قرار مالك | مفتوح | H1H2_ASSESSMENT + ملحقات سابقة |
+
+
+---
+
+## ملحق تصحيح حالة الدمج — 2026-10-27 (append-only)
+
+هذا الملحق هو الحالة الأحدث عند التعارض مع أوصاف تاريخية أقدم؛ لا يحذف أي صف سابق ولا يغيّر تقييم المخاطر الإنتاجية:
+
+| البند | الحالة الحالية | الدليل | أثر المخاطر |
+|---|---|---|---|
+| `vixor-deliverables` PR #11 | `MERGED` | merge commit `a2db53e5b4fad4f905b2da65c16dab2ef430bc39`؛ https://github.com/kam65624-cmd/vixor-deliverables/pull/11 | دمج حزمة تدقيق/توثيق فقط لا يغلق مخاطر الإنتاج. check-runs بعد الدمج لم يمكن إثباتها في الفحص الحالي؛ `NOT_VERIFIED`، لا تُصنّف نجاحًا أو فشلًا. |
+| `tg-content-bot` PR #19 | `MERGED` بتاريخ `2026-10-26T22:55:39Z` | merge commit `2d8933ed7cd92d23144099642497f32794340715`؛ https://github.com/kam65624-cmd/tg-content-bot/pull/19 | ربط R19 بالـCI تم دمجه. مرجع تشغيل CI: https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40416117388 . لا يُعد هذا إثباتًا للنشر الفعلي في Cloudflare. |
+
+### المخاطر/العوائق التي لا تتغير بسبب الدمج
+- `SEC-03`: إجراء المالك لتدوير/إلغاء التوكن طويل الأمد لا يزال مطلوبًا وفق السجل؛ لا تُدرج أي قيمة سرية في الأدلة.
+- `ALERT-07 §A`: `BLOCKED_OWNER_ACTION` حتى تتوفر أدلة Cloudflare عن deployment الفعلي وWorkers/Cron triggers وأسماء الإعدادات/الأسرار وسبب فشل بناء فرع PR.
+- `ALERT-08`: `BLOCKED_OWNER_ACTION` حتى يُنفذ preflight قراءة-فقط على قاعدة الإنتاج الصحيحة؛ لا migration ضمن هذا المسار.
+- `ALERT-02/05/06` ومخاطر Stars وtrade وhunt وDOC-05 وقرارات A/C وH1/H2: تظل مفتوحة وفق تفاصيل السجل السابق.
+
+**Verdict remains `AUDIT INCOMPLETE`.** هذا تحديث لحالة PRs فقط، وليس إعلان اكتمال التدقيق أو إغلاق أي خطر تشغيلي.
