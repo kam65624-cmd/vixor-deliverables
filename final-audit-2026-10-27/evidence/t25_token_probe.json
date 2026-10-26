@@ -1,0 +1,85 @@
+{
+ "probe_time_utc": "2026-10-26T22:36:48.637987+00:00",
+ "probe_endpoints": [
+  "GET /user"
+ ],
+ "note": "no token value ever printed/stored",
+ "controls": {
+  "positive_audit_token": {
+   "status": 200,
+   "class": "ok",
+   "expectation": "200 — proves probe methodology valid"
+  },
+  "negative_bogus": {
+   "status": 401,
+   "class": "bad_credentials",
+   "expectation": "401 — proves invalid creds are detected"
+  }
+ },
+ "probes": [
+  {
+   "file": "repo_JAMRA_t22.json",
+   "value_sha12": "6d503377c4f7",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "repo_poplix-movie-app_t22.json",
+   "value_sha12": "874ce2cb46a8",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "repo_tg-content-bot_t22.json",
+   "value_sha12": "7d2c1cd17367",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "repo_vixor-hunt_t22.json",
+   "value_sha12": "c75f13517bad",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "repo_vixor-packages_t22.json",
+   "value_sha12": "f16cf07ac9b8",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "repo_vixor-shield_t22.json",
+   "value_sha12": "8380f8a0ec0e",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "repo_vixor-trade_t22.json",
+   "value_sha12": "fbf53794146c",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  },
+  {
+   "file": "tgcb_repo_t22.json",
+   "value_sha12": "7fb53f11053f",
+   "value_len": 29,
+   "probe_status": 401,
+   "probe_class": "bad_credentials",
+   "expectation": "401 if expired/invalid; 200 would mean LIVE credential"
+  }
+ ]
+}

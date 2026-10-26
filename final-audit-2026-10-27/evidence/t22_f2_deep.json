@@ -1,0 +1,201 @@
+{
+ "vixor-packages": {
+  "plans_ts_paths": [],
+  "i18n_paths_sample": [],
+  "vixor_dep_refs": [
+   {
+    "package_json": "package.json",
+    "vixor_deps": [
+     "@vixor/packages-root"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-auth/package.json",
+    "vixor_deps": [
+     "@vixor/auth"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-design-system/package.json",
+    "vixor_deps": [
+     "@vixor/design-system"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-gamification/package.json",
+    "vixor_deps": [
+     "@vixor/gamification"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-persona-config/package.json",
+    "vixor_deps": [
+     "@vixor/persona-config"
+    ]
+   }
+  ]
+ },
+ "vixor-hunt": {
+  "plans_ts_paths": [
+   "lib/core/src/billing/plans.ts"
+  ],
+  "i18n_paths_sample": [
+   "lib/core/src/i18n/ar.ts",
+   "lib/core/src/i18n/en.ts",
+   "lib/core/src/i18n/index.ts"
+  ],
+  "vixor_dep_refs": [
+   {
+    "package_json": "lib/core/package.json",
+    "vixor_deps": [
+     "@vixor/core"
+    ]
+   },
+   {
+    "package_json": "lib/lexicon/package.json",
+    "vixor_deps": [
+     "@vixor/lexicon"
+    ]
+   },
+   {
+    "package_json": "lib/providers/package.json",
+    "vixor_deps": [
+     "@vixor/core",
+     "@vixor/providers"
+    ]
+   },
+   {
+    "package_json": "package.json",
+    "vixor_deps": [
+     "@vixor/core",
+     "@vixor/lexicon",
+     "@vixor/providers"
+    ]
+   }
+  ]
+ },
+ "vixor-shield": {
+  "plans_ts_paths": [
+   "lib/core/src/billing/plans.ts"
+  ],
+  "i18n_paths_sample": [
+   "lib/core/src/i18n/ar.ts",
+   "lib/core/src/i18n/en.ts",
+   "lib/core/src/i18n/index.ts"
+  ],
+  "vixor_dep_refs": [
+   {
+    "package_json": "lib/core/package.json",
+    "vixor_deps": [
+     "@vixor/core"
+    ]
+   },
+   {
+    "package_json": "lib/lexicon/package.json",
+    "vixor_deps": [
+     "@vixor/lexicon"
+    ]
+   },
+   {
+    "package_json": "lib/providers/package.json",
+    "vixor_deps": [
+     "@vixor/core",
+     "@vixor/providers"
+    ]
+   },
+   {
+    "package_json": "package.json",
+    "vixor_deps": [
+     "@vixor/core",
+     "@vixor/lexicon",
+     "@vixor/providers"
+    ]
+   }
+  ]
+ },
+ "vixor-trade": {
+  "plans_ts_paths": [
+   "lib/core/src/billing/plans.ts"
+  ],
+  "i18n_paths_sample": [
+   "lib/core/src/i18n/ar.ts",
+   "lib/core/src/i18n/en.ts",
+   "lib/core/src/i18n/index.ts"
+  ],
+  "vixor_dep_refs": [
+   {
+    "package_json": "lib/core/package.json",
+    "vixor_deps": [
+     "@vixor/core"
+    ]
+   },
+   {
+    "package_json": "lib/lexicon/package.json",
+    "vixor_deps": [
+     "@vixor/lexicon"
+    ]
+   },
+   {
+    "package_json": "lib/providers/package.json",
+    "vixor_deps": [
+     "@vixor/core",
+     "@vixor/providers"
+    ]
+   },
+   {
+    "package_json": "lib/ta/package.json",
+    "vixor_deps": [
+     "@vixor/ta"
+    ]
+   },
+   {
+    "package_json": "package.json",
+    "vixor_deps": [
+     "@vixor/core",
+     "@vixor/lexicon",
+     "@vixor/providers",
+     "@vixor/ta"
+    ]
+   }
+  ]
+ },
+ "vixor-APP": {
+  "plans_ts_paths": [],
+  "i18n_paths_sample": [
+   "src/__tests__/characters-i18n.test.tsx",
+   "src/components/vixor/i18n/LanguageToggle.tsx",
+   "src/shared/characters-i18n.ts",
+   "src/shared/i18n/index.tsx",
+   "src/shared/i18n/nav-strings.ts",
+   "src/shared/i18n/translations/ar.ts",
+   "src/shared/i18n/translations/en.ts",
+   "src/shared/i18n/translations/index.ts"
+  ],
+  "vixor_dep_refs": [
+   {
+    "package_json": "packages/persona-config/package.json",
+    "vixor_deps": [
+     "@vixor/persona-config"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-auth/package.json",
+    "vixor_deps": [
+     "@vixor/auth"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-design-system/package.json",
+    "vixor_deps": [
+     "@vixor/design-system"
+    ]
+   },
+   {
+    "package_json": "packages/vixor-gamification/package.json",
+    "vixor_deps": [
+     "@vixor/gamification"
+    ]
+   }
+  ]
+ }
+}

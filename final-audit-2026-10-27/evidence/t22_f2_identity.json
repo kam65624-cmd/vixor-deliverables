@@ -1,0 +1,20 @@
+{
+ "vixor-hunt": {
+  "lib/core/src/billing/plans.ts": "3373648f85dc2d29a075147d6fb1f2fd0479dcc2",
+  "lib/core/src/i18n/ar.ts": "c39548dba415ff7d9dd1e4565af620bcc42ff502",
+  "lib/core/src/i18n/en.ts": "023a5584f45c601e1d63d27102511dd21d31cbf2",
+  "lib/core/src/i18n/index.ts": "30d638cffa7428ae78af42090a18db1a472ee39b"
+ },
+ "vixor-shield": {
+  "lib/core/src/billing/plans.ts": "da96c995196f124675f65427c8666c33b33f62ed",
+  "lib/core/src/i18n/ar.ts": "3646998fbe97cf6879221e57eaafcbf7dde50646",
+  "lib/core/src/i18n/en.ts": "b67f4ba827e0b59379ad1682ac27ef45e22984aa",
+  "lib/core/src/i18n/index.ts": "30d638cffa7428ae78af42090a18db1a472ee39b"
+ },
+ "vixor-trade": {
+  "lib/core/src/billing/plans.ts": "661afcc6523a44f1c593467060d4b4503f9426c2",
+  "lib/core/src/i18n/ar.ts": "37b991b4d8c28109a91d9d05ec3968a544bd52a9",
+  "lib/core/src/i18n/en.ts": "39cde7c07efa76880b0dee1855de6155d696c536",
+  "lib/core/src/i18n/index.ts": "30d638cffa7428ae78af42090a18db1a472ee39b"
+ }
+}

@@ -1,0 +1,91 @@
+{
+  "package": "VIXOR TASK 21 FINAL AUDIT PACKAGE",
+  "generated_at": "2026-10-26T17:44:07.358364+00:00",
+  "generated_by_task": "TASK 21 (F1 fix + ALERT-08 + R20-R22 + full verification)",
+  "language": "ar (content) / en (filenames)",
+  "files": {
+    "ALERT_STATUS.md": {
+      "bytes": 6936,
+      "sha256": "d37872292ffe7763899ee5377c3f12aabeaf1d8c57cb3ca31c00d092fba8349c"
+    },
+    "FINAL_AUDIT_REPORT_AR.md": {
+      "bytes": 9649,
+      "sha256": "706d4dd2a83d57ef07cddd19f58c4cfc20c904e278ec86e37378020ac29c81d0"
+    },
+    "H1H2_ASSESSMENT.md": {
+      "bytes": 6052,
+      "sha256": "b8e9cd05e7fefba560d94900842d61a3ea4e10a4a760fff40b4585cc383c071a"
+    },
+    "LINE_BY_LINE_REVIEW.md": {
+      "bytes": 8343,
+      "sha256": "96cb88f05006745423c711881125ae88d77915335885226b5cbd3c711c5f9509"
+    },
+    "OWNER_ACTIONS.md": {
+      "bytes": 3466,
+      "sha256": "374ffb3ec1da1b5b95000cec650713224d6ca4595cb4a2d1f495e5a0b94ee5d2"
+    },
+    "R19_CI_WIRING_PROPOSAL.patch": {
+      "bytes": 1178,
+      "sha256": "3f3fded8429ad5789b534ce11ec60986eb86167d233a039eb76c8d2b90b33307"
+    },
+    "REPOSITORY_STATUS.md": {
+      "bytes": 4978,
+      "sha256": "049f69cbcc904638baf264df035b3cfa4bdc92929ceb354f0a4ada9a96b7f1ca"
+    },
+    "REPRODUCIBILITY.md": {
+      "bytes": 3923,
+      "sha256": "6666c521fe971e528576c57d366d5323909409cf0d698239d9784878d68a6c43"
+    },
+    "RISK_REGISTER.md": {
+      "bytes": 5604,
+      "sha256": "f26c4c47c8fcc02b96bc5a6e7b1fcc27a9e0871f8725cf1122e82b59c54d8066"
+    },
+    "TEST_EVIDENCE.md": {
+      "bytes": 6285,
+      "sha256": "fc2bac9737991591d43a0899e7ec1048ab168a2a12ea5fe4b8396af226e857f7"
+    },
+    "WORKLOG_APPEND_ONLY.md": {
+      "bytes": 7527,
+      "sha256": "596369dbbfd195088a1a852e2401b24e07c9442eec386403b469b8fd7293e38f"
+    }
+  },
+  "key_external_artifacts": {
+    "download/test-evidence-r22_run1_2026-10-27.log": {
+      "bytes": 3527,
+      "sha256": "d3b65899f27470b573688bfc896d3b9b02c20a46cc19cd8b94c6b00ff687f3cd"
+    },
+    "download/test-evidence-r22_run2_2026-10-27.log": {
+      "bytes": 3526,
+      "sha256": "6bed63d3d6192656f6e73d6910bd6ca4f75bf8b0cf6cccf575f78716ebb17d9e"
+    },
+    "download/test-evidence-r19_fresh_main_2026-10-27.log": {
+      "bytes": 10099,
+      "sha256": "7aa8288f6b0080f990a70aca4c78a862a545749f9551c4be3267781a8bc10bcf"
+    },
+    "download/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md": {
+      "bytes": 5438,
+      "sha256": "f9e7131168695b48de056ec8ff6dbad0667e3bbb54a380a72c61b40c993f402f"
+    },
+    "download/pr10-review/repo_audit_live_2026-10-27.json": {
+      "bytes": 10571,
+      "sha256": "defc5816fac5f494d1d601eef93cbf3bcf1049f7fe81fed0fbaac88718aaa3fe"
+    },
+    "download/pr10-review/main_diff_d745408_76830a72.json": {
+      "bytes": 90552,
+      "sha256": "4eead2025e9422399f51b1eb11576faa44b5015c4df5f0e491c9f3efb1b3ff93"
+    }
+  },
+  "secret_scan": {
+    "patterns": [
+      "github_pat",
+      "ghp",
+      "aws",
+      "jwt",
+      "pg_creds",
+      "privkey"
+    ],
+    "hits": [],
+    "whitelist_disposition": "one pg_creds match = the literal pattern-documentation string inside REPRODUCIBILITY.md itself (placeholder, not a secret); whitelisted by exact bytes",
+    "result": "CLEAN"
+  }
+}

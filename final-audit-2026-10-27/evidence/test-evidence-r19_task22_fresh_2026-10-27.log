@@ -1,0 +1,169 @@
+=== TASK 22 FRESH R19 RUN — merged main 76830a721bb3761a6d25309acc3672b117116994 ===
+date: 2026-10-26T18:02:14Z | node: v24.21.0 | tarball: official API ref=76830a72
+--- regression (alert01-regression.cjs) full output ---
+node:internal/modules/cjs/loader:1568
+  throw err;
+  ^
+
+Error: Cannot find module '../.smoke/src/db/client.js'
+Require stack:
+- /home/z/my-project/t22r19/kam65624-cmd-tg-content-bot-76830a721bb3761a6d25309acc3672b117116994/bot-worker/tests/alert01-regression.cjs
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1169:12)
+    at Module._load (node:internal/modules/cjs/loader:1341:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.require (node:internal/modules/cjs/loader:1674:12)
+    at require (node:internal/modules/helpers:157:16)
+    at Object.<anonymous> (/home/z/my-project/t22r19/kam65624-cmd-tg-content-bot-76830a721bb3761a6d25309acc3672b117116994/bot-worker/tests/alert01-regression.cjs:26:33)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/z/my-project/t22r19/kam65624-cmd-tg-content-bot-76830a721bb3761a6d25309acc3672b117116994/bot-worker/tests/alert01-regression.cjs'
+  ]
+}
+
+Node.js v24.21.0
+--- smoke tail ---
+
+> tg-content-bot-worker@1.0.0 test
+> tsc -p tests/smoke.tsconfig.json && node tests/smoke-test.cjs
+
+
+──────── 1) مكتبة البرومبتات (prompts.ts) ────────
+  ✅ composeEditorSystem يركّب النواة + مهارة النيش + الطبقة المخصصة
+  ✅ buildEditTask يضمّن عقد الروابط فقط لما يكون فيه روابط
+  ✅ buildClassifyPrompt: عقد JSON صارم + قائمة النيشات
+  ✅ buildLinkIntelPrompt: الأمان أولاً
+
+──────── 2) استخراج الروابط (links.ts) ────────
+  ✅ extractLinks: ترتيب حسب الظهور + دمج المصادر بدون تكرار
+  ✅ extractLinks: نص فاضي → مفيش روابط
+  ✅ unwrapShortLink: الروابط العادية تفضل زي ما هي (بدون شبكة)
+
+──────── 3) الاختصار + التتبع (shortener.ts) ────────
+  ✅ resolveShortDomain: null لما الإعداد والمتغير فاضيين
+  ✅ createShortLink: reason واضح لما الدومين مش مضبوط
+  ✅ createShortLink: رابط مختصر + تسجيل KV + upsert في DB
+  ✅ حماية الحلقة: مفيش اختصار لرابط على الدومين المختصر نفسه
+  ✅ createShortLink: رابط غير صالح مرفوض
+  ✅ handleGoRedirect: 302 لهدف صحيح من الـ KV
+  ✅ handleGoRedirect: fallback للـ DB لما الـ KV فاضي + إعادة تسجيل
+  ✅ handleGoRedirect: كود غير موجود → 404
+  ✅ handleGoRedirect: كود بصيغة خبيثة → 404 بدون استعلام
+  ✅ getLinkStats: مجاميع صحيحة + روابط مختصرة بالدومين
+  ✅ shortenManual: رفض بروتوكول غير http/https
+  ✅ shortenManual: اختصار ناجح عند التهيئة
+
+──────── 5) موجه المزودين: NVIDIA + fallback ────────
+  ✅ callAI: NVIDIA فقط → استخدام nemotron للمهام العادية
+  ✅ callAI: fast=true → نموذج diffusiongemma السريع
+  ✅ callAI: nemotron تستقبل enable_thinking=false
+[WARN][nvidia] empty content, using reasoning { model: 'nvidia/nemotron-3.5-lightning-30b-a3b' }
+  ✅ callAI: محتوى فاضي + reasoning → يرجع reasoning_content
+  ✅ callAI: إعداد ai_provider=anthropic بدون مفتاح → يتخطاه ويستخدم NVIDIA
+  ✅ callAI: المزود الأول يفشل 500 → التاني ينجح
+  ✅ callAI: بدون أي مفتاح → خطأ واضح
+
+──────── 5.5) المزود المخصص (Custom OpenAI-compatible) ────────
+  ✅ custom: مفتاح + رابط → ترتيب يبدأ بـ custom والنداء على البوابة
+  ✅ custom: custom_model من الإعدادات يُستخدم
+  ✅ custom: إعداد ai_provider=custom بدون رابط → تجاهل والتحول لـ NVIDIA
+  ✅ custom: مفتاح بدون رابط → لا يدخل الترتيب إطلاقاً
+
+──────── 4) التصنيف (fallback بدون AI) ────────
+[WARN][classify] AI failed { error: 'Error: ANTHROPIC_API_KEY not set' }
+  ✅ classify: كلمات مفتاحية → نيش gold بدون استدعاء AI
+  ✅ classify: صورة/فيديو بدون نص → تصنيف افتراضي (مش null)
+
+──────── 6) تحليل ردود الذكاء (ai/parse.ts) ────────
+  ✅ parseGeneration: JSON نظيف بالشكل المتوقع
+  ✅ parseGeneration: يتحمل code fences والنص الزائد حواليه
+  ✅ parseGeneration: رد مكسور → مصفوفة فاضية (مش crash)
+  ✅ parseGeneration: بيحترم count
+  ✅ parseVariant: مصفوفة strings مباشرة
+  ✅ parseVariant: شكل الكائن { tweets: [...] }
+  ✅ parseVariant: رد عشوائي → فاضي
+
+──────── 7) سياق القناة (appendChannelContext) ────────
+  ✅ appendChannelContext: بيضيف السياق بنفس الصيغة الموحدة
+  ✅ appendChannelContext: بدون نبرة → النظام زي ما هو
+  ✅ appendChannelContext: بيقص النبرة الطويلة على الحد
+[WARN][edit] AI failed { error: 'Error: ANTHROPIC_API_KEY not set' }
+  ✅ edit: بيقرأ نبرة القناة المحفوظة من chmeta (مايقعش بدون مفتاح AI)
+  ✅ quota: startOfUtcDay بيرجع نص الليل UTC بالظبط
+  ✅ quota: isWithinPostHours — فاضية = مسموح دايمًا، وممتلئة بتفلتر الساعة
+  ✅ quota: selectCandidate بياخد الأقدم غير المكرر وبيتخطى نافذة التكرار
+  ✅ quota: selectCandidate بينفع للقائمة الفاضية وCA المفقود
+  ✅ quota: buildPublishedCasMap بيحتفظ بأحدث وقت لكل CA
+  ✅ quota: clampAutoSettings بيقص القيم الخارجة عن الحدود
+  ✅ post: قوالب البوست والتحديث + المنسقات متطابقة مع نسخة الـ UI
+  ✅ commands: سجل الأوامر كامل بدون تكرار وبصيغة تليجرام سليمة
+  ✅ commands: commandArgs بيطلّع باراميترات الأمر صح
+  ✅ commands-format: countByPlatform + sumCounts + topPlatform
+  ✅ commands-format: كود الإحالة المخفي + عدّاد الإيردروب
+  ✅ chart-theme: ترميز مركب ثيم:لون:فاصل:مدة + فسيفساء القيم
+  ✅ radar: تأهيل العملة لكل قناة بفلتر القناة نفسه
+  ✅ radar: خطة التوزيع لكل القنوات بدون تكرار
+  ✅ radar: كشف لغة القناة من اسمها
+  ✅ chart: كشف الشموع المسطحة (نقاط مراقبة مش OHLC)
+  ✅ chart: تنسيق محور الأسعار لأي مقياس
+  ✅ targets: TP/SL بيتحققوا مرة واحدة بأكشن
+  ✅ persona: انفعالات مختلفة حسب النتيجة والشخصية
+  ✅ radar: فلتر الفرص الحقيقية (مرفوض السكاكين والمتأخر)
+
+──────── 12) F1 — سجل telegram_updates (insert-first) ────────
+  ✅ ledger ingest: أول إدخال → inserted والصف مخزّن بالـ payload
+  ✅ ledger ingest: إعادة الإدخال بنفس update_id → duplicate (ON CONFLICT DO NOTHING)
+  ✅ webhook أول تسليم: 200 فوري + الترتيب ingest→dedup→route→mark + processed_at
+[INFO][webhook] duplicate delivery skipped (ledger) { updateId: 1002 }
+  ✅ webhook تسليم مكرر: skip عند الاستقبال — مفيش idempotency_keys ولا mark جديد
+[ERROR][webhook] update failed {
+  updateId: 1003,
+  error: `SyntaxError: Unexpected token 'o', "not-json" is not valid JSON`
+}
+  ✅ webhook فشل المعالجة: process_error متسجلة (500 حرف كحد أقصى) وprocessed_at فاضي
+[WARN][ledger] ingest insert failed — fail-open { updateId: 1004, error: 'injected telegram_updates failure' }
+[WARN][ledger] mark processed failed { updateId: 1004, error: 'injected telegram_updates failure' }
+  ✅ webhook ingest فاشل (DB واقف): fail-open — المعالجة تكمّل + repair لما يرجع
+  ✅ ledger recordProcessError: الرسالة بتتقص على 500 حرف + repair لو الصف مفقود
+[INFO][ledger-redrive] cycle done { selected: 1, driven: 1, failed: 0, skipped: 0 }
+  ✅ re-drive: صف قديم فاشل → routeUpdate يتغير + processed_at + مسح الخطأ والحجز
+  ✅ re-drive freshness: الصف الأحدث من دقيقتين مش بيتاخد (سيبوا للـ handler الأصلي)
+[INFO][ledger-redrive] cycle done { selected: 1, driven: 0, failed: 0, skipped: 1 }
+  ✅ re-drive claim: الصف المحجوز بـ lease شغّال بيتساب (منع cron متزامن)
+[ERROR][ledger-redrive] re-drive failed {
+  updateId: 2004,
+  error: `SyntaxError: Unexpected token 'o', "not-json" is not valid JSON`
+}
+[INFO][ledger-redrive] cycle done { selected: 2, driven: 0, failed: 1, skipped: 1 }
+  ✅ re-drive فشل متكرر: process_error تتحدث والصف يفضل غير معالج تحت الـ lease
+
+──────── M2) مسار التكامل /ingest/signal ────────
+  ✅ ingest توقيع سليم: 202 accepted + مسودة pending + idempotency + audit بـ correlation (T1 جزئي)
+  ✅ ingest إعادة إرسال نفس الإشارة (نفس idempotency_key): 409 ولا مسودة ثانية (T2)
+[WARN][ingest] bad signature 
+  ✅ ingest توقيع خاطئ: 403 بدون أي أثر جانبي
+  ✅ ingest توقيت قديم (خارج نافذة ±5 دقائق): 403 replay
+  ✅ ingest جسم أكبر من الحد: 413
+  ✅ ingest JSON غير صالح (موقّع): 400
+  ✅ ingest schema_version غير مدعوم: 400 رفض إجباري (§1)
+  ✅ ingest قرار Shield=reject: 422 risk_blocked ولا مسودة (T3)
+  ✅ ingest data_quality=incomplete أو تقييم مفقود: 422 (T5)
+  ✅ ingest assessment منتهي الصلاحية: 422 (T4 على حدود المسار)
+  ✅ ingest asset_id غير قانوني: 400 (canonical chain:address)
+[WARN][ingest] configured channel missing or inactive { channel_id: 'ch-missing' }
+  ✅ ingest قناة الهدف غير متاحة: 503 fail-closed بدون أثر جانبي
+
+══════════════════════════════════
+النتيجة: 86 نجح / 0 فشل
+
+--- summary ---
+regression_exit=1 smoke_exit=0 typecheck_exit=0
+
+=== RUN-ORDER CORRECTION (documented, nothing hidden) ===
+First attempt above failed: alert01-regression.cjs requires the .smoke/ build output (tsc -p tests/smoke.tsconfig.json, produced inside 'npm test').
+Attempt was made BEFORE 'npm test' in this script -> MODULE_NOT_FOUND is a run-order artifact of this script, NOT a product defect.
+Rerun AFTER 'npm test' (which built .smoke): exit code and tail below.
+regression_rerun_exit=0 (20 passed, 0 failed)

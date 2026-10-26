@@ -1,0 +1,40 @@
+# R19 CI-wiring PROPOSAL v2 (AMENDED) — review-only, NOT applied (owner gate: production CI change)
+# Base: main @ 76830a721bb3761a6d25309acc3672b117116994 (bytes verified via API, TASK 22 session)
+# WHY v2: TASK 22 fresh evidence (test-evidence-r19_task22_fresh_2026-10-27.log) proved that
+#   `node tests/alert01-regression.cjs` FAILS (MODULE_NOT_FOUND ../.smoke/src/db/client.js) on a
+#   clean tree — alert01-regression.cjs consumes the .smoke/ build output produced by
+#   `tsc -p tests/smoke.tsconfig.json` (run inside `npm test`).
+# v1 kept CI-safe only by step ORDER (regression after Smoke tests). v2 makes the npm script
+#   self-sufficient so the gate survives reordering/standalone/local invocation.
+# Changes vs v1: only the `regression` script line. CI step identical to v1.
+
+--- a/.github/workflows/ci.yml  (76830a72)
++++ b/.github/workflows/ci.yml  (proposed v2)
+@@ -31,6 +31,8 @@
+         run: npm run typecheck
+       - name: Smoke tests
+         run: npm test
++      - name: ALERT-01 regression (R1-R19)
++        run: npm run regression
+ 
+   mini-app:
+     name: mini-app (typecheck)
+
+--- a/bot-worker/package.json  (76830a72)
++++ b/bot-worker/package.json  (proposed v2)
+@@ -10,7 +10,8 @@
+     "tail": "wrangler tail --format pretty",
+     "kv:create": "wrangler kv namespace create",
+     "secret:put": "wrangler secret put",
+-    "test": "tsc -p tests/smoke.tsconfig.json && node tests/smoke-test.cjs"
++    "test": "tsc -p tests/smoke.tsconfig.json && node tests/smoke-test.cjs",
++    "regression": "tsc -p tests/smoke.tsconfig.json && node tests/alert01-regression.cjs"
+   },
+   "dependencies": {
+     "@supabase/supabase-js": "^2.45.0"
+
+# Validation performed (TASK 22, isolated): regression 20/20 exit 0 AFTER smoke build;
+# MODULE_NOT_FOUND reproduced BEFORE build (documented honestly in the same log).
+# Required tests when adopted: one CI run on a throwaway branch/PR + local fresh-tree
+# `npm run regression` from a clean clone (must pass standalone with v2).
+# Risks: +1 tsc invocation (~seconds) in CI; no behavior change to smoke/typecheck paths.

@@ -1,0 +1,747 @@
+{
+  "sha": "d1004b796ae27496e04d78db6c9c69dc6341a37a",
+  "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/trees/d1004b796ae27496e04d78db6c9c69dc6341a37a",
+  "tree": [
+    {
+      "path": "AGENT_TASK_REGISTRY_V1.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "62977c5a774b4140341f9d6b23ad42a2772df8b8",
+      "size": 4578,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/62977c5a774b4140341f9d6b23ad42a2772df8b8"
+    },
+    {
+      "path": "GLM5_MASTER_PROMPT.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "be6c633201ec5cca5dccad595882760cebd57a6c",
+      "size": 20307,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/be6c633201ec5cca5dccad595882760cebd57a6c"
+    },
+    {
+      "path": "INTEGRATION_AUDIT.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "df96df8fa412e67cb25b38434388e04f8bdf11ee",
+      "size": 36388,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/df96df8fa412e67cb25b38434388e04f8bdf11ee"
+    },
+    {
+      "path": "INTEGRATION_CONTRACTS.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "70dabbc865232f87f2f6247d4717b0487e76c1ce",
+      "size": 11800,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/70dabbc865232f87f2f6247d4717b0487e76c1ce"
+    },
+    {
+      "path": "PHASE0_FILE_MATRIX.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7aaa717c35fec1cda3e5eac68cbab28ded00c07b",
+      "size": 23617,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/7aaa717c35fec1cda3e5eac68cbab28ded00c07b"
+    },
+    {
+      "path": "POD_AI_ML_Engineer.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "eb38ae60a840cfa309a1b9d1630810cd8fdf7ac8",
+      "size": 5695,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/eb38ae60a840cfa309a1b9d1630810cd8fdf7ac8"
+    },
+    {
+      "path": "POD_Backend_Developer.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b322228159b349d30642a094120201eefe7dd8fc",
+      "size": 5395,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/b322228159b349d30642a094120201eefe7dd8fc"
+    },
+    {
+      "path": "POD_DevOps_Engineer.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "aa4c6e113b4868081e8cd300dc2851b1c7b873ec",
+      "size": 4449,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/aa4c6e113b4868081e8cd300dc2851b1c7b873ec"
+    },
+    {
+      "path": "POD_Frontend_Developer.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "211748c7bf84296f2985e9f347465ebdbb189c62",
+      "size": 5849,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/211748c7bf84296f2985e9f347465ebdbb189c62"
+    },
+    {
+      "path": "POD_Lead_Developer.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cf4596f5bcbacbe77da678ea88c6d2da605caaf8",
+      "size": 3071,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/cf4596f5bcbacbe77da678ea88c6d2da605caaf8"
+    },
+    {
+      "path": "POD_QA_Security_Engineer.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ee29e6e21a33e17a7d5a693d64de978de89518cd",
+      "size": 8185,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/ee29e6e21a33e17a7d5a693d64de978de89518cd"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "64aca198b82864506bb99d9ad094f947107173d3",
+      "size": 10612,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/64aca198b82864506bb99d9ad094f947107173d3"
+    },
+    {
+      "path": "VIXOR_BUSINESS_MAP.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2a473a5999b035f5e866e630405e43b6cf3cf8b7",
+      "size": 28367,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/2a473a5999b035f5e866e630405e43b6cf3cf8b7"
+    },
+    {
+      "path": "VIXOR_Business_Map_Report_AR.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "017b4f7244cd596a377557266713cde8f7da7505",
+      "size": 1022962,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/017b4f7244cd596a377557266713cde8f7da7505"
+    },
+    {
+      "path": "VIXOR_MASTER.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7425764414000ca609c048548b8b742f2fa8e5b3",
+      "size": 694120,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/7425764414000ca609c048548b8b742f2fa8e5b3"
+    },
+    {
+      "path": "VIXOR_Phase0_Audit_Report_AR.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "17ec13e157a31e814e35d94a2ff002c9c21569bc",
+      "size": 1279671,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/17ec13e157a31e814e35d94a2ff002c9c21569bc"
+    },
+    {
+      "path": "VIXOR_UNIFIED_VISION.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d0ff7409517a49a76dba7b4a25dd24d7a2444856",
+      "size": 48471,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/d0ff7409517a49a76dba7b4a25dd24d7a2444856"
+    },
+    {
+      "path": "VIXOR_UNIFIED_VISION_V2_PROPOSED.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3f971ca66a428412bf5d1055594dc7edc54c712c",
+      "size": 9805,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/3f971ca66a428412bf5d1055594dc7edc54c712c"
+    },
+    {
+      "path": "apply-phase-a-b1.sh",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6b755d446a34da2307d690f802110d08e64e7db3",
+      "size": 14486,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/6b755d446a34da2307d690f802110d08e64e7db3"
+    },
+    {
+      "path": "final-audit-2026-10-27",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "121fce3596d03cd5513244e39bd77ec17e3b6169",
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/trees/121fce3596d03cd5513244e39bd77ec17e3b6169"
+    },
+    {
+      "path": "final-audit-2026-10-27/ALERT_STATUS.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "829e18887ea00d1b6a49b195df69d841b86539d9",
+      "size": 8647,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/829e18887ea00d1b6a49b195df69d841b86539d9"
+    },
+    {
+      "path": "final-audit-2026-10-27/EXECUTIVE_SUMMARY_AR.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d8c6fff8907310a30d58323391a966e2a78b996c",
+      "size": 5973,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/d8c6fff8907310a30d58323391a966e2a78b996c"
+    },
+    {
+      "path": "final-audit-2026-10-27/FINAL_AUDIT_REPORT_AR.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bc3c6e0de22ce7a94a96f471d3244beebb704d77",
+      "size": 13813,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/bc3c6e0de22ce7a94a96f471d3244beebb704d77"
+    },
+    {
+      "path": "final-audit-2026-10-27/H1H2_ASSESSMENT.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "aaf42c033d5887dbe11c03ca3d7e5678195adb99",
+      "size": 7178,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/aaf42c033d5887dbe11c03ca3d7e5678195adb99"
+    },
+    {
+      "path": "final-audit-2026-10-27/LINE_BY_LINE_REVIEW.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "37129e76243b3a8f7f166384b2e0658239770e74",
+      "size": 11437,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/37129e76243b3a8f7f166384b2e0658239770e74"
+    },
+    {
+      "path": "final-audit-2026-10-27/MANIFEST",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e3ff997a7dc376ba624fe433b030f320c66acd33",
+      "size": 3226,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/e3ff997a7dc376ba624fe433b030f320c66acd33"
+    },
+    {
+      "path": "final-audit-2026-10-27/MANIFEST.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b8b6f93bd377c5648ef81cc29a1b786e65466ec3",
+      "size": 11863,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/b8b6f93bd377c5648ef81cc29a1b786e65466ec3"
+    },
+    {
+      "path": "final-audit-2026-10-27/OWNER_ACTIONS.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2ef564a4a9c734c64bfef15659880b5d5941785e",
+      "size": 4735,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/2ef564a4a9c734c64bfef15659880b5d5941785e"
+    },
+    {
+      "path": "final-audit-2026-10-27/R19_CI_WIRING_PROPOSAL.patch",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8482aace8a2fcedb6a2310bae09bf0495e2fcafb",
+      "size": 1178,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/8482aace8a2fcedb6a2310bae09bf0495e2fcafb"
+    },
+    {
+      "path": "final-audit-2026-10-27/R19_CI_WIRING_PROPOSAL_v2_amended.patch",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9d441f5cd3bd3f0d4fe96d390dbe439a966a38aa",
+      "size": 2084,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/9d441f5cd3bd3f0d4fe96d390dbe439a966a38aa"
+    },
+    {
+      "path": "final-audit-2026-10-27/REPOSITORY_STATUS.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "96212eac174244146c9c2627e337d6fb4ea29e43",
+      "size": 7473,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/96212eac174244146c9c2627e337d6fb4ea29e43"
+    },
+    {
+      "path": "final-audit-2026-10-27/REPRODUCIBILITY.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "063d32a238bf70b339ced2149ef18cd85d1d9fae",
+      "size": 5590,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/063d32a238bf70b339ced2149ef18cd85d1d9fae"
+    },
+    {
+      "path": "final-audit-2026-10-27/RISK_REGISTER.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0cbfe00a36e352f91ac4c57f8b60d391746e38ca",
+      "size": 7942,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/0cbfe00a36e352f91ac4c57f8b60d391746e38ca"
+    },
+    {
+      "path": "final-audit-2026-10-27/TASK_STATUS.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "607f0759ac3d51e717686f89bbb4f17be875b0e4",
+      "size": 5593,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/607f0759ac3d51e717686f89bbb4f17be875b0e4"
+    },
+    {
+      "path": "final-audit-2026-10-27/TEST_EVIDENCE.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "126a5b8fad0523c6440c02eea961144b8eda0f95",
+      "size": 8841,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/126a5b8fad0523c6440c02eea961144b8eda0f95"
+    },
+    {
+      "path": "final-audit-2026-10-27/WORKLOG.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "504b4eeae974d8e038e3ecb6fb152c7b4be4e022",
+      "size": 7029,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/504b4eeae974d8e038e3ecb6fb152c7b4be4e022"
+    },
+    {
+      "path": "final-audit-2026-10-27/WORKLOG_APPEND_ONLY.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "16bb33d2750402eb2d847573e748e297561e2bcd",
+      "size": 7527,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/16bb33d2750402eb2d847573e748e297561e2bcd"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "687d9b7980d78efb1f96cb6d25fc7a7ddd0b6059",
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/trees/687d9b7980d78efb1f96cb6d25fc7a7ddd0b6059"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "19f630e35de037c08ea74b122d50c341538066d1",
+      "size": 5438,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/19f630e35de037c08ea74b122d50c341538066d1"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "43ec76f0e194ae5e3ddac78b770c1f4e342722ea",
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/trees/43ec76f0e194ae5e3ddac78b770c1f4e342722ea"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/UPLOAD_AND_HANDOFF_HEAD_FULL.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f0850523abca035b13360060306b6446aa2fd027",
+      "size": 6247,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/f0850523abca035b13360060306b6446aa2fd027"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/ci_yml_decoded.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d270af3bdff5f78992f527b3bc2ddab8be0e5d49",
+      "size": 1011,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/d270af3bdff5f78992f527b3bc2ddab8be0e5d49"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/pr10_checkruns_head_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e7a8ee1ca5e784344fd4725cc86fa85e7a7976af",
+      "size": 33,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/e7a8ee1ca5e784344fd4725cc86fa85e7a7976af"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/pr10_commits_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4bd44b86169703f8c17b97879e1608f0d3987a32",
+      "size": 8204,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/4bd44b86169703f8c17b97879e1608f0d3987a32"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/pr10_files_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6de5642300e65d06b52bdb36e3d65fe46aac2334",
+      "size": 78741,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/6de5642300e65d06b52bdb36e3d65fe46aac2334"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/pr10_head_commit_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b572447a803046d927f58e88e11b95c87d61dfd9",
+      "size": 2144,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/b572447a803046d927f58e88e11b95c87d61dfd9"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/pr10_head_tree_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7218c7e7b06eebfc07b88ebc13de34c21e905b8e",
+      "size": 8622,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/7218c7e7b06eebfc07b88ebc13de34c21e905b8e"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/pr10_meta_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "917f97c60c06855c778be9564b73a36b72a1ba81",
+      "size": 18960,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/917f97c60c06855c778be9564b73a36b72a1ba81"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_JAMRA_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e4d462aa4934127084f55b114afdf0385bb0f5a9",
+      "size": 3863,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/e4d462aa4934127084f55b114afdf0385bb0f5a9"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_JAMRA_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "380729dfa2d7af0da8572e4edeb972d7c82c2e31",
+      "size": 5569,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/380729dfa2d7af0da8572e4edeb972d7c82c2e31"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_poplix-movie-app_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "de779de3398d5771c7e02e766c94b33bfb6cc141",
+      "size": 3116,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/de779de3398d5771c7e02e766c94b33bfb6cc141"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_poplix-movie-app_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b60429b558b635c4ca269186140e0488a67953e6",
+      "size": 6118,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/b60429b558b635c4ca269186140e0488a67953e6"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_tg-content-bot_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1f4feb7087f415ba85bce7ad7c0db66074a53142",
+      "size": 5391,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/1f4feb7087f415ba85bce7ad7c0db66074a53142"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_tg-content-bot_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9fbbefdb436a7c0e3b980612dda04badbdfde364",
+      "size": 6050,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/9fbbefdb436a7c0e3b980612dda04badbdfde364"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-APP_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "195070d3fb93a0c49012467ddf8cbb43d03b0a01",
+      "size": 5237,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/195070d3fb93a0c49012467ddf8cbb43d03b0a01"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-APP_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "487bd77e0babbb8e24915bc46caa5232d345e989",
+      "size": 5995,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/487bd77e0babbb8e24915bc46caa5232d345e989"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-deliverables_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7c9683d5cd73ea7bf3f3931088a70b6bfc418572",
+      "size": 5425,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/7c9683d5cd73ea7bf3f3931088a70b6bfc418572"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-deliverables_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c17cefa9ccbaf93914af2202496e2153d9217cfc",
+      "size": 6438,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/c17cefa9ccbaf93914af2202496e2153d9217cfc"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-hunt_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c71bb4dd8039e1ce585269e158c10b506184db20",
+      "size": 1971,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/c71bb4dd8039e1ce585269e158c10b506184db20"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-hunt_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dc97f4e9adc717994f30312b7f4435402cdc1b95",
+      "size": 5759,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/dc97f4e9adc717994f30312b7f4435402cdc1b95"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-packages_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "98d9e2453261f5af6579dc8867147db0dacd79d7",
+      "size": 5377,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/98d9e2453261f5af6579dc8867147db0dacd79d7"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-packages_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "af30fd0f04367a291780ffa927758e3f3e8ca837",
+      "size": 5933,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/af30fd0f04367a291780ffa927758e3f3e8ca837"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-shield_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9d930626db99f0cfd10708ced8cde7b96367d012",
+      "size": 5453,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/9d930626db99f0cfd10708ced8cde7b96367d012"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-shield_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "212a67779ae6af03f41349f934f72fc80035a840",
+      "size": 5847,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/212a67779ae6af03f41349f934f72fc80035a840"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-trade_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "05e14fe311ddff98964c8af376a36bd9b99aa8f3",
+      "size": 2512,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/05e14fe311ddff98964c8af376a36bd9b99aa8f3"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/repo_vixor-trade_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "50ce9d86dacb5c46764b137c8bd8b4df031de8d4",
+      "size": 5803,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/50ce9d86dacb5c46764b137c8bd8b4df031de8d4"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_alert01_regression_meta_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "00828f1e1db6837f314506ab215086ed67ea0d56",
+      "size": 45283,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/00828f1e1db6837f314506ab215086ed67ea0d56"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_alert01_regression_meta_t22.json.bytes",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "52e835c9539012a5dc9d25142278d1d991427017",
+      "size": 32092,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/52e835c9539012a5dc9d25142278d1d991427017"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_checkruns_main_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a402839db585ea51fb9b43f3643241365e79ddcb",
+      "size": 10017,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/a402839db585ea51fb9b43f3643241365e79ddcb"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_ci_yml_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e4afa296e3ff32e54b1b57f273aeb39df93aad62",
+      "size": 2350,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/e4afa296e3ff32e54b1b57f273aeb39df93aad62"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_ci_yml_t22.json.bytes",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d270af3bdff5f78992f527b3bc2ddab8be0e5d49",
+      "size": 1011,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/d270af3bdff5f78992f527b3bc2ddab8be0e5d49"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_main_branch_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1f4feb7087f415ba85bce7ad7c0db66074a53142",
+      "size": 5391,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/1f4feb7087f415ba85bce7ad7c0db66074a53142"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_package_json_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1ad6079a08ca53438133ebcf87853decb12b169a",
+      "size": 1923,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/1ad6079a08ca53438133ebcf87853decb12b169a"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_package_json_t22.json.bytes",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad",
+      "size": 700,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_pr17_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e80840ed38f3dccd5173c84f7286f5f59217187e",
+      "size": 26968,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/e80840ed38f3dccd5173c84f7286f5f59217187e"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_pr18_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "58e50c9c881f36d0b3458f78a387381cfb794904",
+      "size": 18669,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/58e50c9c881f36d0b3458f78a387381cfb794904"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_repo_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "65f1160638ef396d14c685fe2592039f326e3dc5",
+      "size": 6050,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/65f1160638ef396d14c685fe2592039f326e3dc5"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/tgcb_status_main_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "eb1d6a50d24e21ea927ba4ab741da1e4983de775",
+      "size": 4956,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/eb1d6a50d24e21ea927ba4ab741da1e4983de775"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/raw/vixor_packages_root_t22.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ca0088998d6ef3eec533ed99874091ab02805322",
+      "size": 5745,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/ca0088998d6ef3eec533ed99874091ab02805322"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/t22_digest.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "678fda21aa2bd92f629fd8756cde69acc2e3bdee",
+      "size": 15790,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/678fda21aa2bd92f629fd8756cde69acc2e3bdee"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/t22_f1_verify_results.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "629803c6e53cb6ce6d0652525e8825284218f7da",
+      "size": 4490,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/629803c6e53cb6ce6d0652525e8825284218f7da"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/t22_f2_core_check.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5f1483bbf5beb7b72117e74a8dfb5770a6280e67",
+      "size": 408,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/5f1483bbf5beb7b72117e74a8dfb5770a6280e67"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/t22_f2_deep.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d23b8c8837d16b7025cc9e551415d26d2f3a6a98",
+      "size": 3872,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/d23b8c8837d16b7025cc9e551415d26d2f3a6a98"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/t22_f2_identity.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2d4ad72a93b67cfd0e3639db1375002192c8090a",
+      "size": 968,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/2d4ad72a93b67cfd0e3639db1375002192c8090a"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/test-evidence-r19_fresh_main_2026-10-27.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "556c648a336036f6dacc5b8f26a50772bde971a0",
+      "size": 10099,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/556c648a336036f6dacc5b8f26a50772bde971a0"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/test-evidence-r19_task22_fresh_2026-10-27.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7a17ed05b6975d7b182bb8b8643232a7429efc0e",
+      "size": 11686,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/7a17ed05b6975d7b182bb8b8643232a7429efc0e"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/test-evidence-r22_run1_2026-10-27.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "18e8260b7781604e9c008ee42eb007eb49859617",
+      "size": 3527,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/18e8260b7781604e9c008ee42eb007eb49859617"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/test-evidence-r22_run2_2026-10-27.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8e0528a9ad19cbf26fe301672403e53e56bf0a5d",
+      "size": 3526,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/8e0528a9ad19cbf26fe301672403e53e56bf0a5d"
+    },
+    {
+      "path": "final-audit-2026-10-27/evidence/test-evidence-r22_run3_task22_2026-10-27.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6d5a85b086dc7615cd5fe1b58e68606b30b1a506",
+      "size": 3538,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/6d5a85b086dc7615cd5fe1b58e68606b30b1a506"
+    },
+    {
+      "path": "final-audit-2026-10-27/verify_manifest.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c2fba6a818bb7bb15ec3d73f4dc0300f5f478786",
+      "size": 1988,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/c2fba6a818bb7bb15ec3d73f4dc0300f5f478786"
+    },
+    {
+      "path": "integration",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "401a5e9e037313b260927e6c259edbdb5b8ab6e7",
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/trees/401a5e9e037313b260927e6c259edbdb5b8ab6e7"
+    },
+    {
+      "path": "integration/VIXOR_INTEGRATION_CONTRACTS_DRAFT.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "524d206f1e5470051c0b5df87ecd315c74ec2b0e",
+      "size": 6608,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/524d206f1e5470051c0b5df87ecd315c74ec2b0e"
+    },
+    {
+      "path": "vixor-phase-a-b1.patch",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c276ddc80be3928c7da572bf88712cd3e928d605",
+      "size": 84710,
+      "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/blobs/c276ddc80be3928c7da572bf88712cd3e928d605"
+    }
+  ],
+  "truncated": false
+}

@@ -1,0 +1,59 @@
+{
+  "tb_files": [
+    {
+      "path": "bot-worker/package.json",
+      "size": 700,
+      "sha256": "48c730481f40c79c8a96a0560a7d83eea36bcb416b69ec6c34425ec3b03b13d3",
+      "blob_sha": "4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "size": 1011,
+      "sha256": "2a12a2e05a9bd27cc62ed684579e7cc3fdc1c8c39980b1db963c114e87b48ff4",
+      "blob_sha": "d270af3bdff5f78992f527b3bc2ddab8be0e5d49"
+    },
+    null
+  ],
+  "pr11_tree_blob_count": 89,
+  "pr11_files": [
+    {
+      "path": "final-audit-2026-10-27/verify_manifest.py",
+      "size": 1988,
+      "sha256": "4d42a2097e15011993cd34146470a8d13f27e5f97938a8247dddcecac262f372",
+      "blob_sha": "c2fba6a818bb7bb15ec3d73f4dc0300f5f478786"
+    },
+    {
+      "path": "final-audit-2026-10-27/MANIFEST.json",
+      "size": 11863,
+      "sha256": "f568357da028b9fd17f66de0787734a024cc0df57d005b51e02c3ba5ef052a90",
+      "blob_sha": "b8b6f93bd377c5648ef81cc29a1b786e65466ec3"
+    },
+    {
+      "path": "final-audit-2026-10-27/R19_CI_WIRING_PROPOSAL_v2_amended.patch",
+      "size": 2084,
+      "sha256": "00f1618e9f34f36d654c5236515680d9cdd68f1155dd8b13ad370b79a93080be",
+      "blob_sha": "9d441f5cd3bd3f0d4fe96d390dbe439a966a38aa"
+    }
+  ],
+  "tb_main_checkruns": [
+    {
+      "name": "Workers Builds: tg-content-bot",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 121409501944
+    },
+    {
+      "name": "mini-app (typecheck)",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 121409407075
+    },
+    {
+      "name": "bot-worker (typecheck + smoke tests)",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 121409406883
+    }
+  ],
+  "pr11_head_checkruns": []
+}
