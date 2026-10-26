@@ -1,6 +1,6 @@
 {
   "package": "VIXOR FINAL EVIDENCE PACKAGE",
-  "generated_at": "2026-10-26T05:38:25.832413+00:00",
+  "generated_at": "2026-10-26T05:41:16.520522+00:00",
   "generated_by_task": "TASK 19 (final handoff)",
   "language": "ar (content) / en (filenames)",
   "scope_repos": [
@@ -14,6 +14,37 @@
     "JAMRA",
     "vixor-packages"
   ],
+  "remote_upload": {
+    "tg-content-bot": {
+      "pr17": {
+        "merged": true,
+        "merged_at": "2026-10-26T04:55:18Z",
+        "merge_commit": "944e60c0c794c649a4ec60a2875bb7004ab4fd58"
+      },
+      "pr18": {
+        "merged": true,
+        "merged_at": "2026-10-26T05:11:36Z",
+        "merge_commit": "76830a721bb3761a6d25309acc3672b117116994"
+      },
+      "main_final": "76830a721bb3761a6d25309acc3672b117116994",
+      "blob_match_on_main": {
+        "bot-worker/src/pipeline/ath-monitor.ts": "eb5da95b4337d9d7b0e2249a4ac4c2ea8cd7a236",
+        "bot-worker/tests/alert01-regression.cjs": "52e835c9539012a5dc9d25142278d1d991427017"
+      },
+      "ci_runs": {
+        "pr18": 40272857668,
+        "main_push": 40272909018
+      },
+      "original_commit3_0eed7821_on_remote": false
+    },
+    "vixor-deliverables_package_upload": {
+      "branch": "audit/final-evidence-handoff-2026-10-26",
+      "commit": "b0e1821963efce308195d0ad3364b9c2d8c66740",
+      "draft_pr": "https://github.com/kam65624-cmd/vixor-deliverables/pull/10",
+      "pr_number": 10,
+      "verified_at": "2026-10-26T05:40:27Z"
+    }
+  },
   "headline_results": {
     "alert01": "FIXED+MERGED to main via PR #17 (04:55:18Z, merge 944e60c0c794) and PR #18 (05:11:36Z, merge 76830a721bb3); R19 behavioral verification PASS on real checkout (pre 19/0 without R19, pre+R19 19/1 expected-reason failure, post 20/0; smoke 86/86; tsc exit 0)",
     "remote_tree_verification": "main @ 76830a72 blobs: ath-monitor.ts=eb5da95b4337d9d7b0e2249a4ac4c2ea8cd7a236 (MATCH), alert01-regression.cjs=52e835c9539012a5dc9d25142278d1d991427017 (MATCH); CI on main success run 40272909018",
@@ -54,8 +85,8 @@
       "sha256": "0419c97d3f29ab9350efb2c3be0cd738c2c2b3d009a29aec19097def9a0be47d"
     },
     "UPLOAD_AND_HANDOFF.md": {
-      "bytes": 6116,
-      "sha256": "3de3d6e58252e6188b7da8c56c90a903463e1ec4f97dbf9586ceee22aae6d8c6"
+      "bytes": 6247,
+      "sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46"
     }
   },
   "key_external_artifacts": {
@@ -76,8 +107,8 @@
       "sha256": "5265c67808cb6a941b7a64234251026e7df02c53468d6df43455addc8b4d4bbc"
     },
     "download/worklog.md": {
-      "bytes": 92732,
-      "sha256": "7cdeb95bad8c0944d3c6d737614a24789e0f2cbb9b9a6d4360f4e9d3e644e0b3"
+      "bytes": 100595,
+      "sha256": "45c484b25a63b66719c4c7066e308735ff4b502d978311b4247568203b3be828"
     },
     "download/alert01-review/VIXOR_ALERT01_FIX_r2_commit3.patch": {
       "bytes": 5107,
