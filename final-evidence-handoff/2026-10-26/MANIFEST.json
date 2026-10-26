@@ -1,0 +1,99 @@
+{
+  "package": "VIXOR FINAL EVIDENCE PACKAGE",
+  "generated_at": "2026-10-26T05:38:25.832413+00:00",
+  "generated_by_task": "TASK 19 (final handoff)",
+  "language": "ar (content) / en (filenames)",
+  "scope_repos": [
+    "tg-content-bot",
+    "vixor-APP",
+    "vixor-deliverables",
+    "vixor-hunt",
+    "vixor-trade",
+    "vixor-shield",
+    "poplix-movie-app",
+    "JAMRA",
+    "vixor-packages"
+  ],
+  "headline_results": {
+    "alert01": "FIXED+MERGED to main via PR #17 (04:55:18Z, merge 944e60c0c794) and PR #18 (05:11:36Z, merge 76830a721bb3); R19 behavioral verification PASS on real checkout (pre 19/0 without R19, pre+R19 19/1 expected-reason failure, post 20/0; smoke 86/86; tsc exit 0)",
+    "remote_tree_verification": "main @ 76830a72 blobs: ath-monitor.ts=eb5da95b4337d9d7b0e2249a4ac4c2ea8cd7a236 (MATCH), alert01-regression.cjs=52e835c9539012a5dc9d25142278d1d991427017 (MATCH); CI on main success run 40272909018",
+    "original_commit3_0eed7821": "ABSENT from remote (API confirmed); content landed via byte-identical f4d69f748d0db748f61b3667b6e57ee33f712ec8",
+    "audit_totals": "60 register findings; ~7xP0, 12xP1, 16xP2, 13+xP3",
+    "publishing_recovery": "OWNER_CONFIRMED_PUBLISHING_RECOVERED — ROOT CAUSE UNKNOWN",
+    "open_owner_gates": [
+      "SEC-03 token rotation",
+      "ALERT-08 preflight",
+      "ALERT-07 §A Cloudflare evidence",
+      "Option A/C + R20-R22 on isolated PG",
+      "H1/H2 contract decisions"
+    ]
+  },
+  "package_files": {
+    "CROSS_PROJECT_INTEGRATION_AUDIT.md": {
+      "bytes": 5730,
+      "sha256": "807ed206643ad10594ba6089f2a2b1c8f8a19f2daacb3991e30392121a10ce9a"
+    },
+    "FILE_CHANGE_REGISTER.md": {
+      "bytes": 8025,
+      "sha256": "851d03177bfa3a9057da2ac27fe5868926d48f7b9a760230ae5e848d98b41429"
+    },
+    "REPOSITORY_INVENTORY.md": {
+      "bytes": 6474,
+      "sha256": "f2ce1366877270ab919e6f01411a66d44d3c08a0f7bd70478655a302267861fa"
+    },
+    "SECURITY_AND_RISK_REGISTER.md": {
+      "bytes": 6484,
+      "sha256": "0195cec4fda4535d291df307a2b848ddc85dbed4282c03de7e709abb23259425"
+    },
+    "SESSION_FINAL_REPORT.md": {
+      "bytes": 23213,
+      "sha256": "d465cc6f3c34fdd03b6125f51e47d3195f283ffddf13346115da269e65097f96"
+    },
+    "TEST_AND_CI_MATRIX.md": {
+      "bytes": 6757,
+      "sha256": "0419c97d3f29ab9350efb2c3be0cd738c2c2b3d009a29aec19097def9a0be47d"
+    },
+    "UPLOAD_AND_HANDOFF.md": {
+      "bytes": 6116,
+      "sha256": "3de3d6e58252e6188b7da8c56c90a903463e1ec4f97dbf9586ceee22aae6d8c6"
+    }
+  },
+  "key_external_artifacts": {
+    "audit2/logs/r19_matrix_2026-10-26.log": {
+      "bytes": 7443,
+      "sha256": "453eb0c5d614fbea0437d830019f2bc742eb3e912c65baaf4edb1b74fe77ce00"
+    },
+    "audit2/meta_baseline.json": {
+      "bytes": 20805,
+      "sha256": "6d5c34248e4fabf9f1970b416c9d0af78d27677f95a6e72be55f4afe8c84ab83"
+    },
+    "audit2/remote_verify_2026-10-26.json": {
+      "bytes": 3918,
+      "sha256": "331ab568814f8f4ce06aab3ed4982cf69d524a18af7b7b4fc9b753a91a9dcb22"
+    },
+    "audit2/main_tree_verify_2026-10-26.json": {
+      "bytes": 760,
+      "sha256": "5265c67808cb6a941b7a64234251026e7df02c53468d6df43455addc8b4d4bbc"
+    },
+    "download/worklog.md": {
+      "bytes": 92732,
+      "sha256": "7cdeb95bad8c0944d3c6d737614a24789e0f2cbb9b9a6d4360f4e9d3e644e0b3"
+    },
+    "download/alert01-review/VIXOR_ALERT01_FIX_r2_commit3.patch": {
+      "bytes": 5107,
+      "sha256": "54dc37b51dd0c9f058fb96af049b22109baf18bf144098ee5ce0524352d23e17"
+    },
+    "download/alert01-atomic/VIXOR_ALERT01_ATOMIC_CLAIM_r3.sql": {
+      "bytes": 15476,
+      "sha256": "26e97af57585049eb2483eaf9270c1bf9b6c67814b348b60af7bf474240f305d"
+    },
+    "download/alert01-atomic/psql_concurrency_harness.sh": {
+      "bytes": 8338,
+      "sha256": "5b2585a86854bd9825dcf9e4cc4be73686c0ec7e51746a6d5cdb663135b3933f"
+    },
+    "download/ALERT08_SCHEMA_PREFLIGHT_2026-10-26.md": {
+      "bytes": 14101,
+      "sha256": "8014f6b62f4e08da678814635487ed5919da881029cdc2ad1581c3ecd49153f4"
+    }
+  }
+}
