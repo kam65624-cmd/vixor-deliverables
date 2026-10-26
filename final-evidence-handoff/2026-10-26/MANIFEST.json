@@ -43,6 +43,14 @@
       "draft_pr": "https://github.com/kam65624-cmd/vixor-deliverables/pull/10",
       "pr_number": 10,
       "verified_at": "2026-10-26T05:40:27Z"
+    },
+    "f1_correction": {
+          "date": "2026-10-27",
+          "identified_by": "TASK 20 independent byte-level PR review; fixed in TASK 21 (owner-authorized)",
+          "root_cause": "UPLOAD_AND_HANDOFF.md row-3 was enriched (PR #10 URL + commit b0e1821963ef + live API verification 05:40:27Z) AFTER commit b0e1821963ef was created — the commit SHA and PR number cannot be written before they exist. Commit afa37b81f49a updated MANIFEST.json only, leaving the pre-enrichment 6,116 B doc on the branch while MANIFEST correctly hashed the final local 6,247 B version (also inside VIXOR_FINAL_EVIDENCE_PACKAGE_2026-10-26.zip).",
+          "action": "UPLOAD_AND_HANDOFF.md restored to the intended final version (6,247 B, sha256 71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46). package_files hashes unchanged — all entries now verified MATCH at this commit. verify_manifest.py added for reproducible self-verification (not part of the 2026-10-26 local ZIP).",
+          "branch_head_before_correction": "afa37b81f49af978335aa13387e135323291d754",
+          "self_reference_note": "A commit cannot embed its own SHA; this correction commit's SHA = branch head after this update (visible on PR #10)."
     }
   },
   "headline_results": {
@@ -87,6 +95,10 @@
     "UPLOAD_AND_HANDOFF.md": {
       "bytes": 6247,
       "sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46"
+    },
+    "verify_manifest.py": {
+          "bytes": 952,
+          "sha256": "0959228145bbf18144c687fe8fb1cec83b0c717c2e7a15b879298be807ec535e"
     }
   },
   "key_external_artifacts": {

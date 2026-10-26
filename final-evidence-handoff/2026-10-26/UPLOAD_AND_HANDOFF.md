@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 1 | إصلاح ALERT-01 جولتا 1+2 (`bfc12c01dc1f` + `ccb6cbefd58d`) — فرع `fix/alert01-tpsl-retry` | **دُمج في main عبر PR #17** بقرار المالك — merge commit `944e60c0c794` في 2026-10-26T04:55:18Z | API: state=closed، merged=true، head=`ccb6cbefd58d`؛ CI push على الناتج success (40271520067) |
 | 2 | إصلاح ALERT-01 جولة 3 (trackingPatch + R19) كـ commit `f4d69f748d0d` — فرع `fix/alert01-trackingpatch-r19` من main الجديد | رُفع إلى origin الساعة **05:10:25Z** (reflog: «update by push») ثم **دُمج عبر PR #18** بقرار المالك في 05:11:36Z ⇒ main = `76830a721bb3` | API: PR #18 merged=true؛ CI pull_request success (40272857668)؛ CI push على main success (40272909018) |
-| 3 | حزمة الأدلة النهائية (هذه الـ 8 ملفات) | فرع جديد `audit/final-evidence-handoff-2026-10-26` في **vixor-deliverables** + draft PR (مراجعة فقط، لا دمج) | SHA الفرع والـ PR مسجلة في MANIFEST.json وبجواب الرفع أدناه |
+| 3 | حزمة الأدلة النهائية (هذه الـ 8 ملفات) | فرع جديد `audit/final-evidence-handoff-2026-10-26` في **vixor-deliverables** (commit `b0e1821963ef`) + **Draft PR #10** (مراجعة فقط، لا دمج): https://github.com/kam65624-cmd/vixor-deliverables/pull/10 | head_sha على البعيد = `b0e1821963ef` = المحلي (تحقق API 05:40:27Z — `audit2/deliverables_pr_2026-10-26.json`) |
 
 **ملاحظة أصالة مهمة:** commit `0eed7821…` الأصلي (جولة 3، من جلسة 16-H) **لم يُرفع قط** (كان غائبًا عن البعيد — مؤكد آنذاك بخطأ 422 لدى المالك ومؤكد الآن عبر API: «No commit found»). محتواه هبط إلى main عبر **`f4d69f74`** الذي أُنشئ من الباتش نفسه — التطابق البايتي مثبت بـ: blobs شجرة `f4d69f74` = post-images المعلنة في الباتش (`eb5da95b…` + `52e835c9…`) = blobs main البعيدة الآن (MATCH: true عبر API).
 
