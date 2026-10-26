@@ -1,0 +1,142 @@
+{
+  "package": "VIXOR FINAL EVIDENCE PACKAGE",
+  "generated_at": "2026-10-26T05:41:16.520522+00:00",
+  "generated_by_task": "TASK 19 (final handoff)",
+  "language": "ar (content) / en (filenames)",
+  "scope_repos": [
+    "tg-content-bot",
+    "vixor-APP",
+    "vixor-deliverables",
+    "vixor-hunt",
+    "vixor-trade",
+    "vixor-shield",
+    "poplix-movie-app",
+    "JAMRA",
+    "vixor-packages"
+  ],
+  "remote_upload": {
+    "tg-content-bot": {
+      "pr17": {
+        "merged": true,
+        "merged_at": "2026-10-26T04:55:18Z",
+        "merge_commit": "944e60c0c794c649a4ec60a2875bb7004ab4fd58"
+      },
+      "pr18": {
+        "merged": true,
+        "merged_at": "2026-10-26T05:11:36Z",
+        "merge_commit": "76830a721bb3761a6d25309acc3672b117116994"
+      },
+      "main_final": "76830a721bb3761a6d25309acc3672b117116994",
+      "blob_match_on_main": {
+        "bot-worker/src/pipeline/ath-monitor.ts": "eb5da95b4337d9d7b0e2249a4ac4c2ea8cd7a236",
+        "bot-worker/tests/alert01-regression.cjs": "52e835c9539012a5dc9d25142278d1d991427017"
+      },
+      "ci_runs": {
+        "pr18": 40272857668,
+        "main_push": 40272909018
+      },
+      "original_commit3_0eed7821_on_remote": false
+    },
+    "vixor-deliverables_package_upload": {
+      "branch": "audit/final-evidence-handoff-2026-10-26",
+      "commit": "b0e1821963efce308195d0ad3364b9c2d8c66740",
+      "draft_pr": "https://github.com/kam65624-cmd/vixor-deliverables/pull/10",
+      "pr_number": 10,
+      "verified_at": "2026-10-26T05:40:27Z"
+    },
+    "f1_correction": {
+          "date": "2026-10-27",
+          "identified_by": "TASK 20 independent byte-level PR review; fixed in TASK 21 (owner-authorized)",
+          "root_cause": "UPLOAD_AND_HANDOFF.md row-3 was enriched (PR #10 URL + commit b0e1821963ef + live API verification 05:40:27Z) AFTER commit b0e1821963ef was created — the commit SHA and PR number cannot be written before they exist. Commit afa37b81f49a updated MANIFEST.json only, leaving the pre-enrichment 6,116 B doc on the branch while MANIFEST correctly hashed the final local 6,247 B version (also inside VIXOR_FINAL_EVIDENCE_PACKAGE_2026-10-26.zip).",
+          "action": "UPLOAD_AND_HANDOFF.md restored to the intended final version (6,247 B, sha256 71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46). package_files hashes unchanged — all entries now verified MATCH at this commit. verify_manifest.py added for reproducible self-verification (not part of the 2026-10-26 local ZIP).",
+          "branch_head_before_correction": "afa37b81f49af978335aa13387e135323291d754",
+          "self_reference_note": "A commit cannot embed its own SHA; this correction commit's SHA = branch head after this update (visible on PR #10)."
+    }
+  },
+  "headline_results": {
+    "alert01": "FIXED+MERGED to main via PR #17 (04:55:18Z, merge 944e60c0c794) and PR #18 (05:11:36Z, merge 76830a721bb3); R19 behavioral verification PASS on real checkout (pre 19/0 without R19, pre+R19 19/1 expected-reason failure, post 20/0; smoke 86/86; tsc exit 0)",
+    "remote_tree_verification": "main @ 76830a72 blobs: ath-monitor.ts=eb5da95b4337d9d7b0e2249a4ac4c2ea8cd7a236 (MATCH), alert01-regression.cjs=52e835c9539012a5dc9d25142278d1d991427017 (MATCH); CI on main success run 40272909018",
+    "original_commit3_0eed7821": "ABSENT from remote (API confirmed); content landed via byte-identical f4d69f748d0db748f61b3667b6e57ee33f712ec8",
+    "audit_totals": "60 register findings; ~7xP0, 12xP1, 16xP2, 13+xP3",
+    "publishing_recovery": "OWNER_CONFIRMED_PUBLISHING_RECOVERED — ROOT CAUSE UNKNOWN",
+    "open_owner_gates": [
+      "SEC-03 token rotation",
+      "ALERT-08 preflight",
+      "ALERT-07 §A Cloudflare evidence",
+      "Option A/C + R20-R22 on isolated PG",
+      "H1/H2 contract decisions"
+    ]
+  },
+  "package_files": {
+    "CROSS_PROJECT_INTEGRATION_AUDIT.md": {
+      "bytes": 5730,
+      "sha256": "807ed206643ad10594ba6089f2a2b1c8f8a19f2daacb3991e30392121a10ce9a"
+    },
+    "FILE_CHANGE_REGISTER.md": {
+      "bytes": 8025,
+      "sha256": "851d03177bfa3a9057da2ac27fe5868926d48f7b9a760230ae5e848d98b41429"
+    },
+    "REPOSITORY_INVENTORY.md": {
+      "bytes": 6474,
+      "sha256": "f2ce1366877270ab919e6f01411a66d44d3c08a0f7bd70478655a302267861fa"
+    },
+    "SECURITY_AND_RISK_REGISTER.md": {
+      "bytes": 6484,
+      "sha256": "0195cec4fda4535d291df307a2b848ddc85dbed4282c03de7e709abb23259425"
+    },
+    "SESSION_FINAL_REPORT.md": {
+      "bytes": 23213,
+      "sha256": "d465cc6f3c34fdd03b6125f51e47d3195f283ffddf13346115da269e65097f96"
+    },
+    "TEST_AND_CI_MATRIX.md": {
+      "bytes": 6757,
+      "sha256": "0419c97d3f29ab9350efb2c3be0cd738c2c2b3d009a29aec19097def9a0be47d"
+    },
+    "UPLOAD_AND_HANDOFF.md": {
+      "bytes": 6247,
+      "sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46"
+    },
+    "verify_manifest.py": {
+          "bytes": 952,
+          "sha256": "0959228145bbf18144c687fe8fb1cec83b0c717c2e7a15b879298be807ec535e"
+    }
+  },
+  "key_external_artifacts": {
+    "audit2/logs/r19_matrix_2026-10-26.log": {
+      "bytes": 7443,
+      "sha256": "453eb0c5d614fbea0437d830019f2bc742eb3e912c65baaf4edb1b74fe77ce00"
+    },
+    "audit2/meta_baseline.json": {
+      "bytes": 20805,
+      "sha256": "6d5c34248e4fabf9f1970b416c9d0af78d27677f95a6e72be55f4afe8c84ab83"
+    },
+    "audit2/remote_verify_2026-10-26.json": {
+      "bytes": 3918,
+      "sha256": "331ab568814f8f4ce06aab3ed4982cf69d524a18af7b7b4fc9b753a91a9dcb22"
+    },
+    "audit2/main_tree_verify_2026-10-26.json": {
+      "bytes": 760,
+      "sha256": "5265c67808cb6a941b7a64234251026e7df02c53468d6df43455addc8b4d4bbc"
+    },
+    "download/worklog.md": {
+      "bytes": 100595,
+      "sha256": "45c484b25a63b66719c4c7066e308735ff4b502d978311b4247568203b3be828"
+    },
+    "download/alert01-review/VIXOR_ALERT01_FIX_r2_commit3.patch": {
+      "bytes": 5107,
+      "sha256": "54dc37b51dd0c9f058fb96af049b22109baf18bf144098ee5ce0524352d23e17"
+    },
+    "download/alert01-atomic/VIXOR_ALERT01_ATOMIC_CLAIM_r3.sql": {
+      "bytes": 15476,
+      "sha256": "26e97af57585049eb2483eaf9270c1bf9b6c67814b348b60af7bf474240f305d"
+    },
+    "download/alert01-atomic/psql_concurrency_harness.sh": {
+      "bytes": 8338,
+      "sha256": "5b2585a86854bd9825dcf9e4cc4be73686c0ec7e51746a6d5cdb663135b3933f"
+    },
+    "download/ALERT08_SCHEMA_PREFLIGHT_2026-10-26.md": {
+      "bytes": 14101,
+      "sha256": "8014f6b62f4e08da678814635487ed5919da881029cdc2ad1581c3ecd49153f4"
+    }
+  }
+}
