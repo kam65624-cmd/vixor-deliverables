@@ -3,7 +3,7 @@ context: suite executed against manifest r1 freeze; the ONLY delta between that
 freeze and the shipped package is this log file itself (+ manifest regeneration r2).
 suite exit_code=0
 ==============================================================================
-verify_manifest_tests.py — real-package copies under /tmp/vmp3_tests_kv7n9az4
+verify_manifest_tests.py — real-package copies under /tmp/vmp3_tests_f9p0h2ov
 verifier: /home/z/my-project/work/vixor-deliverables/final-audit-2026-10-27/verify_manifest.py
 ------------------------------------------------------------------------------
 PASS  T1  intact package -> PASS  (expected exit 0, got 0)
@@ -34,8 +34,8 @@ full transcripts: /tmp/vmp3_tests_full_output.txt
 FULL VERIFIER TRANSCRIPTS:
 
 ===== T1  intact package -> PASS (expected 0, got 0, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t1
-manifest=/tmp/vmp3_tests_kv7n9az4/t1/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t1
+manifest=/tmp/vmp3_tests_f9p0h2ov/t1/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18763 B, not self-hashed — structural validation only)
 OK      ALERT_STATUS.md  (10695 B)
 OK      EXECUTIVE_SUMMARY_AR.md  (7848 B)
@@ -52,8 +52,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -138,8 +138,8 @@ COVERAGE: files on disk = 95 (regular 95 + symlinks 0)
 RESULT: PASS — full coverage proven (94 registered entries verified, 1 explicitly excluded, 0 unregistered, 0 missing)
 
 ===== T2  registered file missing -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t2
-manifest=/tmp/vmp3_tests_kv7n9az4/t2/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t2
+manifest=/tmp/vmp3_tests_f9p0h2ov/t2/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18763 B, not self-hashed — structural validation only)
 FAIL    MISSING evidence/test-evidence-r22_run1_2026-10-27.log (registered in manifest, absent on disk)
 OK      ALERT_STATUS.md  (10695 B)
@@ -157,8 +157,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -242,8 +242,8 @@ COVERAGE: files on disk = 94 (regular 94 + symlinks 0)
 RESULT: FAIL — 1 failure(s); coverage NOT complete
 
 ===== T3  registered file byte-modified -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t3
-manifest=/tmp/vmp3_tests_kv7n9az4/t3/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t3
+manifest=/tmp/vmp3_tests_f9p0h2ov/t3/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18763 B, not self-hashed — structural validation only)
 OK      ALERT_STATUS.md  (10695 B)
 OK      EXECUTIVE_SUMMARY_AR.md  (7848 B)
@@ -260,8 +260,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -346,8 +346,8 @@ COVERAGE: files on disk = 95 (regular 95 + symlinks 0)
 RESULT: FAIL — 1 failure(s); coverage NOT complete
 
 ===== T4  extra unregistered file -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t4
-manifest=/tmp/vmp3_tests_kv7n9az4/t4/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t4
+manifest=/tmp/vmp3_tests_f9p0h2ov/t4/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18763 B, not self-hashed — structural validation only)
 FAIL    UNREGISTERED STOWAWAY.txt (on disk, not in files/evidence, not excluded)
 OK      ALERT_STATUS.md  (10695 B)
@@ -365,8 +365,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -451,8 +451,8 @@ COVERAGE: files on disk = 96 (regular 96 + symlinks 0)
 RESULT: FAIL — 1 failure(s); coverage NOT complete
 
 ===== T5  forged sha256 in manifest -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t5
-manifest=/tmp/vmp3_tests_kv7n9az4/t5/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t5
+manifest=/tmp/vmp3_tests_f9p0h2ov/t5/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18762 B, not self-hashed — structural validation only)
 OK      ALERT_STATUS.md  (10695 B)
 FAIL    EXECUTIVE_SUMMARY_AR.md: size/hash mismatch (disk 7848 B/bb0523e34b62… vs manifest 7848 B/bbbbbbbbbbbb…)
@@ -469,8 +469,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -555,14 +555,14 @@ COVERAGE: files on disk = 95 (regular 95 + symlinks 0)
 RESULT: FAIL — 1 failure(s); coverage NOT complete
 
 ===== T6  traversal path in manifest -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t6
-manifest=/tmp/vmp3_tests_kv7n9az4/t6/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t6
+manifest=/tmp/vmp3_tests_f9p0h2ov/t6/MANIFEST.json
 FAIL    path-safety files/../outside.txt: traversal '..' component not allowed
 RESULT: FAIL — unsafe paths present; refusing to continue
 
 ===== T7  symlink escaping root -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t7
-manifest=/tmp/vmp3_tests_kv7n9az4/t7/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t7
+manifest=/tmp/vmp3_tests_f9p0h2ov/t7/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18763 B, not self-hashed — structural validation only)
 FAIL    MISSING evidence/test-evidence-r22_run1_2026-10-27.log (registered in manifest, absent on disk)
 FAIL    SYMLINK evidence/test-evidence-r22_run1_2026-10-27.log: escapes package root -> /etc/hostname
@@ -581,8 +581,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -666,14 +666,14 @@ COVERAGE: files on disk = 95 (regular 94 + symlinks 1)
 RESULT: FAIL — 2 failure(s); coverage NOT complete
 
 ===== T8  wrong field types -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t8
-manifest=/tmp/vmp3_tests_kv7n9az4/t8/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t8
+manifest=/tmp/vmp3_tests_f9p0h2ov/t8/MANIFEST.json
 FAIL    schema: files/ALERT_STATUS.md: 'bytes' must be a non-negative integer, got '8647'
 RESULT: FAIL — manifest entry schema invalid; content checks skipped
 
 ===== T9  documented exclusion -> PASS (expected 0, got 0, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t9
-manifest=/tmp/vmp3_tests_kv7n9az4/t9/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t9
+manifest=/tmp/vmp3_tests_f9p0h2ov/t9/MANIFEST.json
 OK      MANIFEST.json: self-excluded by design (18947 B, not self-hashed — structural validation only)
 OK      ALERT_STATUS.md  (10695 B)
 OK      EXECUTIVE_SUMMARY_AR.md  (7848 B)
@@ -690,8 +690,8 @@ OK      REPRODUCIBILITY.md  (9089 B)
 OK      RISK_REGISTER.md  (10254 B)
 OK      TASK_STATUS.md  (8554 B)
 OK      TEST_EVIDENCE.md  (14774 B)
-OK      WORKLOG.md  (11620 B)
-OK      WORKLOG_APPEND_ONLY.md  (9101 B)
+OK      WORKLOG.md  (12289 B)
+OK      WORKLOG_APPEND_ONLY.md  (9770 B)
 OK      verify_manifest.py  (14665 B — package verifier v3 (full inventory coverage — 12 owner requirements))
 OK      verify_manifest_tests.py  (6586 B — independent positive/negative test suite (10 scenarios on real bytes))
 OK      evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md  (5438 B)
@@ -777,8 +777,8 @@ COVERAGE: files on disk = 96 (regular 96 + symlinks 0)
 RESULT: PASS — full coverage proven (94 registered entries verified, 2 explicitly excluded, 0 unregistered, 0 missing)
 
 ===== T10 duplicate path across sections -> FAIL (expected 1, got 1, PASS) =====
-verify_manifest.py v3 — root=/tmp/vmp3_tests_kv7n9az4/t10
-manifest=/tmp/vmp3_tests_kv7n9az4/t10/MANIFEST.json
+verify_manifest.py v3 — root=/tmp/vmp3_tests_f9p0h2ov/t10
+manifest=/tmp/vmp3_tests_f9p0h2ov/t10/MANIFEST.json
 FAIL    conflict: path 'ALERT_STATUS.md' appears in more than one section
 OK      MANIFEST.json: self-excluded by design (18889 B, not self-hashed — structural validation only)
 RESULT: FAIL — section conflicts present; refusing content verification

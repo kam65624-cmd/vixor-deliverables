@@ -1,7 +1,7 @@
 {
  "package": "VIXOR TASK 23 FINAL AUDIT PACKAGE (post-merge repair, verifier v3, tested)",
  "manifest_version": 3,
- "generated_at": "2026-10-26T21:33:36.466628Z",
+ "generated_at": "2026-10-26T21:35:23.700305Z",
  "generated_by_task": "TASK 23 (PR #11 package repair + verifier v3 + tests + ZIP) — manifest regenerated LAST (R21-02)",
  "supersedes": "MANIFEST.json v2 (TASK 22 edition) and v1 MANIFEST — superseded entries remain in git history untouched; v3 adds full-inventory coverage (missing/unregistered/traversal/symlink/types/duplicates) per owner directive",
  "historical_manifest_v1": {
@@ -92,12 +92,12 @@
    "sha256": "aaf48be7ef1efad678b42c6c5ebe91151ee725d44feaa41fee6e8f1c04d454f7"
   },
   "WORKLOG.md": {
-   "bytes": 11620,
-   "sha256": "471681b7d25aaf8ab05f49efffc0182c48261f77f3e708cda105dd2a1f151a4b"
+   "bytes": 12289,
+   "sha256": "9c28e112620d026950cff557aa6ab3ebe54ccc27c337d71d80292c851a509f60"
   },
   "WORKLOG_APPEND_ONLY.md": {
-   "bytes": 9101,
-   "sha256": "931999a31a12a2a251e730907c1f9b0789e086647f81fbc51cf8e72d048c81c0"
+   "bytes": 9770,
+   "sha256": "8da2220e0c185f793e98038041bdeb8ef576f9db8342de9856d343de38b98e63"
   },
   "verify_manifest.py": {
    "bytes": 14665,
@@ -137,7 +137,7 @@
   },
   "evidence/t23_verifier_tests_output.log": {
    "bytes": 46959,
-   "sha256": "016da741fd0e65fd45491325547d70af84a9436f3a22289dcf7b28d67ac88fad"
+   "sha256": "1cde6a5b68fee2525dbbfb774ff9bd72eff2db1bc84e28094f737d231b108537"
   },
   "evidence/test-evidence-r19_fresh_main_2026-10-27.log": {
    "bytes": 10099,
@@ -321,7 +321,7 @@
   },
   "evidence/raw/t23_tb_alert01_regression_cjs.json": {
    "bytes": 45533,
-   "sha256": "5b5165a00ffd3676d81d7f701e3f388cbae2ad7296fc52b3838e77dd5e1631fe"
+   "sha256": "67c36c455cba1bf6c9e3e71219fd7eefb0c9942b75a78a0a7f0bd6fb4d987a7f"
   },
   "evidence/raw/t23_tb_alert01_regression_cjs.json.bytes": {
    "bytes": 32092,
