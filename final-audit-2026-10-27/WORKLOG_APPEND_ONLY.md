@@ -35,3 +35,23 @@ Stage Summary:
 - Owner items after TASK 23: rotate token (SEC-03), preflight (query ready), CF evidence §A (now incl. the PR-branch build failure), review/merge PR #11 (still draft), review/merge PR #19 (still draft), decide A/C + H1/H2.
 
 > **ZIP VALUE CORRECTION (dated 2026-10-26T21:3x UTC, append-only):** the ZIP size/sha256 quoted in the entries above were INTERMEDIATE pipeline values (recorded before two further documentation-fix rebuilds of the same persisted pipeline). By design, the FINAL ZIP values are recorded OUTSIDE the package — in the PR #11 description and `t23_zip_record.json` placed next to the ZIP at the branch root — because a package cannot contain the hash of the archive that contains it (self-reference impossibility, documented in TEST_EVIDENCE §ب). Any sha/size printed inside the package for its own ZIP would be stale by construction; trust only the external record.
+
+
+---
+
+## TASK 26 — تصحيح حالة PRs من GitHub حيًا (2026-10-27)
+
+**النطاق:** توثيق فقط على فرع مراجعة منفصل `audit/post-merge-status-correction-2026-10-27`؛ لا تعديل كود إنتاج، لا migrations، لا deploy، لا دمج.
+
+### نتائج التحقق
+- `vixor-deliverables` PR #11: GitHub يعرض `state=closed, merged=true`؛ merge commit `a2db53e5b4fad4f905b2da65c16dab2ef430bc39`. مرجع: https://github.com/kam65624-cmd/vixor-deliverables/pull/11 . فحص check-runs الحالي لم يقدم أي check-runs أو Actions runs بعد الدمج يمكن إثباتها؛ سُجلت الحالة `NOT_VERIFIED / evidence unavailable` دون استنتاج نجاح أو فشل.
+- `tg-content-bot` PR #19: GitHub يعرض `state=closed, merged=true`، وقت الدمج `2026-10-26T22:55:39Z`، merge commit `2d8933ed7cd92d23144099642497f32794340715`. مرجع: https://github.com/kam65624-cmd/tg-content-bot/pull/19 . مرجع تشغيل CI المتاح: https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40416117388 .
+- تم إلحاق تصحيح مؤرخ بملفي `OWNER_ACTIONS.md` و`RISK_REGISTER.md`؛ السجلات السابقة باقية كما هي. قرار مراجعة/دمج PR #11 وPR #19 لم يعد إجراءً حاليًا لأنهما مدموجان بالفعل.
+
+### ما لم يتغير
+- `ALERT-07 §A` ما يزال محجوبًا إلى حين التحقق من Cloudflare deployment الفعلي وtriggers وأسماء الإعدادات/الأسرار وسبب فشل بناء فرع PR.
+- `ALERT-08` ما يزال محجوبًا إلى حين تنفيذ preflight قراءة-فقط على مشروع قاعدة الإنتاج الصحيح.
+- `SEC-03` ما يزال إجراء مالك؛ لا تُشارك أي قيم سرية.
+- `ALERT-02/05/06` والمخاطر الأخرى وقرارات A/C وH1/H2 لم تُغلق بهذا التحديث.
+
+**الحكم النهائي لهذه الجولة: `AUDIT INCOMPLETE`.** كل ما سبق تحديث سجلات وأدلة حالة PRs فقط؛ لم يُنفذ أي إجراء على الإنتاج.
