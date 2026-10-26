@@ -1,0 +1,26 @@
+{
+  "name": "tg-content-bot-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram content bot — Cloudflare Worker",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "tail": "wrangler tail --format pretty",
+    "kv:create": "wrangler kv namespace create",
+    "secret:put": "wrangler secret put",
+    "test": "tsc -p tests/smoke.tsconfig.json && node tests/smoke-test.cjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^3.80.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

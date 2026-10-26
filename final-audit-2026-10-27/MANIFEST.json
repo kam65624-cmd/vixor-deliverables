@@ -1,0 +1,308 @@
+{
+ "package": "VIXOR TASK 22 FINAL AUDIT PACKAGE (recovered + independently re-verified)",
+ "generated_at": "2026-10-26T18:11:32.769245Z",
+ "generated_by_task": "TASK 22 (evidence recovery, independent re-verification, package completion)",
+ "supersedes": "MANIFEST (no extension, TASK 21 edition) — preserved untouched as historical record; its hash is NOT recomputable here without excluding itself; see files section key 'MANIFEST'",
+ "historical_manifest_v1": {
+  "bytes": 3226,
+  "sha256": "8f618d08b92a54aea79fc88d9c903a1897a038770ab781b365df808c9635c88c"
+ },
+ "language": "ar (content) / en (filenames)",
+ "verdict": "AUDIT INCOMPLETE (2 hard blockers: ALERT-08 preflight, ALERT-07 §A; + owner decisions pending)",
+ "pr10_head_verified": "4b3eebe0e6033431ec6819cd9b0e303dec5a8a0c",
+ "manifest_self_note": "MANIFEST.json is excluded from 'files' by design (cannot contain its own sha256); verifier validates it structurally",
+ "files": {
+  "ALERT_STATUS.md": {
+   "bytes": 8647,
+   "sha256": "1924b0bb8e60560c7812f303a0992db876ec6174db766162e165a0b10c40ad5b"
+  },
+  "EXECUTIVE_SUMMARY_AR.md": {
+   "bytes": 5973,
+   "sha256": "72d083fe1a99efc71516b2b4c8d157e7e96dc5fe4e3337e0d9a4b50ff52bb783"
+  },
+  "FINAL_AUDIT_REPORT_AR.md": {
+   "bytes": 13813,
+   "sha256": "8c73fe2ff15ad51b7d7fc2033fa3c200a70742137aab38958a45e66ebae5732c"
+  },
+  "H1H2_ASSESSMENT.md": {
+   "bytes": 7178,
+   "sha256": "27cb24fbb223c643b98002befd540d8c99435a7fb840b3860405dec18aa3731b"
+  },
+  "LINE_BY_LINE_REVIEW.md": {
+   "bytes": 11437,
+   "sha256": "66e91e8d5af27281df9e8fa77c4eadc3fb04b9bf206776cf69f632db148e3fd0"
+  },
+  "OWNER_ACTIONS.md": {
+   "bytes": 4735,
+   "sha256": "6cc62c04e58963b99b00cb5813f53066828c342d9e6aa079b6548b6d234a13af"
+  },
+  "R19_CI_WIRING_PROPOSAL.patch": {
+   "bytes": 1178,
+   "sha256": "3f3fded8429ad5789b534ce11ec60986eb86167d233a039eb76c8d2b90b33307"
+  },
+  "R19_CI_WIRING_PROPOSAL_v2_amended.patch": {
+   "bytes": 2084,
+   "sha256": "00f1618e9f34f36d654c5236515680d9cdd68f1155dd8b13ad370b79a93080be"
+  },
+  "REPOSITORY_STATUS.md": {
+   "bytes": 7473,
+   "sha256": "510f93b3168b2d2252cbfac9a1f99ae4c5decee62e5bc5f30d5bb155d7edb4a6"
+  },
+  "REPRODUCIBILITY.md": {
+   "bytes": 5590,
+   "sha256": "d4ec78483839e8bba2de86ef0f91cfc5be0b3f5c7ab07893f1da603e69f7b361"
+  },
+  "RISK_REGISTER.md": {
+   "bytes": 7942,
+   "sha256": "5663e1a2da90d125e172fcd0e87029c70b28864ca5fe208a3a831ef2d4dadd99"
+  },
+  "TASK_STATUS.md": {
+   "bytes": 5593,
+   "sha256": "ade0858028b9c071929701c62e6110c0ab55e2db4ea29b2f0615b66d0856afc0"
+  },
+  "TEST_EVIDENCE.md": {
+   "bytes": 8841,
+   "sha256": "b6be7933f890f7181798dfee29f2ed91341ffd56c3979695b94b3612003a34bc"
+  },
+  "WORKLOG.md": {
+   "bytes": 7029,
+   "sha256": "91cf70ada881343841979414277410c2ddfcce68bc8a16351f840b11c152b943"
+  },
+  "WORKLOG_APPEND_ONLY.md": {
+   "bytes": 7527,
+   "sha256": "596369dbbfd195088a1a852e2401b24e07c9442eec386403b469b8fd7293e38f"
+  },
+  "verify_manifest.py": {
+   "bytes": 1988,
+   "sha256": "4d42a2097e15011993cd34146470a8d13f27e5f97938a8247dddcecac262f372"
+  }
+ },
+ "evidence": {
+  "evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md": {
+   "bytes": 5438,
+   "sha256": "f9e7131168695b48de056ec8ff6dbad0667e3bbb54a380a72c61b40c993f402f"
+  },
+  "evidence/t22_digest.json": {
+   "bytes": 15790,
+   "sha256": "bdac2cd9d31a944faa94bed7403e514898f069972494b4673c641d279a48a996"
+  },
+  "evidence/t22_f1_verify_results.json": {
+   "bytes": 4490,
+   "sha256": "8bff3fd6a50e4cb703d77a161b46765bba915642bc473aa8e43509661856a019"
+  },
+  "evidence/t22_f2_core_check.json": {
+   "bytes": 408,
+   "sha256": "de77b9a4e124f783c03ddc97b0bfa815b95d168c63e3b6c108dd7de5cf8c6f29"
+  },
+  "evidence/t22_f2_deep.json": {
+   "bytes": 3872,
+   "sha256": "df082453562a9345c9459b09f3719acfeb10fb156eed1c7883f516ff652cbd63"
+  },
+  "evidence/t22_f2_identity.json": {
+   "bytes": 968,
+   "sha256": "fb0ad35ca9d7cae4f37662ce6e19f259d64a79d9ee78c7db2691bbabac3aaceb"
+  },
+  "evidence/test-evidence-r19_fresh_main_2026-10-27.log": {
+   "bytes": 10099,
+   "sha256": "7aa8288f6b0080f990a70aca4c78a862a545749f9551c4be3267781a8bc10bcf"
+  },
+  "evidence/test-evidence-r19_task22_fresh_2026-10-27.log": {
+   "bytes": 11686,
+   "sha256": "8fbe5709797471e25bd8d0f5a9b98d501e0d57de6387c4e1903a4c2966d828c0"
+  },
+  "evidence/test-evidence-r22_run1_2026-10-27.log": {
+   "bytes": 3527,
+   "sha256": "d3b65899f27470b573688bfc896d3b9b02c20a46cc19cd8b94c6b00ff687f3cd"
+  },
+  "evidence/test-evidence-r22_run2_2026-10-27.log": {
+   "bytes": 3526,
+   "sha256": "6bed63d3d6192656f6e73d6910bd6ca4f75bf8b0cf6cccf575f78716ebb17d9e"
+  },
+  "evidence/test-evidence-r22_run3_task22_2026-10-27.log": {
+   "bytes": 3538,
+   "sha256": "b3941cc2cbfb40b22e20b0c089f2b85148c08a76d82b48ea194aba72497be308"
+  },
+  "evidence/raw/UPLOAD_AND_HANDOFF_HEAD_FULL.md": {
+   "bytes": 6247,
+   "sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46"
+  },
+  "evidence/raw/ci_yml_decoded.yml": {
+   "bytes": 1011,
+   "sha256": "2a12a2e05a9bd27cc62ed684579e7cc3fdc1c8c39980b1db963c114e87b48ff4"
+  },
+  "evidence/raw/pr10_checkruns_head_t22.json": {
+   "bytes": 33,
+   "sha256": "e83cfac35507982a40cfeb776ce85aa0367e7646f81fe857df4a6c841ea8a170"
+  },
+  "evidence/raw/pr10_commits_t22.json": {
+   "bytes": 8204,
+   "sha256": "29cf542aee592749fa6c73ebd934c3447e2c6c3f71f9767ad8e2cdc5d029319f"
+  },
+  "evidence/raw/pr10_files_t22.json": {
+   "bytes": 78741,
+   "sha256": "2bef94af56c6a47db6b0f77e7485a00bba1b281e3dedded5a04f1d4a3d3c9774"
+  },
+  "evidence/raw/pr10_head_commit_t22.json": {
+   "bytes": 2144,
+   "sha256": "2b49fd03fa6898e6a1572ecdedbfb237d354603d335fdf932cf074773c91d379"
+  },
+  "evidence/raw/pr10_head_tree_t22.json": {
+   "bytes": 8622,
+   "sha256": "98967fc79d5fa41383e775ce4bd35c01fc86d6ea7c1eff0be7e877e51d18ea67"
+  },
+  "evidence/raw/pr10_meta_t22.json": {
+   "bytes": 18960,
+   "sha256": "619d24947a5fe7bcf5c8106efd88bffd2c0adbd32014d2fc1e634f3688d0bcb6"
+  },
+  "evidence/raw/repo_JAMRA_branch_t22.json": {
+   "bytes": 3863,
+   "sha256": "2907bf62a5ad67d7548dbc1fa82fae0cf7e2a077aa9c463f8c4ba2e4a9f27445"
+  },
+  "evidence/raw/repo_JAMRA_t22.json": {
+   "bytes": 5569,
+   "sha256": "cce07b0b93cc39f881cd96441fb1f6f9bd0bb4a707938edd0145e447ed52f10f"
+  },
+  "evidence/raw/repo_poplix-movie-app_branch_t22.json": {
+   "bytes": 3116,
+   "sha256": "0c7d6a6db395ba585bc8a8a1411fcd8b9f123993057abe69a561698ff26e98b5"
+  },
+  "evidence/raw/repo_poplix-movie-app_t22.json": {
+   "bytes": 6118,
+   "sha256": "bec56a686b4a4619accf0a08e6886afaf0a589802dd4d5a29058f2abad4c5da2"
+  },
+  "evidence/raw/repo_tg-content-bot_branch_t22.json": {
+   "bytes": 5391,
+   "sha256": "ee83e9cb12f1651b46b940e8adae8b45cc80fd1249f7a7d494d237950d549c03"
+  },
+  "evidence/raw/repo_tg-content-bot_t22.json": {
+   "bytes": 6050,
+   "sha256": "a74bcc1651d9931783214177d97ff4c5a539ad96910b82bfd416a916baefd115"
+  },
+  "evidence/raw/repo_vixor-APP_branch_t22.json": {
+   "bytes": 5237,
+   "sha256": "58e0811d17e0ba33bf1274a2689b6ce8afc87d66362a65048d7f1221fb53f249"
+  },
+  "evidence/raw/repo_vixor-APP_t22.json": {
+   "bytes": 5995,
+   "sha256": "62707d2404a9727b9c7d75ba05dbe4557d437701ce751547f8a97a4324b795a8"
+  },
+  "evidence/raw/repo_vixor-deliverables_branch_t22.json": {
+   "bytes": 5425,
+   "sha256": "eea66637ddda7efee23dd1431b6e8cffb3c22462f438ae8bbfe022f7a523121d"
+  },
+  "evidence/raw/repo_vixor-deliverables_t22.json": {
+   "bytes": 6438,
+   "sha256": "6932cc5dfc8ee0bc492bda3ccee0d5cca246d55b1b8605ee35b6fc743a01778d"
+  },
+  "evidence/raw/repo_vixor-hunt_branch_t22.json": {
+   "bytes": 1971,
+   "sha256": "f32af7929ff313c1e575c6a337ef03c55d4c6b48ea0db2d2f799e3e0b6d6e236"
+  },
+  "evidence/raw/repo_vixor-hunt_t22.json": {
+   "bytes": 5759,
+   "sha256": "84d53d65b77d215ae745a669a4a6ad5bacf78673121ab2494b128fd4d734026b"
+  },
+  "evidence/raw/repo_vixor-packages_branch_t22.json": {
+   "bytes": 5377,
+   "sha256": "cd600f42d7369b841d2a6b05abe625f897d6d5363663a6a44c8b5a3ad9740738"
+  },
+  "evidence/raw/repo_vixor-packages_t22.json": {
+   "bytes": 5933,
+   "sha256": "22b1eacaa2821c8b9084ed1d0d2f2e3a0c3d263275d60587f7ffdf358eac102d"
+  },
+  "evidence/raw/repo_vixor-shield_branch_t22.json": {
+   "bytes": 5453,
+   "sha256": "0f1e758d1b8b3751831a11a95b56a60624a73e49edfab14b54e80570be3cf2f8"
+  },
+  "evidence/raw/repo_vixor-shield_t22.json": {
+   "bytes": 5847,
+   "sha256": "51d9f3799cea7f2c36dc283969525bc88924b9fcf452ca7164ff4c62bf835ba1"
+  },
+  "evidence/raw/repo_vixor-trade_branch_t22.json": {
+   "bytes": 2512,
+   "sha256": "c31a509196f43e8bc12a6811452ea972884301b8adb8d5c37d3bebe8a0aea7ee"
+  },
+  "evidence/raw/repo_vixor-trade_t22.json": {
+   "bytes": 5803,
+   "sha256": "2363a774cc1adeb383d3ba6869ddd06362b47c90a2f09e567f8b2f43c2386390"
+  },
+  "evidence/raw/tgcb_alert01_regression_meta_t22.json": {
+   "bytes": 45283,
+   "sha256": "c5d879a3abfeba1a2c677854b9d56ace6149b6b59b9f6bd590a81a3e1e0c9aa6"
+  },
+  "evidence/raw/tgcb_alert01_regression_meta_t22.json.bytes": {
+   "bytes": 32092,
+   "sha256": "ec7550b75b69d5a11fba6f3d62d29534ba5d8a0cfdddaff4da0d4376c044efe8"
+  },
+  "evidence/raw/tgcb_checkruns_main_t22.json": {
+   "bytes": 10017,
+   "sha256": "437a4fb935755ede36f0694b9384f855c13f3d60188a3d53c639a95adeb8118d"
+  },
+  "evidence/raw/tgcb_ci_yml_t22.json": {
+   "bytes": 2350,
+   "sha256": "7a3168c0960fa79153040ed84bf42803e735cd5e206b304c9170abb2868ff63c"
+  },
+  "evidence/raw/tgcb_ci_yml_t22.json.bytes": {
+   "bytes": 1011,
+   "sha256": "2a12a2e05a9bd27cc62ed684579e7cc3fdc1c8c39980b1db963c114e87b48ff4"
+  },
+  "evidence/raw/tgcb_main_branch_t22.json": {
+   "bytes": 5391,
+   "sha256": "ee83e9cb12f1651b46b940e8adae8b45cc80fd1249f7a7d494d237950d549c03"
+  },
+  "evidence/raw/tgcb_package_json_t22.json": {
+   "bytes": 1923,
+   "sha256": "574914f4dd7d8db349556100e741e77b5091c54fb77dca8d5c1aa135fa9cb8dc"
+  },
+  "evidence/raw/tgcb_package_json_t22.json.bytes": {
+   "bytes": 700,
+   "sha256": "48c730481f40c79c8a96a0560a7d83eea36bcb416b69ec6c34425ec3b03b13d3"
+  },
+  "evidence/raw/tgcb_pr17_t22.json": {
+   "bytes": 26968,
+   "sha256": "70e7f218d6b372ae2b761996a1dd5363d6bdefdf212ba3563f91d2ccbca749c7"
+  },
+  "evidence/raw/tgcb_pr18_t22.json": {
+   "bytes": 18669,
+   "sha256": "12a053f2e9d01abe058a3f0383d8a68e7aa6989fbd1fb0d1fb014bd0dad1b126"
+  },
+  "evidence/raw/tgcb_repo_t22.json": {
+   "bytes": 6050,
+   "sha256": "d72ee3ed35828e1543f03f1a4c55b0989ba8eab2e649247e0bf92fe9e7ba8b87"
+  },
+  "evidence/raw/tgcb_status_main_t22.json": {
+   "bytes": 4956,
+   "sha256": "e19e8538bde20d82a25d03a157db2a57ebf7b88bf1451769941ffb9209c8d608"
+  },
+  "evidence/raw/vixor_packages_root_t22.json": {
+   "bytes": 5745,
+   "sha256": "cf71590f4cff63be58a987f419af99ada5603bdbbaaf60fd98b004d87c763aa0"
+  }
+ },
+ "secret_scan": {
+  "pattern_name_scan": "13 name-patterns searched across every package file",
+  "name_hits_disposition": "ALL name-hits are the literal pattern-enumeration strings themselves: (1) REPRODUCIBILITY.md §5 documents the scan methodology; (2) MANIFEST.json carries its own patterns list; (3) evidence/raw/pr10_files_t22.json embeds the patch of the PR's verify_manifest.py, whose source contains its scan-pattern list. No credential values.",
+  "strict_value_regex_scan": {
+   "patterns": [
+    "gh[pousr]_[A-Za-z0-9]{20,}",
+    "github_pat_[A-Za-z0-9_]{20,}",
+    "AKIA[0-9A-Z]{16}",
+    "-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]{10,}",
+    "postgres(ql)?://[^/\\s:]+:[^@\\s]+@",
+    "cfat_[A-Za-z0-9_-]{10,}",
+    "eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{5,}",
+    "sk-[A-Za-z0-9]{20,}",
+    "sbp_[A-Za-z0-9]{20,}"
+   ],
+   "hits": [],
+   "result": "CLEAN",
+   "whitelist_disposition": {
+    "exact_bytes": "postgres://user:pass@/",
+    "file": "REPRODUCIBILITY.md",
+    "location": "section 5 (scan methodology enumeration from TASK 21 edition)",
+    "reason": "literal documentation placeholder inside the pattern list itself (user:pass), not credentials"
+   }
+  },
+  "result": "CLEAN"
+ }
+}

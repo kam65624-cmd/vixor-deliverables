@@ -1,0 +1,419 @@
+{
+ "pr10": {
+  "state": "open",
+  "draft": true,
+  "head_ref": "audit/final-evidence-handoff-2026-10-26",
+  "head_sha": "4b3eebe0e6033431ec6819cd9b0e303dec5a8a0c",
+  "base_sha": "bd3fbe3ad565d165b0a16d289481fed432497393",
+  "changed_files": 9,
+  "merge_commit_sha": "10751b9b695c594d28e1790f09aa3af2e6ff8965",
+  "updated_at": "2026-10-26T17:24:55Z"
+ },
+ "pr10_commits": [
+  {
+   "sha": "b0e1821963efce308195d0ad3364b9c2d8c66740",
+   "message": "docs: final evidence handoff package \u2014 all-sessions audit + ALERT-01 fix verified on main (2026-10-26)\n\n- SESS",
+   "author_date": "2026-10-26T05:39:51Z",
+   "committer_date": "2026-10-26T05:39:51Z",
+   "parents": [
+    "bd3fbe3ad565d165b0a16d289481fed432497393"
+   ]
+  },
+  {
+   "sha": "afa37b81f49af978335aa13387e135323291d754",
+   "message": "docs: add remote-upload verification block to MANIFEST (PR refs + blob matches)",
+   "author_date": "2026-10-26T05:41:16Z",
+   "committer_date": "2026-10-26T05:41:16Z",
+   "parents": [
+    "b0e1821963efce308195d0ad3364b9c2d8c66740"
+   ]
+  },
+  {
+   "sha": "4b3eebe0e6033431ec6819cd9b0e303dec5a8a0c",
+   "message": "fix(F1): restore intended UPLOAD_AND_HANDOFF.md + register f1_correction in MANIFEST\n\nRoot cause (forensically",
+   "author_date": "2026-10-26T17:24:53Z",
+   "committer_date": "2026-10-26T17:24:53Z",
+   "parents": [
+    "afa37b81f49af978335aa13387e135323291d754"
+   ]
+  }
+ ],
+ "head_commit": {
+  "tree": "f6653affa6c4a7c7d795dd32f5c1b58539916f00",
+  "parents": [
+   {
+    "sha": "afa37b81f49af978335aa13387e135323291d754",
+    "url": "https://api.github.com/repos/kam65624-cmd/vixor-deliverables/git/commits/afa37b81f49af978335aa13387e135323291d754",
+    "html_url": "https://github.com/kam65624-cmd/vixor-deliverables/commit/afa37b81f49af978335aa13387e135323291d754"
+   }
+  ],
+  "author_date": "2026-10-26T17:24:53Z",
+  "committer_date": "2026-10-26T17:24:53Z",
+  "message": "fix(F1): restore intended UPLOAD_AND_HANDOFF.md + register f1_correction in MANIFEST\n\nRoot cause (forensically established): row-3 of UPLOAD_AND_HANDOFF.md was enriched\nwith the real commit SHA + PR #"
+ },
+ "pr10_files": [
+  {
+   "filename": "final-evidence-handoff/2026-10-26/CROSS_PROJECT_INTEGRATION_AUDIT.md",
+   "status": "added",
+   "additions": 46,
+   "deletions": 0,
+   "blob_sha": "b7640fc13153239c59dc4a9f332c1527f2f40fb0"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/FILE_CHANGE_REGISTER.md",
+   "status": "added",
+   "additions": 80,
+   "deletions": 0,
+   "blob_sha": "616111abb665d5922572bcf6c1cf4cbc89f80a85"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/MANIFEST.json",
+   "status": "added",
+   "additions": 142,
+   "deletions": 0,
+   "blob_sha": "ea3317d2193d6b303f606d313beec955e386f913"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/REPOSITORY_INVENTORY.md",
+   "status": "added",
+   "additions": 60,
+   "deletions": 0,
+   "blob_sha": "48ef32e75af35b25277cb7049de798ea3d7df01f"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/SECURITY_AND_RISK_REGISTER.md",
+   "status": "added",
+   "additions": 49,
+   "deletions": 0,
+   "blob_sha": "e70a13f6c78b13f172f03bb25f1af8c1cb552e46"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/SESSION_FINAL_REPORT.md",
+   "status": "added",
+   "additions": 122,
+   "deletions": 0,
+   "blob_sha": "7fb328cab67dc1e63c37572feeb5b3d3c09cafe2"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/TEST_AND_CI_MATRIX.md",
+   "status": "added",
+   "additions": 69,
+   "deletions": 0,
+   "blob_sha": "a15b2f890c18d1c0a0013da0f0c26f139f687d86"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/UPLOAD_AND_HANDOFF.md",
+   "status": "added",
+   "additions": 54,
+   "deletions": 0,
+   "blob_sha": "f0850523abca035b13360060306b6446aa2fd027"
+  },
+  {
+   "filename": "final-evidence-handoff/2026-10-26/verify_manifest.py",
+   "status": "added",
+   "additions": 22,
+   "deletions": 0,
+   "blob_sha": "ff68a3e8fb2bf7856e5c29974a8acbabc0abded7"
+  }
+ ],
+ "head_tree_blobs": {
+  "AGENT_TASK_REGISTRY_V1.md": "62977c5a774b4140341f9d6b23ad42a2772df8b8",
+  "GLM5_MASTER_PROMPT.md": "be6c633201ec5cca5dccad595882760cebd57a6c",
+  "INTEGRATION_AUDIT.md": "df96df8fa412e67cb25b38434388e04f8bdf11ee",
+  "INTEGRATION_CONTRACTS.md": "70dabbc865232f87f2f6247d4717b0487e76c1ce",
+  "PHASE0_FILE_MATRIX.md": "7aaa717c35fec1cda3e5eac68cbab28ded00c07b",
+  "POD_AI_ML_Engineer.md": "eb38ae60a840cfa309a1b9d1630810cd8fdf7ac8",
+  "POD_Backend_Developer.md": "b322228159b349d30642a094120201eefe7dd8fc",
+  "POD_DevOps_Engineer.md": "aa4c6e113b4868081e8cd300dc2851b1c7b873ec",
+  "POD_Frontend_Developer.md": "211748c7bf84296f2985e9f347465ebdbb189c62",
+  "POD_Lead_Developer.md": "cf4596f5bcbacbe77da678ea88c6d2da605caaf8",
+  "POD_QA_Security_Engineer.md": "ee29e6e21a33e17a7d5a693d64de978de89518cd",
+  "README.md": "64aca198b82864506bb99d9ad094f947107173d3",
+  "VIXOR_BUSINESS_MAP.md": "2a473a5999b035f5e866e630405e43b6cf3cf8b7",
+  "VIXOR_Business_Map_Report_AR.pdf": "017b4f7244cd596a377557266713cde8f7da7505",
+  "VIXOR_MASTER.pdf": "7425764414000ca609c048548b8b742f2fa8e5b3",
+  "VIXOR_Phase0_Audit_Report_AR.pdf": "17ec13e157a31e814e35d94a2ff002c9c21569bc",
+  "VIXOR_UNIFIED_VISION.md": "d0ff7409517a49a76dba7b4a25dd24d7a2444856",
+  "VIXOR_UNIFIED_VISION_V2_PROPOSED.md": "3f971ca66a428412bf5d1055594dc7edc54c712c",
+  "apply-phase-a-b1.sh": "6b755d446a34da2307d690f802110d08e64e7db3",
+  "final-evidence-handoff/2026-10-26/CROSS_PROJECT_INTEGRATION_AUDIT.md": "b7640fc13153239c59dc4a9f332c1527f2f40fb0",
+  "final-evidence-handoff/2026-10-26/FILE_CHANGE_REGISTER.md": "616111abb665d5922572bcf6c1cf4cbc89f80a85",
+  "final-evidence-handoff/2026-10-26/MANIFEST.json": "ea3317d2193d6b303f606d313beec955e386f913",
+  "final-evidence-handoff/2026-10-26/REPOSITORY_INVENTORY.md": "48ef32e75af35b25277cb7049de798ea3d7df01f",
+  "final-evidence-handoff/2026-10-26/SECURITY_AND_RISK_REGISTER.md": "e70a13f6c78b13f172f03bb25f1af8c1cb552e46",
+  "final-evidence-handoff/2026-10-26/SESSION_FINAL_REPORT.md": "7fb328cab67dc1e63c37572feeb5b3d3c09cafe2",
+  "final-evidence-handoff/2026-10-26/TEST_AND_CI_MATRIX.md": "a15b2f890c18d1c0a0013da0f0c26f139f687d86",
+  "final-evidence-handoff/2026-10-26/UPLOAD_AND_HANDOFF.md": "f0850523abca035b13360060306b6446aa2fd027",
+  "final-evidence-handoff/2026-10-26/verify_manifest.py": "ff68a3e8fb2bf7856e5c29974a8acbabc0abded7",
+  "integration/VIXOR_INTEGRATION_CONTRACTS_DRAFT.md": "524d206f1e5470051c0b5df87ecd315c74ec2b0e",
+  "vixor-phase-a-b1.patch": "c276ddc80be3928c7da572bf88712cd3e928d605"
+ },
+ "reconstructed": {
+  "CROSS_PROJECT_INTEGRATION_AUDIT.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/CROSS_PROJECT_INTEGRATION_AUDIT.md",
+   "blob_sha": "b7640fc13153239c59dc4a9f332c1527f2f40fb0",
+   "bytes": 5730,
+   "sha256": "807ed206643ad10594ba6089f2a2b1c8f8a19f2daacb3991e30392121a10ce9a",
+   "git_blob_sha1_local": "b7640fc13153239c59dc4a9f332c1527f2f40fb0"
+  },
+  "FILE_CHANGE_REGISTER.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/FILE_CHANGE_REGISTER.md",
+   "blob_sha": "616111abb665d5922572bcf6c1cf4cbc89f80a85",
+   "bytes": 8025,
+   "sha256": "851d03177bfa3a9057da2ac27fe5868926d48f7b9a760230ae5e848d98b41429",
+   "git_blob_sha1_local": "616111abb665d5922572bcf6c1cf4cbc89f80a85"
+  },
+  "MANIFEST.json": {
+   "remote_path": "final-evidence-handoff/2026-10-26/MANIFEST.json",
+   "blob_sha": "ea3317d2193d6b303f606d313beec955e386f913",
+   "bytes": 6499,
+   "sha256": "2aa30344d24add4aa15522883a4bc6d23d6e4c9f55d63f715f077f324cf88aff",
+   "git_blob_sha1_local": "ea3317d2193d6b303f606d313beec955e386f913"
+  },
+  "REPOSITORY_INVENTORY.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/REPOSITORY_INVENTORY.md",
+   "blob_sha": "48ef32e75af35b25277cb7049de798ea3d7df01f",
+   "bytes": 6474,
+   "sha256": "f2ce1366877270ab919e6f01411a66d44d3c08a0f7bd70478655a302267861fa",
+   "git_blob_sha1_local": "48ef32e75af35b25277cb7049de798ea3d7df01f"
+  },
+  "SECURITY_AND_RISK_REGISTER.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/SECURITY_AND_RISK_REGISTER.md",
+   "blob_sha": "e70a13f6c78b13f172f03bb25f1af8c1cb552e46",
+   "bytes": 6484,
+   "sha256": "0195cec4fda4535d291df307a2b848ddc85dbed4282c03de7e709abb23259425",
+   "git_blob_sha1_local": "e70a13f6c78b13f172f03bb25f1af8c1cb552e46"
+  },
+  "SESSION_FINAL_REPORT.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/SESSION_FINAL_REPORT.md",
+   "blob_sha": "7fb328cab67dc1e63c37572feeb5b3d3c09cafe2",
+   "bytes": 23213,
+   "sha256": "d465cc6f3c34fdd03b6125f51e47d3195f283ffddf13346115da269e65097f96",
+   "git_blob_sha1_local": "7fb328cab67dc1e63c37572feeb5b3d3c09cafe2"
+  },
+  "TEST_AND_CI_MATRIX.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/TEST_AND_CI_MATRIX.md",
+   "blob_sha": "a15b2f890c18d1c0a0013da0f0c26f139f687d86",
+   "bytes": 6757,
+   "sha256": "0419c97d3f29ab9350efb2c3be0cd738c2c2b3d009a29aec19097def9a0be47d",
+   "git_blob_sha1_local": "a15b2f890c18d1c0a0013da0f0c26f139f687d86"
+  },
+  "UPLOAD_AND_HANDOFF.md": {
+   "remote_path": "final-evidence-handoff/2026-10-26/UPLOAD_AND_HANDOFF.md",
+   "blob_sha": "f0850523abca035b13360060306b6446aa2fd027",
+   "bytes": 6247,
+   "sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46",
+   "git_blob_sha1_local": "f0850523abca035b13360060306b6446aa2fd027"
+  },
+  "verify_manifest.py": {
+   "remote_path": "final-evidence-handoff/2026-10-26/verify_manifest.py",
+   "blob_sha": "ff68a3e8fb2bf7856e5c29974a8acbabc0abded7",
+   "bytes": 952,
+   "sha256": "0959228145bbf18144c687fe8fb1cec83b0c717c2e7a15b879298be807ec535e",
+   "git_blob_sha1_local": "ff68a3e8fb2bf7856e5c29974a8acbabc0abded7"
+  }
+ },
+ "manifest_check_t22": [
+  {
+   "file": "CROSS_PROJECT_INTEGRATION_AUDIT.md",
+   "manifest_bytes": 5730,
+   "actual_bytes": 5730,
+   "manifest_sha256": "807ed206643ad10594ba6089f2a2b1c8f8a19f2daacb3991e30392121a10ce9a",
+   "actual_sha256": "807ed206643ad10594ba6089f2a2b1c8f8a19f2daacb3991e30392121a10ce9a",
+   "result": "MATCH"
+  },
+  {
+   "file": "FILE_CHANGE_REGISTER.md",
+   "manifest_bytes": 8025,
+   "actual_bytes": 8025,
+   "manifest_sha256": "851d03177bfa3a9057da2ac27fe5868926d48f7b9a760230ae5e848d98b41429",
+   "actual_sha256": "851d03177bfa3a9057da2ac27fe5868926d48f7b9a760230ae5e848d98b41429",
+   "result": "MATCH"
+  },
+  {
+   "file": "REPOSITORY_INVENTORY.md",
+   "manifest_bytes": 6474,
+   "actual_bytes": 6474,
+   "manifest_sha256": "f2ce1366877270ab919e6f01411a66d44d3c08a0f7bd70478655a302267861fa",
+   "actual_sha256": "f2ce1366877270ab919e6f01411a66d44d3c08a0f7bd70478655a302267861fa",
+   "result": "MATCH"
+  },
+  {
+   "file": "SECURITY_AND_RISK_REGISTER.md",
+   "manifest_bytes": 6484,
+   "actual_bytes": 6484,
+   "manifest_sha256": "0195cec4fda4535d291df307a2b848ddc85dbed4282c03de7e709abb23259425",
+   "actual_sha256": "0195cec4fda4535d291df307a2b848ddc85dbed4282c03de7e709abb23259425",
+   "result": "MATCH"
+  },
+  {
+   "file": "SESSION_FINAL_REPORT.md",
+   "manifest_bytes": 23213,
+   "actual_bytes": 23213,
+   "manifest_sha256": "d465cc6f3c34fdd03b6125f51e47d3195f283ffddf13346115da269e65097f96",
+   "actual_sha256": "d465cc6f3c34fdd03b6125f51e47d3195f283ffddf13346115da269e65097f96",
+   "result": "MATCH"
+  },
+  {
+   "file": "TEST_AND_CI_MATRIX.md",
+   "manifest_bytes": 6757,
+   "actual_bytes": 6757,
+   "manifest_sha256": "0419c97d3f29ab9350efb2c3be0cd738c2c2b3d009a29aec19097def9a0be47d",
+   "actual_sha256": "0419c97d3f29ab9350efb2c3be0cd738c2c2b3d009a29aec19097def9a0be47d",
+   "result": "MATCH"
+  },
+  {
+   "file": "UPLOAD_AND_HANDOFF.md",
+   "manifest_bytes": 6247,
+   "actual_bytes": 6247,
+   "manifest_sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46",
+   "actual_sha256": "71dd2cf61575c102518a7d45ebdcaac8095f79917f8361ef16ec6ec4577a3c46",
+   "result": "MATCH"
+  },
+  {
+   "file": "verify_manifest.py",
+   "manifest_bytes": 952,
+   "actual_bytes": 952,
+   "manifest_sha256": "0959228145bbf18144c687fe8fb1cec83b0c717c2e7a15b879298be807ec535e",
+   "actual_sha256": "0959228145bbf18144c687fe8fb1cec83b0c717c2e7a15b879298be807ec535e",
+   "result": "MATCH"
+  }
+ ],
+ "manifest_9of9_claim": "8/8",
+ "f1_correction_block": "ABSENT",
+ "tgcb": {
+  "default_branch": "main",
+  "pushed_at": "2026-10-26T05:11:36Z",
+  "private": true,
+  "main_sha": "76830a721bb3761a6d25309acc3672b117116994",
+  "check_runs_main": [
+   {
+    "name": "Workers Builds: tg-content-bot",
+    "status": "completed",
+    "conclusion": "success",
+    "id": 121409501944,
+    "started_at": "2026-10-26T05:12:02Z",
+    "completed_at": "2026-10-26T05:12:02Z"
+   },
+   {
+    "name": "mini-app (typecheck)",
+    "status": "completed",
+    "conclusion": "success",
+    "id": 121409407075,
+    "started_at": "2026-10-26T05:11:42Z",
+    "completed_at": "2026-10-26T05:12:08Z"
+   },
+   {
+    "name": "bot-worker (typecheck + smoke tests)",
+    "status": "completed",
+    "conclusion": "success",
+    "id": 121409406883,
+    "started_at": "2026-10-26T05:11:42Z",
+    "completed_at": "2026-10-26T05:12:08Z"
+   }
+  ],
+  "combined_status_main": {
+   "state": "pending",
+   "count": 0
+  }
+ },
+ "tgcb_files": {
+  "bot-worker/package.json": {
+   "sha": "4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad",
+   "bytes": 700,
+   "sha256_local": "48c730481f40c79c8a96a0560a7d83eea36bcb416b69ec6c34425ec3b03b13d3"
+  },
+  ".github/workflows/ci.yml": {
+   "sha": "d270af3bdff5f78992f527b3bc2ddab8be0e5d49",
+   "bytes": 1011,
+   "sha256_local": "2a12a2e05a9bd27cc62ed684579e7cc3fdc1c8c39980b1db963c114e87b48ff4"
+  },
+  "bot-worker/tests/alert01-regression.cjs": {
+   "sha": "52e835c9539012a5dc9d25142278d1d991427017",
+   "bytes": 32092,
+   "sha256_local": "ec7550b75b69d5a11fba6f3d62d29534ba5d8a0cfdddaff4da0d4376c044efe8"
+  }
+ },
+ "tgcb_pr17": {
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2026-10-26T04:55:18Z",
+  "merge_commit_sha": "944e60c0c794c649a4ec60a2875bb7004ab4fd58",
+  "head_sha": "ccb6cbefd58de105f4e9be25f9bb58acbdf05cb7"
+ },
+ "tgcb_pr18": {
+  "state": "closed",
+  "merged": true,
+  "merged_at": "2026-10-26T05:11:36Z",
+  "merge_commit_sha": "76830a721bb3761a6d25309acc3672b117116994",
+  "head_sha": "f4d69f748d0db748f61b3667b6e57ee33f712ec8"
+ },
+ "repos": {
+  "tg-content-bot": {
+   "private": true,
+   "default_branch": "main",
+   "head": "76830a721bb3761a6d25309acc3672b117116994",
+   "pushed_at": "2026-10-26T05:11:36Z"
+  },
+  "vixor-APP": {
+   "private": false,
+   "default_branch": "main",
+   "head": "b893b6299f3bc9cfd4e8ab0361d61e60f80cf661",
+   "pushed_at": "2026-10-24T19:08:52Z"
+  },
+  "vixor-deliverables": {
+   "private": false,
+   "default_branch": "main",
+   "head": "bd3fbe3ad565d165b0a16d289481fed432497393",
+   "pushed_at": "2026-10-26T17:24:54Z"
+  },
+  "vixor-hunt": {
+   "private": true,
+   "default_branch": "main",
+   "head": "ceeb2474d3b20cf556e45abd0e9798739a0d887f",
+   "pushed_at": "2026-10-24T02:14:52Z"
+  },
+  "vixor-trade": {
+   "private": true,
+   "default_branch": "main",
+   "head": "6fab976c65bedf5b351cb65307b9d38dfdd2df96",
+   "pushed_at": "2026-10-24T02:14:57Z"
+  },
+  "vixor-shield": {
+   "private": true,
+   "default_branch": "main",
+   "head": "f9fe0d63cdf8bbecbc2ba2c6c684db5245eb50ad",
+   "pushed_at": "2026-10-24T02:14:55Z"
+  },
+  "vixor-packages": {
+   "private": true,
+   "default_branch": "main",
+   "head": "d58e7268f366923c82819756466719a1bdd39315",
+   "pushed_at": "2026-10-24T02:14:50Z"
+  },
+  "poplix-movie-app": {
+   "private": true,
+   "default_branch": "master",
+   "head": "983f07c4df57c53854376ace2d00e2b05fc6e4e9",
+   "pushed_at": "2026-10-10T01:47:14Z"
+  },
+  "JAMRA": {
+   "private": true,
+   "default_branch": "master",
+   "head": "2bdc03a7fa0c0b18f7c85d9a0ac39fb82c7f6256",
+   "pushed_at": "2026-09-28T04:28:01Z"
+  }
+ },
+ "vixor_packages_root": [
+  ".github",
+  ".gitignore",
+  "package.json",
+  "packages",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+  "turbo.json"
+ ],
+ "pr10_head_check_runs": {
+  "total": 0
+ }
+}

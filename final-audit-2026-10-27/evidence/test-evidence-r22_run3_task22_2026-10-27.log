@@ -1,0 +1,81 @@
+
+=== R20–R22 real-PG concurrency run [run3_task22] ===
+target: postgresql://127.0.0.1:54329/vixor_test_disposable (isolated, disposable)
+engine: real PostgreSQL binaries (embedded-postgres 17.10.0-beta.17), data dir: /home/z/my-project/r22pg/data-r22
+The files belonging to this database system will be owned by user "z".
+This user must also own the server process.
+
+
+The database cluster will be initialized with this locale configuration:
+  locale provider:   libc
+  LC_COLLATE:  C
+  LC_CTYPE:    C.UTF-8
+  LC_MESSAGES: C
+  LC_MONETARY: C
+  LC_NUMERIC:  C
+  LC_TIME:     C
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+creating directory /home/z/my-project/r22pg/data-r22 ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default "max_connections" ... 
+100
+selecting default "shared_buffers" ... 
+128MB
+selecting default time zone ... 
+Etc/UTC
+creating configuration files ... 
+ok
+running bootstrap script ... 
+ok
+
+performing post-bootstrap initialization ... 
+ok
+syncing data to disk ... 
+ok
+
+Success. You can now start the database server using:
+
+    '/home/z/my-project/r22pg/node_modules/@embedded-postgres/linux-x64/native/bin/pg_ctl' -D /home/z/my-project/r22pg/data-r22 -l logfile start
+
+
+2026-10-26 18:01:28.354 UTC [3101] LOG:  starting PostgreSQL 17.10 on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0, 64-bit
+
+2026-10-26 18:01:28.354 UTC [3101] LOG:  listening on IPv6 address "::1", port 54329
+2026-10-26 18:01:28.354 UTC [3101] LOG:  listening on IPv4 address "127.0.0.1", port 54329
+
+2026-10-26 18:01:28.354 UTC [3101] LOG:  listening on Unix socket "/tmp/.s.PGSQL.54329"
+
+2026-10-26 18:01:28.355 UTC [3104] LOG:  database system was shut down at 2026-10-26 18:01:28 UTC
+
+2026-10-26 18:01:28.356 UTC [3101] LOG:  database system is ready to accept connections
+
+server: initialised + started + database created
+setup: fixture + VIXOR_ALERT01_ATOMIC_CLAIM_r3.sql applied
+  ✅ R20: A.claimed=true, B=null (empty like psql), B.blocked_ms=3509
+2026-10-26 18:01:32.432 UTC [3112] LOG:  unexpected EOF on client connection with an open transaction
+
+  ✅ R21a: next claim after connection drop = claimed:true (no lease left)
+  R21b: waiting 31s for lease expiry...
+  ✅ R21b(step1): lease blocks re-claim while held: null
+  ✅ R21b(step2): expired lease reclaimable: claimed:true
+  ✅ R22(step1): hold blocks blind re-send: claim=null, unknown_at=set
+  ✅ R22(step2): delivered is final: notified_at=set, claim=null
+
+=== run [run3_task22] result: 6/6 passed ===
+2026-10-26 18:02:03.948 UTC [3101] LOG:  received fast shutdown request
+
+2026-10-26 18:02:03.948 UTC [3101] LOG:  aborting any active transactions
+2026-10-26 18:02:03.949 UTC [3101] LOG:  background worker "logical replication launcher" (PID 3107) exited with exit code 1
+2026-10-26 18:02:03.949 UTC [3102] LOG:  shutting down
+2026-10-26 18:02:03.949 UTC [3102] LOG:  checkpoint starting: shutdown immediate
+
+2026-10-26 18:02:03.956 UTC [3102] LOG:  checkpoint complete: wrote 937 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.006 s, sync=0.001 s, total=0.007 s; sync files=312, longest=0.001 s, average=0.000 s; distance=4271 kB, estimate=4271 kB; lsn=0/1905120, redo lsn=0/1905120
+
+2026-10-26 18:02:03.960 UTC [3101] LOG:  database system is shut down
+
+server stopped; data dir kept for forensics at /home/z/my-project/r22pg/data-r22

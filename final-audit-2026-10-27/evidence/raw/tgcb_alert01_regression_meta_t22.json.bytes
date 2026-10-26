@@ -1,0 +1,706 @@
+// bot-worker/tests/alert01-regression.cjs
+// ============================================================
+// ALERT-01 regression matrix (V2 design: R1–R15) — TP/SL delivery
+// durability. Tests run against runAthMonitor + targets with a
+// fake Supabase (fake-supabase.cjs), fake KV, and an intercepted
+// global fetch (Telegram + DexScreener).
+//
+// Gate rule (V2 §9): R2 must FAIL on the pre-fix code for the
+// expected reason ("TP/SL alert not retried after failed send —
+// hit_at suppression"). This file is written BEFORE the fix.
+//
+// Review round 1 (owner, 2026-10-26) honesty notes:
+//  - R13/R14 are crash-window STATE RECONSTRUCTION tests (rebuild the
+//    persisted-state shape left by each crash window, then re-run the
+//    monitor) — NOT in-flight crash injection.
+//  - R4b uses a clock-injected fake KV with real expirationTtl
+//    semantics (advance 31d > 30d guard TTL) — not manual key deletion.
+//  - R16/R17/R18 added from owner review: save-error detection,
+//    missing-destination logging, same-signal mixed targets.
+// ============================================================
+"use strict";
+
+const assert = require("assert");
+const { createFakeSupabase } = require("./fake-supabase.cjs");
+
+const { resetSupabaseClient } = require("../.smoke/src/db/client.js");
+const athMonitor = require("../.smoke/src/pipeline/ath-monitor.js");
+
+const PORT = 3998;
+const BASE = `http://127.0.0.1:${PORT}`;
+
+let passed = 0;
+let failed = 0;
+const failures = [];
+
+function test(name, fn) {
+  return Promise.resolve()
+    .then(fn)
+    .then(() => {
+      passed++;
+      console.log(`  ✅ ${name}`);
+    })
+    .catch((e) => {
+      failed++;
+      failures.push({ name, error: String(e && e.message ? e.message : e).slice(0, 400) });
+      console.log(`  ❌ ${name}\n     ${String(e && e.message ? e.message : e).slice(0, 300)}`);
+    });
+}
+
+// ---------------- harness ----------------
+
+const realFetch = global.fetch;
+
+function jsonRes(obj, status = 200) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+// ساعة KV قابلة للحقن — R4b تختبر انتهاء TTL الفعلي (30 يومًا) لا حذفًا يدويًا
+let kvClockMs = Date.now();
+function advanceKvClock(minutes) {
+  kvClockMs += minutes * 60 * 1000;
+}
+
+function makeKV() {
+  const map = new Map(); // k -> { v, exp }
+  return {
+    map,
+    async get(k) {
+      const e = map.get(k);
+      if (!e) return null;
+      if (e.exp !== null && e.exp <= kvClockMs) {
+        map.delete(k);
+        return null;
+      }
+      return e.v;
+    },
+    async put(k, v, opts) {
+      const ttl = opts && opts.expirationTtl ? Number(opts.expirationTtl) : 0;
+      map.set(k, { v: String(v), exp: ttl > 0 ? kvClockMs + ttl * 1000 : null });
+    },
+    async delete(k) {
+      map.delete(k);
+    },
+  };
+}
+
+let S; // current fake supabase state
+let KV; // current fake kv
+let TG; // telegram call log
+
+function installFetch() {
+  global.fetch = async (url, opts) => {
+    const u = String(url);
+    if (u.includes("api.telegram.org")) {
+      TG.push(u);
+      const idx = TG.length - 1;
+      if (typeof S.tgBehavior === "function") {
+        const out = S.tgBehavior(u, idx);
+        if (out === "throw") throw new Error("injected telegram network failure");
+        return jsonRes(out);
+      }
+      return jsonRes({ ok: true, result: { message_id: 5000 + idx } });
+    }
+    if (u.includes("api.dexscreener.com")) {
+      const tail = u.split("/tokens/")[1] || "";
+      const cas = tail.split("?")[0].split(",").map((s) => s.toLowerCase());
+      const pairs = [];
+      for (const ca of cas) {
+        if (S.priceMap && S.priceMap[ca] !== undefined) {
+          pairs.push({
+            chainId: "solana",
+            dexId: "fake",
+            baseToken: { address: ca, name: "Test", symbol: "TEST" },
+            priceUsd: String(S.priceMap[ca]),
+            liquidity: { usd: 250000 },
+            marketCap: 900000,
+          });
+        }
+      }
+      return jsonRes({ pairs });
+    }
+    if (u.includes("api.birdeye.so")) {
+      return jsonRes({ success: false }, 400);
+    }
+    return realFetch(url, opts);
+  };
+}
+
+function baseTemplate() {
+  return {
+    channel_id: "ch-1",
+    update_template: null,
+    update_emoji: null,
+    image_theme: null,
+    max_replies: 0, // عطّل ردود التحديث العادية — هذه الاختبارات لمسار TP/SL فقط
+    reply_cooldown_min: 30,
+    lang: null,
+    persona: null,
+    targets_config: null,
+    pnl_style: null,
+  };
+}
+
+function makeSignal(id, overrides = {}) {
+  const now = Date.now();
+  return {
+    id,
+    token_ca: `CA-${id}`,
+    chain: "solana",
+    token_symbol: "TEST",
+    token_name: "Test Token",
+    entry_price: 1,
+    current_price: 1,
+    ath_price: 1,
+    market_cap_usd: 900000,
+    liquidity_usd: 250000,
+    status: "active",
+    telegram_message_id: "100",
+    telegram_chat_id: "-100999",
+    published_at: new Date(now - 2 * 3600 * 1000).toISOString(),
+    last_checked_at: null,
+    channel_id: "ch-1",
+    last_reply_at: null,
+    last_reply_price: null,
+    reply_count: 0,
+    targets: [
+      { kind: "tp", pct: 100, hit_at: null },
+      { kind: "sl", pct: 40, hit_at: null },
+    ],
+    max_multiple: 1,
+    exit_reason: null,
+    price_history: [],
+    ...overrides,
+  };
+}
+
+function freshState() {
+  return {
+    tgBehavior: null,
+    priceMap: { "ca-sig-1": 1, "ca-sig-2": 1 },
+    memeSignalsReadError: null,
+    memeSignalsPatchError: null,
+    memeSignalsPatchFailIf: null, // (body) => boolean — فشل انتقائي للـ PATCH
+  };
+}
+
+async function startEnv() {
+  S = Object.assign(createFakeSupabaseState(), freshState());
+  kvClockMs = Date.now(); // تصفير الساعة لكل اختبار
+  KV = makeKV();
+  TG = [];
+  const env = {
+    SUPABASE_URL: BASE,
+    SUPABASE_SERVICE_KEY: "test-key",
+    TELEGRAM_BOT_TOKEN: "test-token-fake",
+    SHORT_LINKS: KV,
+  };
+  return env;
+}
+
+// wrapper around createFakeSupabase that returns { server, state }
+let SB = null;
+function createFakeSupabaseState() {
+  return SB.state;
+}
+
+function seedRow(env, row) {
+  S.memeSignals.push(row);
+}
+
+function tpl() {
+  return baseTemplate();
+}
+
+/** مسح واحد: يحذف حارس lastScan ثم يشغّل runAthMonitor */
+async function scanOnce(env, consoleErrors, consoleWarns) {
+  KV.map.delete("ath:lastScan");
+  const before = TG.length;
+  const origErr = console.error;
+  const origWarn = console.warn;
+  if (consoleErrors) console.error = (...a) => { consoleErrors.push(a.map(String).join(" ")); };
+  if (consoleWarns) console.warn = (...a) => { consoleWarns.push(a.map(String).join(" ")); };
+  try {
+    await athMonitor.runAthMonitor(env);
+  } finally {
+    console.error = origErr;
+    console.warn = origWarn;
+  }
+  return { calls: TG.slice(before), callsCount: TG.length - before };
+}
+
+function targetOf(row, kind) {
+  return (row.targets || []).find((t) => t.kind === kind) || null;
+}
+
+/** محاكاة مرور إيقاع الإنتاج (المسحات كل 5 دقائق ≥ فترة التهدئة) */
+function rewindAttempts(row, minutes = 10) {
+  (row.targets || []).forEach((t) => {
+    if (t.hit_last_attempt_at) {
+      t.hit_last_attempt_at = new Date(Date.now() - minutes * 60 * 1000).toISOString();
+    }
+  });
+}
+
+function guardKey(row, kind) {
+  return `tgthit:${row.id}:${kind}`;
+}
+
+// patchFailIf support lives inside fake-supabase — monkey-apply here:
+// (fake-supabase checks S.memeSignalsPatchFailIf before applying PATCH)
+function installPatchFailIfHook() {
+  // implemented directly in fake-supabase.cjs (see PATCH handler)
+}
+
+// ---------------- tests ----------------
+
+async function main() {
+  const { server, state } = await startFakeSupabase(PORT);
+  SB = { server, state };
+  installFetch();
+  installPatchFailIfHook();
+
+  // ---------- R1: كشف + إرسال ناجح + حفظ ----------
+  await test("R1: hit + successful send persists hit_at and hit_notified_at + KV guard", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    S.memeSignals = [row];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const r = await scanOnce(env);
+    assert.strictEqual(r.callsCount, 1, `expected exactly 1 send, got ${r.callsCount}`);
+    const t = targetOf(S.memeSignals[0], "tp");
+    assert.ok(t.hit_at, "hit_at persisted");
+    assert.ok(t.hit_notified_at, "hit_notified_at persisted after successful send");
+    assert.strictEqual(t.hit_notify_attempts, 1, "attempts counted on success");
+    assert.ok(KV.map.get(guardKey(S.memeSignals[0], "tp")), "KV guard written");
+  });
+
+  // ---------- R2: العيبة — فشل إرسال ثم مسح جديد ⇒ إعادة محاولة ----------
+  await test("R2 (THE defect test): failed send then next scan retries the TP/SL alert", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    S.tgBehavior = () => ({ ok: false, error_code: 400, description: "Bad Request: injected failure" });
+    await scanOnce(env);
+    const afterRun1 = targetOf(S.memeSignals[0], "tp");
+    assert.ok(afterRun1.hit_at, "precondition: hit_at persisted even though send failed");
+    assert.ok(!afterRun1.hit_notified_at, "precondition: not notified after failed send");
+    // المسح الثاني: Telegram يعمل — إيقاع الإنتاج (مسح بعد ≥ فترة التهدئة)
+    S.tgBehavior = null;
+    rewindAttempts(S.memeSignals[0]);
+    const r2 = await scanOnce(env);
+    assert.ok(r2.callsCount >= 1, "second scan must retry the TP/SL alert send");
+    const t = targetOf(S.memeSignals[0], "tp");
+    assert.ok(
+      t.hit_notified_at,
+      "R2 EXPECTED-REASON FAILURE: TP/SL alert was not retried after failed send — hit_at suppression kept the target silent",
+    );
+    assert.ok(KV.map.get(guardKey(S.memeSignals[0], "tp")), "guard written after successful retry");
+  });
+
+  // ---------- R3: نجاح ثم مسح متكرر ⇒ لا إرسال ثانٍ ----------
+  await test("R3: successful delivery then repeated scan does not re-send", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    await scanOnce(env);
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 0, `no second send expected, got ${r2.callsCount}`);
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "still notified");
+  });
+
+  // ---------- R4a: إرسال ناجح + فشل حفظ التسليم + مسح داخل TTL ⇒ مصالحة بلا إرسال ----------
+  await test("R4a: send ok + delivery-save fails + next scan reconciles via KV guard (no resend)", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    // فشل انتقائي: فقط PATCH الذي يحمل hit_notified_at
+    S.memeSignalsPatchFailIf = (body) =>
+      body && Array.isArray(body.targets) && body.targets.some((t) => t.hit_notified_at);
+    const r1 = await scanOnce(env);
+    assert.strictEqual(r1.callsCount, 1, "first scan sends once");
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_at, "hit_at persisted (early save)");
+    assert.ok(!targetOf(S.memeSignals[0], "tp").hit_notified_at, "delivery state save failed (injected)");
+    // المسح الثاني: الحارس موجود ⇒ مصالحة بلا إرسال + إكمال الحفظ
+    S.memeSignalsPatchFailIf = null;
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 0, `reconcile must not re-send, got ${r2.callsCount}`);
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "hit_notified_at reconciled and persisted");
+    assert.strictEqual(targetOf(S.memeSignals[0], "tp").hit_notify_attempts || 0, 0, "no attempt consumed by reconcile");
+  });
+
+  // ---------- R4b: بعد انتهاء TTL والحالة ما زالت ناقصة ⇒ إعادة إرسال واحدة ثم حفظ ----------
+  await test("R4b: guard TTL expired + state still incomplete → exactly one resend then save", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    S.memeSignalsPatchFailIf = (body) =>
+      body && Array.isArray(body.targets) && body.targets.some((t) => t.hit_notified_at);
+    await scanOnce(env); // إرسال ناجح؛ حفظ التسليم يفشل
+    await scanOnce(env); // محاولة مصالحة؛ الحفظ يفشل مجددًا (لا إرسال)
+    assert.ok(!targetOf(S.memeSignals[0], "tp").hit_notified_at, "state still incomplete");
+    // انتهاء TTL الفعلي (مراجعة المالك ن4): تقديم الساعة 31 يومًا > TTL الحقيقي 30 يومًا
+    advanceKvClock(31 * 24 * 60);
+    S.memeSignalsPatchFailIf = null;
+    const r3 = await scanOnce(env);
+    assert.strictEqual(r3.callsCount, 1, `exactly one resend expected after TTL expiry, got ${r3.callsCount}`);
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "delivery state completed after resend");
+  });
+
+  // ---------- R5/C5: دفعة مختلطة — هدف نجح وهدف فشل ----------
+  await test("R5: mixed batch — succeeded target stays, failed target retried on next scan", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1"), makeSignal("sig-2", { published_at: new Date(Date.now() - 3600 * 1000).toISOString() })];
+    S.priceMap = { "ca-sig-1": 2.2, "ca-sig-2": 2.4 };
+    // أول نداء (sig-1) ينجح؛ ما بعده يفشل (sig-2)
+    S.tgBehavior = (u, idx) => (idx === 0 ? { ok: true, result: { message_id: 1 } } : { ok: false, error_code: 400, description: "fail" });
+    await scanOnce(env);
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "sig-1 delivered");
+    const s2 = targetOf(S.memeSignals[1], "tp");
+    assert.ok(s2.hit_at && !s2.hit_notified_at, "sig-2 hit but not delivered");
+    assert.strictEqual(s2.hit_notify_attempts, 1, "sig-2 attempt recorded");
+    S.tgBehavior = null;
+    rewindAttempts(S.memeSignals[1]);
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 1, `only sig-2 retried, got ${r2.callsCount}`);
+    assert.ok(targetOf(S.memeSignals[1], "tp").hit_notified_at, "sig-2 delivered on retry");
+    assert.ok(KV.map.get(guardKey(S.memeSignals[0], "tp")) && KV.map.get(guardKey(S.memeSignals[1], "tp")), "both guards present");
+  });
+
+  // ---------- R6/C7: فشل متكرر حتى حد المحاولات ----------
+  await test("R6: persistent failure stops at attempt cap with loud exhaustion log", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    S.tgBehavior = () => ({ ok: false, error_code: 403, description: "Forbidden: injected" });
+    const errs = [];
+    for (let i = 1; i <= 5; i++) {
+      await scanOnce(env, errs);
+      const t = targetOf(S.memeSignals[0], "tp");
+      assert.strictEqual(t.hit_notify_attempts, i, `attempt ${i} recorded`);
+      // محاكاة مرور فترة التهدئة بين المحاولات
+      S.memeSignals[0].targets.forEach((x) => {
+        if (x.kind === "tp" && x.hit_last_attempt_at) {
+          x.hit_last_attempt_at = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+        }
+      });
+    }
+    const r6 = await scanOnce(env, errs); // السادس: بعد استنفاد الحد
+    assert.strictEqual(r6.callsCount, 0, "no send after attempt cap");
+    assert.strictEqual(targetOf(S.memeSignals[0], "tp").hit_notify_attempts, 5, "cap held at 5");
+    const joined = errs.join("\n");
+    assert.ok(/exhaust/i.test(joined), `exhaustion error log expected, got: ${joined.slice(0, 200)}`);
+  });
+
+  // ---------- R8/C2: حارس موجود مع غياب hit_notified_at ⇒ مصالحة بلا إرسال ----------
+  await test("R8: KV guard present without hit_notified_at → reconcile state without re-send", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [
+      { kind: "tp", pct: 100, hit_at: new Date(Date.now() - 3600 * 1000).toISOString() },
+      { kind: "sl", pct: 40, hit_at: null },
+    ];
+    S.memeSignals = [row];
+    await KV.put(guardKey(row, "tp"), new Date(Date.now() - 5 * 60 * 1000).toISOString());
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const r = await scanOnce(env);
+    assert.strictEqual(r.callsCount, 0, `guard means previously delivered — no resend, got ${r.callsCount}`);
+    const t = targetOf(S.memeSignals[0], "tp");
+    assert.ok(t.hit_notified_at, "hit_notified_at reconciled from guard evidence");
+    assert.strictEqual(t.hit_notify_attempts || 0, 0, "no attempts consumed by reconcile");
+  });
+
+  // ---------- R9a/C3: حارس منتهي + محاولات تحت الحد ⇒ إعادة إرسال واحدة ----------
+  await test("R9a: guard expired + state incomplete + attempts below cap → one resend", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [{ kind: "tp", pct: 100, hit_at: new Date(Date.now() - 7200 * 1000).toISOString() }];
+    S.memeSignals = [row];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const r = await scanOnce(env);
+    assert.strictEqual(r.callsCount, 1, `exactly one resend, got ${r.callsCount}`);
+    assert.ok(targetOf(row, "tp").hit_notified_at, "state completed");
+  });
+
+  // ---------- R9b/C3+C7: حارس منتهي + محاولات عند الحد ⇒ لا إرسال (مستنفد) ----------
+  await test("R9b: guard expired + attempts at cap → no resend, stays exhausted", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [{
+      kind: "tp", pct: 100,
+      hit_at: new Date(Date.now() - 7200 * 1000).toISOString(),
+      hit_notify_attempts: 5,
+      hit_last_attempt_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    }];
+    S.memeSignals = [row];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const r = await scanOnce(env);
+    assert.strictEqual(r.callsCount, 0, "exhausted target must not resend");
+    const t = targetOf(row, "tp");
+    assert.strictEqual(t.hit_notify_attempts, 5);
+    assert.ok(!t.hit_notified_at, "remains unnotified (monitorable state)");
+  });
+
+  // ---------- R10/C4: فشل كتابة حارس KV بعد نجاح الإرسال ----------
+  await test("R10: KV guard write failure after successful send is non-fatal; state persisted", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    // اجعل put يرمي مرة واحدة لمفتاح tgthit
+    const origPut = KV.put.bind(KV);
+    let guardPutFailed = false;
+    KV.put = async (k, v, o) => {
+      if (String(k).startsWith("tgthit:") && !guardPutFailed) {
+        guardPutFailed = true;
+        throw new Error("injected KV put failure");
+      }
+      return origPut(k, v, o);
+    };
+    const warns = [];
+    const r = await scanOnce(env, null, warns);
+    assert.strictEqual(r.callsCount, 1, "send succeeded");
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "delivery state persisted despite guard-write failure");
+    assert.ok(!guardPutFailed || /kv guard write failed/i.test(warns.join("\n")), "guard failure logged as warning");
+  });
+
+  // ---------- R11/C6: فشل حفظ الدفعة بعد عدة إرسالات ----------
+  await test("R11: batch delivery-save failure after multiple sends → all reconcile next scan, zero duplicates", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1"), makeSignal("sig-2", { published_at: new Date(Date.now() - 3600 * 1000).toISOString() })];
+    S.priceMap = { "ca-sig-1": 2.2, "ca-sig-2": 2.4 };
+    S.memeSignalsPatchFailIf = (body) =>
+      body && Array.isArray(body.targets) && body.targets.some((t) => t.hit_notified_at);
+    const r1 = await scanOnce(env);
+    assert.strictEqual(r1.callsCount, 2, "both signals sent once");
+    assert.ok(KV.map.get(guardKey(S.memeSignals[0], "tp")) && KV.map.get(guardKey(S.memeSignals[1], "tp")), "both guards written");
+    S.memeSignalsPatchFailIf = null;
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 0, `reconcile must not re-send, got ${r2.callsCount}`);
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at && targetOf(S.memeSignals[1], "tp").hit_notified_at, "both delivery states completed");
+  });
+
+  // ---------- R12/C7: حالة المستنفد قابلة للمراقبة ----------
+  await test("R12: exhausted target is queryable (attempts=5, unnotified) and logged loudly", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [{
+      kind: "tp", pct: 100,
+      hit_at: new Date(Date.now() - 7200 * 1000).toISOString(),
+      hit_notify_attempts: 5,
+      hit_last_attempt_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    }];
+    S.memeSignals = [row];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const errs = [];
+    const r = await scanOnce(env, errs);
+    assert.strictEqual(r.callsCount, 0, "no send for exhausted target");
+    const t = targetOf(row, "tp");
+    assert.strictEqual(t.hit_notify_attempts, 5, "attempts queryable in persisted row");
+    assert.ok(!t.hit_notified_at, "unnotified state queryable");
+    assert.ok(/exhaust/i.test(errs.join("\n")), "exhaustion visible in error log every scan");
+  });
+
+  // ---------- R13/C8-P1: إعادة بناء حالة كراش بعد حفظ hit_at وقبل الإرسال ----------
+  // (إعادة بناء حالة ما بعد الانهيار — ليست حقن كراش أثناء التنفيذ)
+  await test("R13: crash-window P1 reconstruction (hit_at persisted, send never attempted) → alert delivered on restart", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [{ kind: "tp", pct: 100, hit_at: new Date(Date.now() - 600 * 1000).toISOString() }];
+    S.memeSignals = [row];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const r = await scanOnce(env);
+    assert.strictEqual(r.callsCount, 1, `alert delivered after restart, got ${r.callsCount}`);
+    assert.ok(targetOf(row, "tp").hit_notified_at, "delivery state completed");
+  });
+
+  // ---------- R14/C8-P4: إعادة بناء حالة كراش بعد الحارس وقبل الحفظ ⇒ مصالحة ----------
+  // (إعادة بناء حالة ما بعد الانهيار — ليست حقن كراش أثناء التنفيذ)
+  await test("R14: crash-window P4 reconstruction (guard written, save never ran) → reconcile without resend", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [{ kind: "tp", pct: 100, hit_at: new Date(Date.now() - 600 * 1000).toISOString() }];
+    S.memeSignals = [row];
+    await KV.put(guardKey(row, "tp"), new Date(Date.now() - 60 * 1000).toISOString());
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const r = await scanOnce(env);
+    assert.strictEqual(r.callsCount, 0, `no resend after guard-evidenced crash, got ${r.callsCount}`);
+    assert.ok(targetOf(row, "tp").hit_notified_at, "state reconciled on restart");
+  });
+
+  // ---------- R15: التهدئة بين المحاولات ----------
+  await test("R15: retry cooldown — failed attempt blocks immediate resend, allows after cooldown", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    S.tgBehavior = () => ({ ok: false, error_code: 400, description: "fail" });
+    await scanOnce(env);
+    assert.strictEqual(targetOf(S.memeSignals[0], "tp").hit_notify_attempts, 1, "attempt recorded");
+    const r2 = await scanOnce(env); // فورًا — التهدئة فعّالة
+    assert.strictEqual(r2.callsCount, 0, `cooldown must block immediate retry, got ${r2.callsCount}`);
+    assert.strictEqual(targetOf(S.memeSignals[0], "tp").hit_notify_attempts, 1, "no attempt consumed during cooldown");
+    S.tgBehavior = null;
+    S.memeSignals[0].targets.forEach((x) => {
+      if (x.kind === "tp" && x.hit_last_attempt_at) {
+        x.hit_last_attempt_at = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      }
+    });
+    const r3 = await scanOnce(env);
+    assert.strictEqual(r3.callsCount, 1, `retry allowed after cooldown, got ${r3.callsCount}`);
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "delivered after cooldown retry");
+  });
+
+  // ---------- R16 (مراجعة المالك ن2): فشل حفظ التسليم يُرصد ويُسجَّل ويبقى قابلًا للمصالحة ----------
+  await test("R16: delivery-save returns error (not thrown) → detected + logged loudly + state stays reconcilable", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    // supabase-js يُرجع الخطأ ولا يرميه: failIf يعيد 500 بلا استثناء
+    S.memeSignalsPatchFailIf = (body) =>
+      body && Array.isArray(body.targets) && body.targets.some((t) => t.hit_notified_at);
+    const errs = [];
+    const r1 = await scanOnce(env, errs);
+    assert.strictEqual(r1.callsCount, 1, "send succeeded once");
+    assert.ok(!targetOf(S.memeSignals[0], "tp").hit_notified_at, "delivery state not persisted (injected 500, no throw)");
+    assert.ok(
+      /delivery-state save failed/i.test(errs.join("\n")),
+      "EXPECTED-REASON FAILURE (pre-fix): Supabase update result was never checked — save error silently discarded",
+    );
+    // قابلية المصالحة بعد الفشل المرصود
+    S.memeSignalsPatchFailIf = null;
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 0, "reconcile without resend");
+    assert.ok(targetOf(S.memeSignals[0], "tp").hit_notified_at, "state reconciled after detected failure");
+  });
+
+  // ---------- R17 (مراجعة المالك ن3): وجهة مفقودة ⇒ سجل تشغيلي صاخب بلا محاولة إرسال ----------
+  await test("R17: hit pending but destination missing → no send attempt, loud warn, attempts not consumed", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1", { telegram_chat_id: null });
+    S.memeSignals = [row];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    const warns = [];
+    const r = await scanOnce(env, null, warns);
+    assert.strictEqual(r.callsCount, 0, "no send without destination");
+    assert.ok(targetOf(row, "tp").hit_at, "hit detection still persisted");
+    assert.ok(
+      /destination missing/i.test(warns.join("\n")),
+      "EXPECTED-REASON FAILURE (pre-fix): missing destination skipped silently — no operational log",
+    );
+    assert.strictEqual(targetOf(row, "tp").hit_notify_attempts || 0, 0, "no attempt consumed (nothing attempted)");
+  });
+
+  // ---------- R18 (مراجعة المالك ن4): هدفان داخل الإشارة نفسها — TP فاشل وSL ناجح ----------
+  await test("R18: same signal — TP retry fails while SL delivers; only TP retried next scan", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    const row = makeSignal("sig-1");
+    row.targets = [
+      { kind: "tp", pct: 100, hit_at: new Date(Date.now() - 3600 * 1000).toISOString() }, // ضرب سابق غير مُسلّم
+      { kind: "sl", pct: 40, hit_at: null },
+    ];
+    S.memeSignals = [row];
+    // السعر الآن تحت عتبة SL (entry=1، SL=40% ⇒ 0.6)
+    S.priceMap = { "ca-sig-1": 0.5 };
+    // أول نداء (TP) يفشل؛ الثاني (SL) ينجح
+    S.tgBehavior = (u, idx) => (idx === 0 ? { ok: false, error_code: 400, description: "fail tp" } : { ok: true, result: { message_id: 2 } });
+    const r1 = await scanOnce(env);
+    assert.strictEqual(r1.callsCount, 2, "both due targets attempted in one scan (tp retry + sl new hit)");
+    const tp = targetOf(row, "tp");
+    const sl = targetOf(row, "sl");
+    assert.ok(tp.hit_at && !tp.hit_notified_at && tp.hit_notify_attempts === 1, "tp failed — attempt recorded");
+    assert.ok(sl.hit_at && sl.hit_notified_at, "sl delivered");
+    assert.ok(KV.map.get(guardKey(row, "sl")), "sl guard written");
+    assert.ok(!KV.map.get(guardKey(row, "tp")), "tp guard NOT written (send failed)");
+    S.tgBehavior = null;
+    rewindAttempts(row);
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 1, `only tp retried on next scan, got ${r2.callsCount}`);
+    assert.ok(targetOf(row, "tp").hit_notified_at, "tp delivered on retry");
+  });
+
+  // ---------- R19 (مراجعة المالك ر2): فشل حفظ trackingPatch يُرصد ويُسجَّل بلا كتم للتنبيه ----------
+  await test("R19: trackingPatch save returns error (not thrown) → detected + logged loudly + delivery unaffected", async () => {
+    resetSupabaseClient();
+    const env = await startEnv();
+    S.channelTemplates = [tpl()];
+    S.memeSignals = [makeSignal("sig-1")];
+    S.priceMap = { "ca-sig-1": 2.2 };
+    // فشل انتقائي: فقط PATCH جسمه يحمل exit_reason — هذا جسم trackingPatch حصرًا
+    // (حفظ حالة التسليم جسمه {targets} فقط؛ إحصاءات الرد والحذف التلقائي لا تحملان exit_reason)
+    S.memeSignalsPatchFailIf = (body) => body && body.exit_reason !== undefined;
+    const errs = [];
+    const r1 = await scanOnce(env, errs);
+    assert.strictEqual(r1.callsCount, 1, "delivery NOT suppressed by trackingPatch save failure");
+    assert.ok(
+      /tracking-state save failed/i.test(errs.join("\n")),
+      "EXPECTED-REASON FAILURE (pre-fix): trackingPatch update result was never checked — save error silently discarded",
+    );
+    // حفظ حالة التسليم بعد حلقة الإرسال يعيد كتابة targets كاملة — الحالة النهائية سليمة
+    const tp = targetOf(S.memeSignals[0], "tp");
+    assert.ok(tp.hit_at && tp.hit_notified_at, "final state persisted via delivery-save (detection not lost)");
+    // المسح التالي: لا تكرار
+    S.memeSignalsPatchFailIf = null;
+    const r2 = await scanOnce(env);
+    assert.strictEqual(r2.callsCount, 0, "no duplicate send on next scan");
+  });
+
+  // ---------------- summary ----------------
+  console.log(`\n=== ALERT-01 regression: ${passed} passed, ${failed} failed ===`);
+  if (failures.length) {
+    console.log("FAILURES:");
+    for (const f of failures) console.log(`  - ${f.name}\n    ${f.error}`);
+  }
+  server.close();
+  global.fetch = realFetch;
+  process.exit(failed ? 1 : 0);
+}
+
+async function startFakeSupabase(port) {
+  const mod = require("./fake-supabase.cjs");
+  return mod.createFakeSupabase(port);
+}
+
+main().catch((e) => {
+  console.error("harness crashed:", e);
+  process.exit(2);
+});
