@@ -89,3 +89,34 @@
 - `@vixor/contracts`: غائب (جذر packages = 4 حزم فقط؛ بحث شجرة كامل = صفر مسارات contract) — `t22_f1_verify_results.json`.
 
 **جدول الشدات المحدّث:** يُضاف MEDIUM واحد — **N-1**: سكربت regression المقترح غير مستقل التشغيل (يتطلب أثر بناء `.smoke`)؛ العلاج جاهز برقعة v2 (قرار مالك). لا findings جديدة أخرى على PR #10 أو diff الإنتاجي في هذه الجولة.
+
+---
+
+## ملحق TASK 23 — مراجعة سطرًا بسطر لتغييرات هذه الجولة (2026-10-26T21:3x UTC)
+
+### أ) diff الحزمة (فرع PR #11 — التزام TASK 23)
+
+| الملف | نوع التغيير | مراجعة سطرية | حكم |
+|---|---|---|---|
+| `verify_manifest.py` | استبدال كامل (v2→v3) | متطلبات المالك الـ12 غُطيت واحدة‑واحدة: جرد فعلي (walk بلا followlinks) + رفض `..`/المطلق/non-normalized + realpath containment للروابط الرمزية + schema وأنواع صارمة (وصد مفاتيح JSON المكررة عبر pairs-hook) + صدامات قسمية (exact + case-insensitive) + exclusions تُطبع بالسبب والنطاق + MANIFEST.json استبعاد ذاتي مفروض + MANIFEST v1 مسجل قابل لإعادة التحقق + ملخص COVERAGE إلزامي + exit 0/1/2 | سليم |
+| `verify_manifest_tests.py` | جديد | 10 سيناريوهات على نسخ حقيقية (copytree) بتشغيل المُحقق الفعلي عبر subprocess — لا محاكاة hashes؛ T9 يتحقق أيضًا من ظهور وسم EXCLUDED بالمخرجات | سليم |
+| `MANIFEST.json` | إعادة توليد (v3) | manifest-last محترم؛ MANIFEST v1 مسجل (بصمته مطابقة للقيمة التاريخية 8f618d08… — مؤكدة آليًا قبل الكتابة)؛ secret_scan أعيد تنفيذه (3 ضربات كلها نفس الـplaceholder التوثيقي بملفات الإفراد الموثقة) | سليم |
+| `PHASE0_BASELINE.md` | جديد | تثبيت حالة حي بأدلة خام مرقمة؛ لا أسرار | سليم |
+| 7 تقارير | إلحاق أقسام POST-MERGE/TASK 23 | لا حذف لنص تاريخي — تصحيحات مؤرخة بجداول قديم→جديد + روابط أدلة | سليم |
+| `evidence/` (20+ ملفًا) | إضافات | استجابات API خام لكل جدول أدلة؛ لوجا R19 (نظيف + سلبي) بexits موثقة | سليم |
+
+**لا حذف لأي ملف تاريخي؛ MANIFEST (v1) والـworklog التاريخي كما هما بايتيًا.**
+
+### ب) diff الإنتاجي المرشح (PR #19 — tg-content-bot، مسودة غير مدموجة)
+
+- **النطاق الكلي: +4/−1 عبر ملفين فقط** — مطابقة حرفية لدلالة `R19_CI_WIRING_PROPOSAL_v2_amended.patch`:
+  - `bot-worker/package.json`: سطر `"test"` يضاف إليه فاصلة + سطر `"regression": "tsc -p tests/smoke.tsconfig.json && node tests/alert01-regression.cjs"` — **لا يعيد تعريف test ولا يعدل تبعيات/engines**.
+  - `.github/workflows/ci.yml`: خطوتان جديدتان بعد Smoke tests داخل bot-worker job حصرًا — **mini-app job لم يُمَس؛ permissions/concurrency لم تُمَس؛ لا حذف خطوات**.
+- **لا تغيير على منطق الإنتاج**: صفر تعديل تحت `bot-worker/src/` أو `mini-app/` أو `supabase/` أو أي wrangler config (git diff --stat = الملفان فقط).
+- **الاختبارات القائمة لم تُحذف أو تُخفف**: 86/86 smoke + typecheck كما هي؛ البوابة الجديدة إضافة صرفة (20/20).
+- **CI على رأس الـPR (8d45f22)**: run 40404172527 success — خطوة ALERT-01 regression completed/success (دليل: `evidence/raw/t23_r19_ci_run.json` + قائمة الـsteps في اللوج النظيف).
+- **ملاحظة صادقة خارج بوابة GitHub**: check-run Workers Builds (CF) على رأس الـPR = failure (بناء إنتاجي CF جرّب فرع الـPR؛ التفاصيل في لوحة CF — بند مالك ضمن §A). لا علاقة له بخطوة regression الناجحة، ويُوثق لا يُخفى.
+
+### ج) نتيجة المراجعة
+
+لا findings سلبية جديدة على diff TASK 23 (الحزمة أو PR #19). البوابة الجديدة أثبتت صلاحيتها سلوكيًا (سلبي 19/20 بالسبب المتوقع حرفيًا) وعلى مستوى CI (success على الرأس الصحيح). **الحكم: التغييران جاهزان لمراجعة المالك — الدمج بيد المالك وحده.**

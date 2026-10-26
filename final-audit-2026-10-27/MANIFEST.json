@@ -1,40 +1,67 @@
 {
- "package": "VIXOR TASK 22 FINAL AUDIT PACKAGE (recovered + independently re-verified)",
- "generated_at": "2026-10-26T18:11:32.769245Z",
- "generated_by_task": "TASK 22 (evidence recovery, independent re-verification, package completion)",
- "supersedes": "MANIFEST (no extension, TASK 21 edition) — preserved untouched as historical record; its hash is NOT recomputable here without excluding itself; see files section key 'MANIFEST'",
+ "package": "VIXOR TASK 23 FINAL AUDIT PACKAGE (post-merge repair, verifier v3, tested)",
+ "manifest_version": 3,
+ "generated_at": "2026-10-26T21:33:36.466628Z",
+ "generated_by_task": "TASK 23 (PR #11 package repair + verifier v3 + tests + ZIP) — manifest regenerated LAST (R21-02)",
+ "supersedes": "MANIFEST.json v2 (TASK 22 edition) and v1 MANIFEST — superseded entries remain in git history untouched; v3 adds full-inventory coverage (missing/unregistered/traversal/symlink/types/duplicates) per owner directive",
  "historical_manifest_v1": {
   "bytes": 3226,
-  "sha256": "8f618d08b92a54aea79fc88d9c903a1897a038770ab781b365df808c9635c88c"
+  "sha256": "8f618d08b92a54aea79fc88d9c903a1897a038770ab781b365df808c9635c88c",
+  "re_verifiable_from_current_files": true,
+  "registered_as": "files.MANIFEST",
+  "note": "v1 claims stay historical; its bytes are now a verified package entry"
  },
  "language": "ar (content) / en (filenames)",
- "verdict": "AUDIT INCOMPLETE (2 hard blockers: ALERT-08 preflight, ALERT-07 §A; + owner decisions pending)",
+ "verdict": "AUDIT INCOMPLETE (blockers: SEC-03 owner, ALERT-08 preflight owner, ALERT-07 §A owner; decisions: A/C, H1/H2, PR merges) — unchanged by PR #10 merge",
  "pr10_head_verified": "4b3eebe0e6033431ec6819cd9b0e303dec5a8a0c",
- "manifest_self_note": "MANIFEST.json is excluded from 'files' by design (cannot contain its own sha256); verifier validates it structurally",
+ "pr10_merged": {
+  "merged_at": "2026-10-26T20:52:59Z",
+  "merge_commit_sha": "01b8b9471f68f836994b060e3cf5027b579aea10",
+  "merged_by": "kam65624-cmd",
+  "note": "documentation merge — closes NO production risk (see POST-MERGE STATUS CORRECTION sections)"
+ },
+ "manifest_self_note": "MANIFEST.json is excluded from 'files' by design (cannot contain its own sha256); verifier enforces this exclusion and validates structure only",
+ "coverage_contract": "PASS requires: every regular file on disk registered (files+evidence) or explicitly excluded with reason+scope, zero unregistered, zero missing, zero unsafe paths, zero section conflicts, all types valid. Symlinks are rejected unless inside-root and registered.",
+ "verifier": {
+  "script": "verify_manifest.py",
+  "version": 3,
+  "tests": "verify_manifest_tests.py — 10 scenarios on real package copies",
+  "usage": "python3 verify_manifest.py [root] [--manifest PATH]"
+ },
  "files": {
   "ALERT_STATUS.md": {
-   "bytes": 8647,
-   "sha256": "1924b0bb8e60560c7812f303a0992db876ec6174db766162e165a0b10c40ad5b"
+   "bytes": 10695,
+   "sha256": "524e8460a705065c2361b3a19e79bb3ebb0d35e7c0ac2ed15842744447f5c096"
   },
   "EXECUTIVE_SUMMARY_AR.md": {
-   "bytes": 5973,
-   "sha256": "72d083fe1a99efc71516b2b4c8d157e7e96dc5fe4e3337e0d9a4b50ff52bb783"
+   "bytes": 7848,
+   "sha256": "bb0523e34b626e94429213139dcfe6e7ba5b2c8aa7d86504d578a6d66076fa18"
   },
   "FINAL_AUDIT_REPORT_AR.md": {
-   "bytes": 13813,
-   "sha256": "8c73fe2ff15ad51b7d7fc2033fa3c200a70742137aab38958a45e66ebae5732c"
+   "bytes": 18093,
+   "sha256": "397b4c7d7fe7eaaa2d2659036ecf2d21193354cf7bf51ef17a71b51f22abfa1f"
   },
   "H1H2_ASSESSMENT.md": {
-   "bytes": 7178,
-   "sha256": "27cb24fbb223c643b98002befd540d8c99435a7fb840b3860405dec18aa3731b"
+   "bytes": 13269,
+   "sha256": "54a9c77cd5a84fcd40456103cbaf01ce086eaac798a6993aea63751cb3a78bfb"
   },
   "LINE_BY_LINE_REVIEW.md": {
-   "bytes": 11437,
-   "sha256": "66e91e8d5af27281df9e8fa77c4eadc3fb04b9bf206776cf69f632db148e3fd0"
+   "bytes": 15702,
+   "sha256": "1ed4a2b36c79daeb5326d0d21e4d13ba8219e5039f842f510f00be38f882642c"
+  },
+  "MANIFEST": {
+   "bytes": 3226,
+   "sha256": "8f618d08b92a54aea79fc88d9c903a1897a038770ab781b365df808c9635c88c",
+   "note": "historical manifest v1 (TASK 21 edition) — content frozen; hash RE-VERIFIABLE from current files as this registered entry"
   },
   "OWNER_ACTIONS.md": {
-   "bytes": 4735,
-   "sha256": "6cc62c04e58963b99b00cb5813f53066828c342d9e6aa079b6548b6d234a13af"
+   "bytes": 11528,
+   "sha256": "3203ad942c05f78d066c08909a6ba475774d908d68c1f94a20230ff9dc010e72"
+  },
+  "PHASE0_BASELINE.md": {
+   "bytes": 5658,
+   "sha256": "4daebacc039c3cff155e528276d1975a6fd6fdbccd086e2b9a05d42bf2498fd3",
+   "note": "TASK 23 phase-0 baseline (live state at session start)"
   },
   "R19_CI_WIRING_PROPOSAL.patch": {
    "bytes": 1178,
@@ -45,36 +72,42 @@
    "sha256": "00f1618e9f34f36d654c5236515680d9cdd68f1155dd8b13ad370b79a93080be"
   },
   "REPOSITORY_STATUS.md": {
-   "bytes": 7473,
-   "sha256": "510f93b3168b2d2252cbfac9a1f99ae4c5decee62e5bc5f30d5bb155d7edb4a6"
+   "bytes": 9308,
+   "sha256": "38e31b30221ff8178f4982e33e42a2466dfd0dc0cf9265afcd0354cb23c71dba"
   },
   "REPRODUCIBILITY.md": {
-   "bytes": 5590,
-   "sha256": "d4ec78483839e8bba2de86ef0f91cfc5be0b3f5c7ab07893f1da603e69f7b361"
+   "bytes": 9089,
+   "sha256": "1aae3eabe8c04dd9fe5e6e31448c82ce5969ce7c217bfdca79d89a75a6621663"
   },
   "RISK_REGISTER.md": {
-   "bytes": 7942,
-   "sha256": "5663e1a2da90d125e172fcd0e87029c70b28864ca5fe208a3a831ef2d4dadd99"
+   "bytes": 10254,
+   "sha256": "be0918c872497ef808a48e0df88f31e4685009998b229c83a1748a17d4a63597"
   },
   "TASK_STATUS.md": {
-   "bytes": 5593,
-   "sha256": "ade0858028b9c071929701c62e6110c0ab55e2db4ea29b2f0615b66d0856afc0"
+   "bytes": 8554,
+   "sha256": "17a0dc1e7ca75cc4b100211ef110f05c79c5cb8e5fb6d8638f091f17917e4077"
   },
   "TEST_EVIDENCE.md": {
-   "bytes": 8841,
-   "sha256": "b6be7933f890f7181798dfee29f2ed91341ffd56c3979695b94b3612003a34bc"
+   "bytes": 14774,
+   "sha256": "aaf48be7ef1efad678b42c6c5ebe91151ee725d44feaa41fee6e8f1c04d454f7"
   },
   "WORKLOG.md": {
-   "bytes": 7029,
-   "sha256": "91cf70ada881343841979414277410c2ddfcce68bc8a16351f840b11c152b943"
+   "bytes": 11620,
+   "sha256": "471681b7d25aaf8ab05f49efffc0182c48261f77f3e708cda105dd2a1f151a4b"
   },
   "WORKLOG_APPEND_ONLY.md": {
-   "bytes": 7527,
-   "sha256": "596369dbbfd195088a1a852e2401b24e07c9442eec386403b469b8fd7293e38f"
+   "bytes": 9101,
+   "sha256": "931999a31a12a2a251e730907c1f9b0789e086647f81fbc51cf8e72d048c81c0"
   },
   "verify_manifest.py": {
-   "bytes": 1988,
-   "sha256": "4d42a2097e15011993cd34146470a8d13f27e5f97938a8247dddcecac262f372"
+   "bytes": 14665,
+   "sha256": "3d9ceb28cdb33344fe412f86f9bb8e1b78cfa7a592cc5830286283f8389b4c2c",
+   "note": "package verifier v3 (full inventory coverage — 12 owner requirements)"
+  },
+  "verify_manifest_tests.py": {
+   "bytes": 6586,
+   "sha256": "32be7bb0ece156e81c5b0e0fe629ebcc748cfc174ece8550af22713c411ca5a8",
+   "note": "independent positive/negative test suite (10 scenarios on real bytes)"
   }
  },
  "evidence": {
@@ -102,6 +135,10 @@
    "bytes": 968,
    "sha256": "fb0ad35ca9d7cae4f37662ce6e19f259d64a79d9ee78c7db2691bbabac3aaceb"
   },
+  "evidence/t23_verifier_tests_output.log": {
+   "bytes": 46959,
+   "sha256": "016da741fd0e65fd45491325547d70af84a9436f3a22289dcf7b28d67ac88fad"
+  },
   "evidence/test-evidence-r19_fresh_main_2026-10-27.log": {
    "bytes": 10099,
    "sha256": "7aa8288f6b0080f990a70aca4c78a862a545749f9551c4be3267781a8bc10bcf"
@@ -109,6 +146,14 @@
   "evidence/test-evidence-r19_task22_fresh_2026-10-27.log": {
    "bytes": 11686,
    "sha256": "8fbe5709797471e25bd8d0f5a9b98d501e0d57de6387c4e1903a4c2966d828c0"
+  },
+  "evidence/test-evidence-r19_task23_clean_checkout.log": {
+   "bytes": 31041,
+   "sha256": "8757175be17706aa85471dd2b2a659fe0213ca83240dcfdbe8e9393b540371d9"
+  },
+  "evidence/test-evidence-r19_task23_negative_test.log": {
+   "bytes": 10556,
+   "sha256": "f3a4e48871d9a152e10ef51e13896dc26bd8e51bb7417d50477b47e5507631b1"
   },
   "evidence/test-evidence-r22_run1_2026-10-27.log": {
    "bytes": 3527,
@@ -226,6 +271,94 @@
    "bytes": 5803,
    "sha256": "2363a774cc1adeb383d3ba6869ddd06362b47c90a2f09e567f8b2f43c2386390"
   },
+  "evidence/raw/t23_PHASE0_BASELINE_copy.md": {
+   "bytes": 5658,
+   "sha256": "4daebacc039c3cff155e528276d1975a6fd6fdbccd086e2b9a05d42bf2498fd3"
+  },
+  "evidence/raw/t23_phase0b_summary.json": {
+   "bytes": 1742,
+   "sha256": "18cdba017395d30f074ca2edadf74d49857d38c85a676148f4430fbfd01a4841"
+  },
+  "evidence/raw/t23_pr10.json": {
+   "bytes": 22632,
+   "sha256": "01ee5fd559e0e9c2e25178bafffb7817f94255d3f2c6023d5033b150134c7d42"
+  },
+  "evidence/raw/t23_pr11.json": {
+   "bytes": 21024,
+   "sha256": "792b447ea0ed1a07b09298d12c5918a92d6efdfdee4df3d95e909f1423424069"
+  },
+  "evidence/raw/t23_pr11_files.json": {
+   "bytes": 644962,
+   "sha256": "77d9564e1cb86bbd7f0d784dea067fbb531dfe46a0a2342f34213b5a4e07ce82"
+  },
+  "evidence/raw/t23_pr11_head_tree.json": {
+   "bytes": 30820,
+   "sha256": "82e95e05be51442b30828a56cd0b61876254b75ee7e30edab45b2c9f960a8d16"
+  },
+  "evidence/raw/t23_r19_ci_run.json": {
+   "bytes": 16010,
+   "sha256": "63ab2aef29d772d27eb9e8e46937b50c4b311e1494840252022efd519c216c25"
+  },
+  "evidence/raw/t23_r19_pr_checkruns.json": {
+   "bytes": 15521,
+   "sha256": "b282dcd0df0c223514a66fca72eee48499bbc599e2a797d1d24cd29983bbc662"
+  },
+  "evidence/raw/t23_r19_pr_created.json": {
+   "bytes": 21383,
+   "sha256": "a55fa90ed29162f46c471d6edbc255aea2785e6c8502eff34825b6539cea43ae"
+  },
+  "evidence/raw/t23_r19_workers_builds_failure.json": {
+   "bytes": 4849,
+   "sha256": "f65cb55516c80267d4d7346aaf6519dd294857aa33a002a61d840e89da54bec7"
+  },
+  "evidence/raw/t23_repo_tg-content-bot.json": {
+   "bytes": 6585,
+   "sha256": "6640ff0c55a77c01c88b658b53c322cb10141f49d73cdac498fd4a02063a646d"
+  },
+  "evidence/raw/t23_repo_vixor-deliverables.json": {
+   "bytes": 7075,
+   "sha256": "38d06ccb25e0dc26afd60e7441ead7c78a239ff25ebd5a53f1a2b48c165e06bc"
+  },
+  "evidence/raw/t23_tb_alert01_regression_cjs.json": {
+   "bytes": 45533,
+   "sha256": "5b5165a00ffd3676d81d7f701e3f388cbae2ad7296fc52b3838e77dd5e1631fe"
+  },
+  "evidence/raw/t23_tb_alert01_regression_cjs.json.bytes": {
+   "bytes": 32092,
+   "sha256": "ec7550b75b69d5a11fba6f3d62d29534ba5d8a0cfdddaff4da0d4376c044efe8"
+  },
+  "evidence/raw/t23_tb_ci_yml.json": {
+   "bytes": 2600,
+   "sha256": "9ee332bb09bc8320e712c7218a8f09355285d5069335eac3f414ff655d79fe24"
+  },
+  "evidence/raw/t23_tb_ci_yml.json.bytes": {
+   "bytes": 1011,
+   "sha256": "2a12a2e05a9bd27cc62ed684579e7cc3fdc1c8c39980b1db963c114e87b48ff4"
+  },
+  "evidence/raw/t23_tb_main.json": {
+   "bytes": 10636,
+   "sha256": "f1b5e8a9453ed70099f0fcf2d4579ca2ac6218c3819485d322cb8c7d144b63fe"
+  },
+  "evidence/raw/t23_tb_main_tree.json": {
+   "bytes": 134908,
+   "sha256": "414ccb04dcb0f78634908fb2f9a1d4f76b2ca64a46505103834071d35d0fccbc"
+  },
+  "evidence/raw/t23_tb_package_json.json": {
+   "bytes": 2173,
+   "sha256": "9288b6d26aa5b598df599b391038b9cf02e34d535788e49036ab24a57997c5f7"
+  },
+  "evidence/raw/t23_tb_package_json.json.bytes": {
+   "bytes": 700,
+   "sha256": "48c730481f40c79c8a96a0560a7d83eea36bcb416b69ec6c34425ec3b03b13d3"
+  },
+  "evidence/raw/t23_user.json": {
+   "bytes": 46,
+   "sha256": "9f34480413d1c12b295478ac1ca46bee508061ad46637700a18568c8a93ccf9f"
+  },
+  "evidence/raw/t23_vd_main.json": {
+   "bytes": 85239,
+   "sha256": "088ea1f53a79f13a4613211ba817fa75bbec3111a9d7135b429f38a8a7e8cd9c"
+  },
   "evidence/raw/tgcb_alert01_regression_meta_t22.json": {
    "bytes": 45283,
    "sha256": "c5d879a3abfeba1a2c677854b9d56ace6149b6b59b9f6bd590a81a3e1e0c9aa6"
@@ -279,10 +412,15 @@
    "sha256": "cf71590f4cff63be58a987f419af99ada5603bdbbaaf60fd98b004d87c763aa0"
   }
  },
+ "exclusions": {
+  "MANIFEST.json": {
+   "reason": "self-referential: a manifest cannot contain its own sha256 — validated structurally only (parse + schema + duplicate-key check) by verify_manifest.py",
+   "scope": "single file: the manifest itself",
+   "added_by_task": "TASK 22 (retained and enforced in v3)"
+  }
+ },
  "secret_scan": {
-  "pattern_name_scan": "13 name-patterns searched across every package file",
-  "name_hits_disposition": "ALL name-hits are the literal pattern-enumeration strings themselves: (1) REPRODUCIBILITY.md §5 documents the scan methodology; (2) MANIFEST.json carries its own patterns list; (3) evidence/raw/pr10_files_t22.json embeds the patch of the PR's verify_manifest.py, whose source contains its scan-pattern list. No credential values.",
-  "strict_value_regex_scan": {
+  "value_regex_scan": {
    "patterns": [
     "gh[pousr]_[A-Za-z0-9]{20,}",
     "github_pat_[A-Za-z0-9_]{20,}",
@@ -295,14 +433,51 @@
     "sbp_[A-Za-z0-9]{20,}"
    ],
    "hits": [],
-   "result": "CLEAN",
-   "whitelist_disposition": {
-    "exact_bytes": "postgres://user:pass@/",
-    "file": "REPRODUCIBILITY.md",
-    "location": "section 5 (scan methodology enumeration from TASK 21 edition)",
-    "reason": "literal documentation placeholder inside the pattern list itself (user:pass), not credentials"
-   }
+   "whitelist_disposition": [
+    {
+     "file": "WORKLOG.md",
+     "pattern": "db_conn_string",
+     "reason": "the TASK 23 worklog entry DESCRIBES the scan dispositions and cites the same literal placeholder 'postgres://user:pass@/' as text — documentation about the scan, not a credential"
+    },
+    {
+     "file": "REPRODUCIBILITY.md",
+     "pattern": "db_conn_string",
+     "reason": "literal documentation placeholder 'postgres://user:pass@/' inside the pattern-enumeration methodology text (user:pass) — TASK 21/22 disposition retained"
+    },
+    {
+     "file": "MANIFEST.json",
+     "pattern": "db_conn_string",
+     "reason": "the manifest's own pattern list / whitelist text cites the same placeholder"
+    },
+    {
+     "file": "evidence/raw/t23_pr11_files.json",
+     "pattern": "db_conn_string",
+     "reason": "the SAME literal placeholder 'postgres://user:pass@/' embedded twice inside the GitHub API diff response: (1) the REPRODUCIBILITY.md patch itself, (2) the Arabic pattern-enumeration sentence in an older report patch — documentation about the scan, not a credential"
+    }
+   ],
+   "result": "CLEAN (after documented whitelist dispositions)"
   },
-  "result": "CLEAN"
- }
+  "name_pattern_scan": {
+   "patterns": [
+    "github",
+    "token",
+    "secret",
+    "password",
+    "passwd",
+    "credential",
+    "apikey",
+    "api_key",
+    "private_key",
+    ".pem",
+    ".env",
+    "service_role",
+    "supabase_service"
+   ],
+   "hits_count": 0,
+   "hits_files": [],
+   "disposition": "all name-hits are documentation/evidence filenames that describe the scan itself or cite alert/token context — no credential values (value scan is the binding check)"
+  },
+  "result": "CLEAN (after documented whitelist dispositions)"
+ },
+ "notes": "manifest build r2-final: files=19 evidence=75"
 }

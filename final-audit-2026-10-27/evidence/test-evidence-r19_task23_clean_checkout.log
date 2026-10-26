@@ -1,0 +1,404 @@
+TASK 23 — R19 clean-checkout mandatory tests
+branch: fix/r19-ci-regression-gate
+head SHA:  8d45f22eba3c598e451139fdeed6c1a29c938d0c
+parent:    76830a721bb3761a6d25309acc3672b117116994 (== main 76830a721bb3761a6d25309acc3672b117116994)
+env: v24.21.0 / npm 11.19.0 / Linux 5.10.134-013.15.kangaroo.al8.x86_64
+checkout state: fresh clone, .smoke ABSENT before first regression run
+date (UTC): 2026-10-26T21:24:08Z
+============================================================
+
+------------------------------------------------------------
+STEP: npm ci (clean)
+CMD : npm ci --no-audit --no-fund
+npm warn deprecated rollup-plugin-inject@3.0.2: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-inject.
+npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+
+added 70 packages in 2s
+npm warn install-scripts 3 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   esbuild@0.17.19 (postinstall: node install.js)
+npm warn install-scripts   sharp@0.33.5 (install: node install/check)
+npm warn install-scripts   workerd@1.20250718.0 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+EXIT CODE: 0
+
+------------------------------------------------------------
+STEP: regression BEFORE any build (v2 self-sufficiency proof; .smoke absent)
+CMD : npm run regression
+
+> tg-content-bot-worker@1.0.0 regression
+> tsc -p tests/smoke.tsconfig.json && node tests/alert01-regression.cjs
+
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R1: hit + successful send persists hit_at and hit_notified_at + KV guard
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Bad Request: injected failure' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R2 (THE defect test): failed send then next scan retries the TP/SL alert
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R3: successful delivery then repeated scan does not re-send
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R4a: send ok + delivery-save fails + next scan reconciles via KV guard (no resend)
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R4b: guard TTL expired + state still incomplete → exactly one resend then save
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-2', error: 'sendPhoto: fail' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-2', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 2, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-2', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.4 }
+[INFO][ath-monitor] scan done { updated: 2, replied: 1, autoDeleted: 0 }
+  ✅ R5: mixed batch — succeeded target stays, failed target retried on next scan
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 3 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 4 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R6: persistent failure stops at attempt cap with loud exhaustion log
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R8: KV guard present without hit_notified_at → reconcile state without re-send
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R9a: guard expired + state incomplete + attempts below cap → one resend
+[ERROR][ath-monitor] target notify exhausted — pending manual review { signal: 'sig-1', kind: 'tp', attempts: 5 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R9b: guard expired + attempts at cap → no resend, stays exhausted
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R10: KV guard write failure after successful send is non-fatal; state persisted
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] target hit { signal: 'sig-2', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.4 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-2', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 2, replied: 2, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-2', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 2, replied: 0, autoDeleted: 0 }
+  ✅ R11: batch delivery-save failure after multiple sends → all reconcile next scan, zero duplicates
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R12: exhausted target is queryable (attempts=5, unnotified) and logged loudly
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R13: crash-window P1 reconstruction (hit_at persisted, send never attempted) → alert delivered on restart
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R14: crash-window P4 reconstruction (guard written, save never ran) → reconcile without resend
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: fail' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R15: retry cooldown — failed attempt blocks immediate resend, allows after cooldown
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R16: delivery-save returns error (not thrown) → detected + logged loudly + state stays reconcilable
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R17: hit pending but destination missing → no send attempt, loud warn, attempts not consumed
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: fail tp' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'sl', pct: 40, roi: 0.5 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 0.5 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R18: same signal — TP retry fails while SL delivers; only TP retried next scan
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R19: trackingPatch save returns error (not thrown) → detected + logged loudly + delivery unaffected
+
+=== ALERT-01 regression: 20 passed, 0 failed ===
+EXIT CODE: 0
+
+------------------------------------------------------------
+STEP: typecheck
+CMD : npm run typecheck
+
+> tg-content-bot-worker@1.0.0 typecheck
+> tsc --noEmit
+
+EXIT CODE: 0
+
+------------------------------------------------------------
+STEP: npm test (86 suite)
+CMD : npm test
+
+> tg-content-bot-worker@1.0.0 test
+> tsc -p tests/smoke.tsconfig.json && node tests/smoke-test.cjs
+
+
+──────── 1) مكتبة البرومبتات (prompts.ts) ────────
+  ✅ composeEditorSystem يركّب النواة + مهارة النيش + الطبقة المخصصة
+  ✅ buildEditTask يضمّن عقد الروابط فقط لما يكون فيه روابط
+  ✅ buildClassifyPrompt: عقد JSON صارم + قائمة النيشات
+  ✅ buildLinkIntelPrompt: الأمان أولاً
+
+──────── 2) استخراج الروابط (links.ts) ────────
+  ✅ extractLinks: ترتيب حسب الظهور + دمج المصادر بدون تكرار
+  ✅ extractLinks: نص فاضي → مفيش روابط
+  ✅ unwrapShortLink: الروابط العادية تفضل زي ما هي (بدون شبكة)
+
+──────── 3) الاختصار + التتبع (shortener.ts) ────────
+  ✅ resolveShortDomain: null لما الإعداد والمتغير فاضيين
+  ✅ createShortLink: reason واضح لما الدومين مش مضبوط
+  ✅ createShortLink: رابط مختصر + تسجيل KV + upsert في DB
+  ✅ حماية الحلقة: مفيش اختصار لرابط على الدومين المختصر نفسه
+  ✅ createShortLink: رابط غير صالح مرفوض
+  ✅ handleGoRedirect: 302 لهدف صحيح من الـ KV
+  ✅ handleGoRedirect: fallback للـ DB لما الـ KV فاضي + إعادة تسجيل
+  ✅ handleGoRedirect: كود غير موجود → 404
+  ✅ handleGoRedirect: كود بصيغة خبيثة → 404 بدون استعلام
+  ✅ getLinkStats: مجاميع صحيحة + روابط مختصرة بالدومين
+  ✅ shortenManual: رفض بروتوكول غير http/https
+  ✅ shortenManual: اختصار ناجح عند التهيئة
+
+──────── 5) موجه المزودين: NVIDIA + fallback ────────
+  ✅ callAI: NVIDIA فقط → استخدام nemotron للمهام العادية
+  ✅ callAI: fast=true → نموذج diffusiongemma السريع
+  ✅ callAI: nemotron تستقبل enable_thinking=false
+[WARN][nvidia] empty content, using reasoning { model: 'nvidia/nemotron-3.5-lightning-30b-a3b' }
+  ✅ callAI: محتوى فاضي + reasoning → يرجع reasoning_content
+  ✅ callAI: إعداد ai_provider=anthropic بدون مفتاح → يتخطاه ويستخدم NVIDIA
+  ✅ callAI: المزود الأول يفشل 500 → التاني ينجح
+  ✅ callAI: بدون أي مفتاح → خطأ واضح
+
+──────── 5.5) المزود المخصص (Custom OpenAI-compatible) ────────
+  ✅ custom: مفتاح + رابط → ترتيب يبدأ بـ custom والنداء على البوابة
+  ✅ custom: custom_model من الإعدادات يُستخدم
+  ✅ custom: إعداد ai_provider=custom بدون رابط → تجاهل والتحول لـ NVIDIA
+  ✅ custom: مفتاح بدون رابط → لا يدخل الترتيب إطلاقاً
+
+──────── 4) التصنيف (fallback بدون AI) ────────
+[WARN][classify] AI failed { error: 'Error: ANTHROPIC_API_KEY not set' }
+  ✅ classify: كلمات مفتاحية → نيش gold بدون استدعاء AI
+  ✅ classify: صورة/فيديو بدون نص → تصنيف افتراضي (مش null)
+
+──────── 6) تحليل ردود الذكاء (ai/parse.ts) ────────
+  ✅ parseGeneration: JSON نظيف بالشكل المتوقع
+  ✅ parseGeneration: يتحمل code fences والنص الزائد حواليه
+  ✅ parseGeneration: رد مكسور → مصفوفة فاضية (مش crash)
+  ✅ parseGeneration: بيحترم count
+  ✅ parseVariant: مصفوفة strings مباشرة
+  ✅ parseVariant: شكل الكائن { tweets: [...] }
+  ✅ parseVariant: رد عشوائي → فاضي
+
+──────── 7) سياق القناة (appendChannelContext) ────────
+  ✅ appendChannelContext: بيضيف السياق بنفس الصيغة الموحدة
+  ✅ appendChannelContext: بدون نبرة → النظام زي ما هو
+  ✅ appendChannelContext: بيقص النبرة الطويلة على الحد
+[WARN][edit] AI failed { error: 'Error: ANTHROPIC_API_KEY not set' }
+  ✅ edit: بيقرأ نبرة القناة المحفوظة من chmeta (مايقعش بدون مفتاح AI)
+  ✅ quota: startOfUtcDay بيرجع نص الليل UTC بالظبط
+  ✅ quota: isWithinPostHours — فاضية = مسموح دايمًا، وممتلئة بتفلتر الساعة
+  ✅ quota: selectCandidate بياخد الأقدم غير المكرر وبيتخطى نافذة التكرار
+  ✅ quota: selectCandidate بينفع للقائمة الفاضية وCA المفقود
+  ✅ quota: buildPublishedCasMap بيحتفظ بأحدث وقت لكل CA
+  ✅ quota: clampAutoSettings بيقص القيم الخارجة عن الحدود
+  ✅ post: قوالب البوست والتحديث + المنسقات متطابقة مع نسخة الـ UI
+  ✅ commands: سجل الأوامر كامل بدون تكرار وبصيغة تليجرام سليمة
+  ✅ commands: commandArgs بيطلّع باراميترات الأمر صح
+  ✅ commands-format: countByPlatform + sumCounts + topPlatform
+  ✅ commands-format: كود الإحالة المخفي + عدّاد الإيردروب
+  ✅ chart-theme: ترميز مركب ثيم:لون:فاصل:مدة + فسيفساء القيم
+  ✅ radar: تأهيل العملة لكل قناة بفلتر القناة نفسه
+  ✅ radar: خطة التوزيع لكل القنوات بدون تكرار
+  ✅ radar: كشف لغة القناة من اسمها
+  ✅ chart: كشف الشموع المسطحة (نقاط مراقبة مش OHLC)
+  ✅ chart: تنسيق محور الأسعار لأي مقياس
+  ✅ targets: TP/SL بيتحققوا مرة واحدة بأكشن
+  ✅ persona: انفعالات مختلفة حسب النتيجة والشخصية
+  ✅ radar: فلتر الفرص الحقيقية (مرفوض السكاكين والمتأخر)
+
+──────── 12) F1 — سجل telegram_updates (insert-first) ────────
+  ✅ ledger ingest: أول إدخال → inserted والصف مخزّن بالـ payload
+  ✅ ledger ingest: إعادة الإدخال بنفس update_id → duplicate (ON CONFLICT DO NOTHING)
+  ✅ webhook أول تسليم: 200 فوري + الترتيب ingest→dedup→route→mark + processed_at
+[INFO][webhook] duplicate delivery skipped (ledger) { updateId: 1002 }
+  ✅ webhook تسليم مكرر: skip عند الاستقبال — مفيش idempotency_keys ولا mark جديد
+[ERROR][webhook] update failed {
+  updateId: 1003,
+  error: `SyntaxError: Unexpected token 'o', "not-json" is not valid JSON`
+}
+  ✅ webhook فشل المعالجة: process_error متسجلة (500 حرف كحد أقصى) وprocessed_at فاضي
+[WARN][ledger] ingest insert failed — fail-open { updateId: 1004, error: 'injected telegram_updates failure' }
+[WARN][ledger] mark processed failed { updateId: 1004, error: 'injected telegram_updates failure' }
+  ✅ webhook ingest فاشل (DB واقف): fail-open — المعالجة تكمّل + repair لما يرجع
+  ✅ ledger recordProcessError: الرسالة بتتقص على 500 حرف + repair لو الصف مفقود
+[INFO][ledger-redrive] cycle done { selected: 1, driven: 1, failed: 0, skipped: 0 }
+  ✅ re-drive: صف قديم فاشل → routeUpdate يتغير + processed_at + مسح الخطأ والحجز
+  ✅ re-drive freshness: الصف الأحدث من دقيقتين مش بيتاخد (سيبوا للـ handler الأصلي)
+[INFO][ledger-redrive] cycle done { selected: 1, driven: 0, failed: 0, skipped: 1 }
+  ✅ re-drive claim: الصف المحجوز بـ lease شغّال بيتساب (منع cron متزامن)
+[ERROR][ledger-redrive] re-drive failed {
+  updateId: 2004,
+  error: `SyntaxError: Unexpected token 'o', "not-json" is not valid JSON`
+}
+[INFO][ledger-redrive] cycle done { selected: 2, driven: 0, failed: 1, skipped: 1 }
+  ✅ re-drive فشل متكرر: process_error تتحدث والصف يفضل غير معالج تحت الـ lease
+
+──────── M2) مسار التكامل /ingest/signal ────────
+  ✅ ingest توقيع سليم: 202 accepted + مسودة pending + idempotency + audit بـ correlation (T1 جزئي)
+  ✅ ingest إعادة إرسال نفس الإشارة (نفس idempotency_key): 409 ولا مسودة ثانية (T2)
+[WARN][ingest] bad signature 
+  ✅ ingest توقيع خاطئ: 403 بدون أي أثر جانبي
+  ✅ ingest توقيت قديم (خارج نافذة ±5 دقائق): 403 replay
+  ✅ ingest جسم أكبر من الحد: 413
+  ✅ ingest JSON غير صالح (موقّع): 400
+  ✅ ingest schema_version غير مدعوم: 400 رفض إجباري (§1)
+  ✅ ingest قرار Shield=reject: 422 risk_blocked ولا مسودة (T3)
+  ✅ ingest data_quality=incomplete أو تقييم مفقود: 422 (T5)
+  ✅ ingest assessment منتهي الصلاحية: 422 (T4 على حدود المسار)
+  ✅ ingest asset_id غير قانوني: 400 (canonical chain:address)
+[WARN][ingest] configured channel missing or inactive { channel_id: 'ch-missing' }
+  ✅ ingest قناة الهدف غير متاحة: 503 fail-closed بدون أثر جانبي
+
+══════════════════════════════════
+النتيجة: 86 نجح / 0 فشل
+
+EXIT CODE: 0
+
+------------------------------------------------------------
+STEP: regression in CI order (after smoke build)
+CMD : npm run regression
+
+> tg-content-bot-worker@1.0.0 regression
+> tsc -p tests/smoke.tsconfig.json && node tests/alert01-regression.cjs
+
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R1: hit + successful send persists hit_at and hit_notified_at + KV guard
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Bad Request: injected failure' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R2 (THE defect test): failed send then next scan retries the TP/SL alert
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R3: successful delivery then repeated scan does not re-send
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R4a: send ok + delivery-save fails + next scan reconciles via KV guard (no resend)
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R4b: guard TTL expired + state still incomplete → exactly one resend then save
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-2', error: 'sendPhoto: fail' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-2', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 2, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-2', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.4 }
+[INFO][ath-monitor] scan done { updated: 2, replied: 1, autoDeleted: 0 }
+  ✅ R5: mixed batch — succeeded target stays, failed target retried on next scan
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 3 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 4 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: Forbidden: injected' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R6: persistent failure stops at attempt cap with loud exhaustion log
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R8: KV guard present without hit_notified_at → reconcile state without re-send
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R9a: guard expired + state incomplete + attempts below cap → one resend
+[ERROR][ath-monitor] target notify exhausted — pending manual review { signal: 'sig-1', kind: 'tp', attempts: 5 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R9b: guard expired + attempts at cap → no resend, stays exhausted
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R10: KV guard write failure after successful send is non-fatal; state persisted
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-1', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] target hit { signal: 'sig-2', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.4 }
+[ERROR][ath-monitor] delivery-state save failed — guard will reconcile or alert retried { signal: 'sig-2', error: 'injected patch failure (failIf)' }
+[INFO][ath-monitor] scan done { updated: 2, replied: 2, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-2', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 2, replied: 0, autoDeleted: 0 }
+  ✅ R11: batch delivery-save failure after multiple sends → all reconcile next scan, zero duplicates
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R12: exhausted target is queryable (attempts=5, unnotified) and logged loudly
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R13: crash-window P1 reconstruction (hit_at persisted, send never attempted) → alert delivered on restart
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R14: crash-window P4 reconstruction (guard written, save never ran) → reconcile without resend
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: fail' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R15: retry cooldown — failed attempt blocks immediate resend, allows after cooldown
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target notify reconciled (KV guard) { signal: 'sig-1', kind: 'tp' }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R16: delivery-save returns error (not thrown) → detected + logged loudly + state stays reconcilable
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R17: hit pending but destination missing → no send attempt, loud warn, attempts not consumed
+[WARN][ath-monitor] pnl reply failed { signal: 'sig-1', error: 'sendPhoto: fail tp' }
+[WARN][ath-monitor] target notify failed — will retry next scan { signal: 'sig-1', kind: 'tp', attempts: 1 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'sl', pct: 40, roi: 0.5 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 0.5 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+  ✅ R18: same signal — TP retry fails while SL delivers; only TP retried next scan
+[INFO][ath-monitor] target hit { signal: 'sig-1', symbol: 'TEST', kind: 'tp', pct: 100, roi: 2.2 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 1, autoDeleted: 0 }
+[INFO][ath-monitor] scan done { updated: 1, replied: 0, autoDeleted: 0 }
+  ✅ R19: trackingPatch save returns error (not thrown) → detected + logged loudly + delivery unaffected
+
+=== ALERT-01 regression: 20 passed, 0 failed ===
+EXIT CODE: 0
+
+ALL MANDATORY STEPS PASSED (exit codes 0 across npm ci / regression-first / typecheck / test / regression-post)

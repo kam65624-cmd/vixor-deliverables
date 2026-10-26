@@ -1,0 +1,18 @@
+{
+  "name": "package.json",
+  "path": "bot-worker/package.json",
+  "sha": "4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad",
+  "size": 700,
+  "url": "https://api.github.com/repos/kam65624-cmd/tg-content-bot/contents/bot-worker/package.json?ref=76830a721bb3761a6d25309acc3672b117116994",
+  "html_url": "https://github.com/kam65624-cmd/tg-content-bot/blob/76830a721bb3761a6d25309acc3672b117116994/bot-worker/package.json",
+  "git_url": "https://api.github.com/repos/kam65624-cmd/tg-content-bot/git/blobs/4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad",
+  "download_url": "https://raw.githubusercontent.com/kam65624-cmd/tg-content-bot/76830a721bb3761a6d25309acc3672b117116994/bot-worker/package.json?token=B3JJG4TYRZCU5TMBAKHMRFLK37AJ7AA",
+  "type": "file",
+  "content": "ewogICJuYW1lIjogInRnLWNvbnRlbnQtYm90LXdvcmtlciIsCiAgInZlcnNp\nb24iOiAiMS4wLjAiLAogICJwcml2YXRlIjogdHJ1ZSwKICAiZGVzY3JpcHRp\nb24iOiAiVGVsZWdyYW0gY29udGVudCBib3Qg4oCUIENsb3VkZmxhcmUgV29y\na2VyIiwKICAic2NyaXB0cyI6IHsKICAgICJkZXYiOiAid3JhbmdsZXIgZGV2\nIiwKICAgICJkZXBsb3kiOiAid3JhbmdsZXIgZGVwbG95IiwKICAgICJ0eXBl\nY2hlY2siOiAidHNjIC0tbm9FbWl0IiwKICAgICJ0YWlsIjogIndyYW5nbGVy\nIHRhaWwgLS1mb3JtYXQgcHJldHR5IiwKICAgICJrdjpjcmVhdGUiOiAid3Jh\nbmdsZXIga3YgbmFtZXNwYWNlIGNyZWF0ZSIsCiAgICAic2VjcmV0OnB1dCI6\nICJ3cmFuZ2xlciBzZWNyZXQgcHV0IiwKICAgICJ0ZXN0IjogInRzYyAtcCB0\nZXN0cy9zbW9rZS50c2NvbmZpZy5qc29uICYmIG5vZGUgdGVzdHMvc21va2Ut\ndGVzdC5janMiCiAgfSwKICAiZGVwZW5kZW5jaWVzIjogewogICAgIkBzdXBh\nYmFzZS9zdXBhYmFzZS1qcyI6ICJeMi40NS4wIgogIH0sCiAgImRldkRlcGVu\nZGVuY2llcyI6IHsKICAgICJAY2xvdWRmbGFyZS93b3JrZXJzLXR5cGVzIjog\nIl40LjIwMjQxMDIyLjAiLAogICAgInR5cGVzY3JpcHQiOiAiXjUuNi4wIiwK\nICAgICJ3cmFuZ2xlciI6ICJeMy44MC4wIgogIH0sCiAgImVuZ2luZXMiOiB7\nCiAgICAibm9kZSI6ICI+PTIwIgogIH0KfQ==\n",
+  "encoding": "base64",
+  "_links": {
+    "self": "https://api.github.com/repos/kam65624-cmd/tg-content-bot/contents/bot-worker/package.json?ref=76830a721bb3761a6d25309acc3672b117116994",
+    "git": "https://api.github.com/repos/kam65624-cmd/tg-content-bot/git/blobs/4d4b9beb6c1b02a0e43c31d7d27170acaf41cfad",
+    "html": "https://github.com/kam65624-cmd/tg-content-bot/blob/76830a721bb3761a6d25309acc3672b117116994/bot-worker/package.json"
+  }
+}

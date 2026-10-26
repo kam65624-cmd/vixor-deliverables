@@ -57,3 +57,53 @@
 
 **اكتشاف N-1 (من T8a):** `alert01-regression.cjs` يستهلك أثر بناء `.smoke/` — أي سكربت `regression` مستقل (`node tests/alert01-regression.cjs`) يفشل من شجرة نظيفة. أثره على رقعة R19 المقترحة: **الترتيب الحالي للرقعة آمن** (خطوة regression تأتي بعد Smoke tests في ci.yml المقترح) لكن يُوصى بجعل السكربت مكتفًا — الرقعة v2: `R19_CI_WIRING_PROPOSAL_v2_amended.patch` (اقتراح فقط، بلا تطبيق).
 **تصنيف T7:** `PASS_WITH_LIMITATIONS` كما هو (PG محلي معزول ≠ طبقة Supabase المدارة — القيد R21-03 قائم). **تصنيف T8:** `VERIFIED (fresh)` على SHA المدموج `76830a72` بالبيئة المعلنة (node v24.21.0، npm 11.19.0، tarball رسمي بالتوكن).
+
+---
+
+## 6) ملحق TASK 23 — أدلة إصلاح الحزمة وربط R19 (2026-10-26T21:0x–21:3x UTC)
+
+### أ) مُحقق الحزمة v3 واختباراته (10/10 — بايتات فعلية لا محاكاة)
+
+| # | الاختبار | النتيجة | exit | الدليل |
+|---|---|---|---|---|
+| T23-V0 | `verify_manifest.py` v3 على جذر الحزمة (بعد كل التعديلات — البناء النهائي) | **PASS — تغطية كاملة مثبتة** (كل ملف على القرص مسجل/مستثنى/المانيفست نفسه) | 0 | لوج البناء النهائي (خارج الحزمة) + ملخص COVERAGE داخل المخرجات |
+| T23-V1 | حزمة سليمة (نسخة حقيقية) | PASS — 87 registered، 0 unregistered، 0 missing | 0 | `evidence/t23_verifier_tests_output.log` |
+| T23-V2 | ملف مسجل محذوف | FAIL (MISSING) | 1 | نفس اللوج |
+| T23-V3 | بايت معدّل في ملف مسجل | FAIL (size/hash mismatch) | 1 | نفس اللوج |
+| T23-V4 | ملف إضافي غير مسجل (stowaway) | FAIL (UNREGISTERED) | 1 | نفس اللوج |
+| T23-V5 | sha256 مزوّر داخل MANIFEST | FAIL | 1 | نفس اللوج |
+| T23-V6 | مسار traversal ‏(`../`) داخل MANIFEST | FAIL — رفض قبل أي فحص محتوى | 1 | نفس اللوج |
+| T23-V7 | رابط رمزي يخرج من جذر الحزمة | FAIL (escapes root) | 1 | نفس اللوج |
+| T23-V8 | أنواع حقول خاطئة (bytes كسلسلة) | FAIL (schema invalid) | 1 | نفس اللوج |
+| T23-V9 | ملف مستثنى توثيقًا صحيحًا (سبب+نطاق) | PASS مع سطر EXCLUDED صريح | 0 | نفس اللوج |
+| T23-V10 | مسار مكرر بين قسطين | FAIL (section conflict) | 1 | نفس اللوج |
+
+**بنية التحقق:** MANIFEST v3 وُلِّد **آخرًا** بعد تجميد المحتوى (r1) → تشغيل الاختبارات (لوجها دخل الحزمة) → إعادة توليد نهائي (r2) → تحقق نهائي exit 0 → ZIP → فك في مجلد مؤقت جديد → **تحقق داخل النسخة المستخرجة exit 0**. ثلاث بروفات للخط ثم البناء الحاسم — كلها بنفس السكربت المحفوظ (`scripts/t23_build_package.py`).
+
+### ب) ZIP النهائي
+
+| الحقل | القيمة |
+|---|---|
+| الملف | `VIXOR_FINAL_AUDIT_PACKAGE_2026-10-26_task23.zip` |
+| الحجم والبصمة | **تُسجلان خارج الحزمة بحكم استحالة ذاتية معروفة**: الـZIP يُبنى من الحزمة بعد تجميد الـMANIFEST، فلا يمكن لحزمة أن تحوي بصمة ZIP الذي يحويها. القيم النهائية (الحجم + SHA-256) موثقة في: وصف PR #11 + `t23_zip_record.json` بجوار الـZIP على جذر فرع PR #11 + سجل العمل الخارجي |
+| مكان الوصول | مرفوعًا على فرع PR #11 نفسه (جذر الفرع) + نسخة محلية؛ بديل GitHub دائم: أرشيف المصدر للـcommit النهائي (ليس نفس ZIP المخصص — لا يُدّعى كذلك) |
+| تحقق مستخرج | PASS (exit 0 داخل `/tmp` جديد) — `t23_verify_extracted.log` بجوار الحزمة على الفرع |
+
+### ج) R19 CI wiring (PR #19 في tg-content-bot — **مسودة، غير مدموجة**)
+
+| # | الخطوة | الأمر | النتيجة | exit |
+|---|---|---|---|---|
+| T23-R1 | فرع جديد من main | `git checkout -b fix/r19-ci-regression-gate` @ main `76830a72` | commit **`8d45f22eba3c598e451139fdeed6c1a29c938d0c`** (+4/−1، ملفان) | — |
+| T23-R2 | تثبيت نظيف | `npm ci` | نظيف | 0 |
+| T23-R3 | **regression قبل أي build** (`.smoke` غائب — إثبات استقلالية v2) | `npm run regression` | **20/20** — يبني `.smoke` بنفسه | 0 |
+| T23-R4 | الأنواع | `npm run typecheck` | نظيف | 0 |
+| T23-R5 | الحزمة الكاملة | `npm test` | **86/86** | 0 |
+| T23-R6 | regression بترتيب CI (بعد البناء) | `npm run regression` | **20/20** | 0 |
+| T23-R7 | **اختبار سلبي سلوكي**: كتم لوج خطأ trackingPatch (إعادة إدخال ALERT-01) في worktree منفصل | `npm run regression` | **فشل بالسبب المتوقع حرفيًا**: `R19 … EXPECTED-REASON FAILURE (pre-fix): trackingPatch update result was never checked` — ‏19/20 | **1** |
+| T23-R8 | (طفرة أولى أخشن: `if (false && …)`) | نفسه | فشل عند tsc (TS18047) | 2 |
+| T23-R9 | **CI فعلي على الـPR** (لا يكفي المحلي) | run **40404172527**، event `pull_request`، head **`8d45f22…`** | **success** — داخل bot-worker job: خطوة **`ALERT-01 regression (R1-R19)` completed/success** + mini-app success | 0 |
+| T23-R10 | فحص Cloudflare Workers Builds على رأس الـPR | check-run **121857534804** | **failure** — خط بناء إنتاجي CF جرّب فرع PR؛ تفاصيل الخطأ داخل لوحة CF فقط (مالك)؛ **ليست بوابة GitHub ولا ناتجة عن خطوة regression الناجحة** — يُسجل بصدق ويُدرج بقائمة §A | — |
+
+الدلائل داخل الحزمة: `evidence/test-evidence-r19_task23_clean_checkout.log` (الأوامر+أكواد الخروج كاملة) · `evidence/test-evidence-r19_task23_negative_test.log` · `evidence/raw/t23_r19_pr_created.json` · `evidence/raw/t23_r19_pr_checkruns.json` · `evidence/raw/t23_r19_ci_run.json` · `evidence/raw/t23_r19_workers_builds_failure.json`.
+
+**تصنيف:** T23-R3..R6 `VERIFIED (fresh)` على SHA الفرع · T23-R7 سلبي ناجح (البوابة ليست شكلية) · T23-R9 `CI VERIFIED` على head بالضبط · **R21-01/R22-01 يبقيان مفتوحين حتى دمج المالك + CI أخضر على main يحوي التغيير**.

@@ -24,3 +24,12 @@ Stage Summary:
 - BLOCKED (with exact needs): ALERT-08 preflight (owner query/paste or upload/ channel), ALERT-07 §A (Cloudflare), SEC-03 rotation (owner), production migration gates (owner approval), R19 CI wiring (owner approval of patch).
 - Decisions pending (owner): merge PR #10, Option A/C, H1/H2, CI wiring, remediation wave for ALERT-02/05/06 + Stars chain.
 - Verdict in final report: AUDIT INCOMPLETE (2 hard-blocked evidence items + owner decisions) — no pass-washing.
+
+---
+
+## TASK 23 APPEND (2026-10-26T21:01–21:3x UTC) — summary of the same session recorded above in WORKLOG.md
+
+- Post-merge correction wave (owner merged PR #10 at 2026-10-26T20:52:59Z, merge 01b8b9471f68…): dated POST-MERGE STATUS CORRECTION sections appended to FINAL_AUDIT_REPORT_AR / EXECUTIVE_SUMMARY_AR / TASK_STATUS / OWNER_ACTIONS / REPOSITORY_STATUS / RISK_REGISTER / ALERT_STATUS / H1H2 / LINE_BY_LINE / TEST_EVIDENCE / REPRODUCIBILITY / both worklogs. Verdict AUDIT INCOMPLETE unchanged — a documentation merge closes no production risk (SEC-03 token still valid; ALERT-08/07 blocked; ALERT-02/05/06 unfixed).
+- Package repaired on the SAME PR #11 branch: verifier v3 (12 requirements) + 10-scenario real-byte test suite (ALL PASS) + MANIFEST v3 regenerated LAST + ZIP (470,967 B; sha256 d2aa360a…) verified inside an extracted copy + ZIP pushed to the branch root. PHASE0_BASELINE.md added. Nothing historical deleted.
+- R19 wired in a SEPARATE draft PR #19 on tg-content-bot (head 8d45f22, +4/−1): clean-checkout 5-step evidence all exit 0 (regression BEFORE build proves v2 self-sufficiency); negative test fails 19/20 exit 1 with the exact expected reason; CI run 40404172527 success incl. the new step on the exact head; CF Workers Builds failure on the PR head documented honestly as an owner item (ALERT-07 §A lead).
+- Owner items after TASK 23: rotate token (SEC-03), preflight (query ready), CF evidence §A (now incl. the PR-branch build failure), review/merge PR #11 (still draft), review/merge PR #19 (still draft), decide A/C + H1/H2.

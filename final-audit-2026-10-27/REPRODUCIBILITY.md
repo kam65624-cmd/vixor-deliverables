@@ -87,3 +87,52 @@ python3 verify_manifest.py                   # exit 0 = كل الملفات ال
 
 - كل الطوابع أعلاه UTC؛ مصدر تسمية «2026-10-27» = ساعة منصة الجلسة (التفصيل: REPOSITORY_STATUS §6).
 - لا خطوة من هذه الجولة كتبت على أي مستودع (GET فقط) باستثناء خطوات معزولة محلية (PG مؤقت + tarball إلى مجلد عمل مؤقت).
+
+# ملحق TASK 23 — إعادة إنتاج تحقق الحزمة v3 وZIP (2026-10-26T21:2x UTC)
+
+## (أ) تحقق الحزمة نفسها (بعد كل تعديلات TASK 23)
+
+```bash
+# داخل جذر الحزمة (المجلد الذي يحوي هذا الملف):
+python3 verify_manifest.py
+# exit 0 = PASS — تغطية كاملة مثبتة (كل ملف على القرص مسجل/مستثنى صراحة/المانيفست نفسه)
+# exit 1 = أي فشل (مفقود/إضافي/معدل/غير آمن/أنواع خاطئة/تكرار) — v3 يفحص الجرد الكامل لا المسجل فقط
+```
+
+## (ب) اختبارات المُحقق المستقلة (10 سيناريوهات سلبية/إيجابية)
+
+```bash
+python3 verify_manifest_tests.py
+# ينشئ نسخًا حقيقية من الحزمة في /tmp، يعدّل كل نسخة بايتيًا بطريقة محددة،
+# يشغّل المُحقق الحقيقي ويتحقق من exit code المتوقع — exit 0 للسويتش = 10/10
+# اللوج الكامل بالنسخ: evidence/t23_verifier_tests_output.log
+```
+
+## (ج) تحقق ZIP النهائي (نسختان: محليّة + على فرع PR #11)
+
+```bash
+# 1) بصمة النسخة المرفوعة على فرع PR #11 قارنها بالقيم الموثقة خارجيًا
+#    (وصف PR #11 + t23_zip_record.json بجوار الـZIP على جذر الفرع) —
+#    بصمة ZIP لا يمكن أن تُسجل داخل الحزمة نفسها (استحالة ذاتية: الـZIP يُبنى بعد التجميد)
+unzip VIXOR_FINAL_AUDIT_PACKAGE_2026-10-26_task23.zip -d /tmp/t23_check
+python3 /tmp/t23_check/final-audit-2026-10-27/verify_manifest.py /tmp/t23_check/final-audit-2026-10-27
+# exit 0 = النسخة المستخرجة سليمة (أُثبت مسبقًا بهذا المسار بالضبط)
+# 2) بديل دائم بلا ZIP: أرشيف GitHub المصدر للـcommit النهائي لفرع PR #11
+#    https://github.com/kam65624-cmd/vixor-deliverables/archive/<full-head-sha>.tar.gz
+#    (أرشيف مصدر GitHub — ليس نفس ZIP المخصص ولا يُدّعى كذلك؛ تحقق MANIFEST يعمل داخله أيضًا)
+```
+
+## (د) إعادة إنتاج اختبارات R19 على الفرع الإنتاجي (PR #19 — مسودة)
+
+```bash
+git clone https://github.com/kam65624-cmd/tg-content-bot.git
+cd tg-content-bot && git checkout 8d45f22eba3c598e451139fdeed6c1a29c938d0c
+cd bot-worker
+npm ci && npm run regression && npm run typecheck && npm test
+# الترتيب أعلاه متعمد: regression قبل أي build يثبت استقلالية v2 (يبني .smoke بنفسه)
+# النتائج المرجعية: 20/20 + نظيف + 86/86 (exit 0 للجميع) — evidence/test-evidence-r19_task23_clean_checkout.log
+# CI الفعلي: run 40404172527 على head 8d45f22 (خطوة ALERT-01 regression completed/success)
+```
+
+- كل الطوابع UTC. لا خطوة من TASK 23 كتبت على main أو دمجت أي PR أو شغلت migrations.
+- ملاحظة بنيوية: سجلات التحقق النهائي (على الحزمة المجمدة نفسها) وُلّدت بعد التجميد فلا يمكن أن تكون داخل الحزمة بتعريفها — تُحفظ بجوار الحزمة على فرع الـPR (لوجات t23_verify_*.log) بينما اختبارات السلوك العشرة (التي تشمل نسخة سليمة→PASS) داخل الحزمة كأدلة مكافئة.
