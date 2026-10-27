@@ -92,3 +92,12 @@ A task may be marked **Done** only when there is an exact commit SHA, the releva
 - Resolve the tg-content-bot PR #2 / #20 overlap and refresh PR #2 against current main.
 - Resolve Shield nullable opportunity_id versus shared contract mismatch, then run contract compatibility tests across package, Hunt, Shield and bot.
 - Treat green PR CI as branch-level evidence only. No production deployment, live endpoint E2E, or public content publication is established by the listed runs.
+
+
+## Fix started after the findings above
+
+A targeted fix was committed to the existing Shield PR branch (not main):
+- Commit 4da31dfee3ad9f6b01013d833dc40914ac907a6d adds pure request validation for nonce, subject and required opportunity_id.
+- Commit 0c77897aae57c24522daead1c0c0ef8fe8e246f4 wires validation into POST /assess before the nonce is consumed, preventing malformed requests from burning a nonce and preventing nullable opportunity_id responses.
+- Commit a1b884779e2b82191252535ccccd05b4946a999b adds tests for null/array/non-object input, missing/blank required fields, normalization, and size limits.
+- CI was triggered for these commits (runs 40441695742, 40441713657, 40441729919); at the time this note was written, the newest run was queued/in progress. This fix is **not marked verified** until the run for the latest head completes successfully and its logs are inspected.
