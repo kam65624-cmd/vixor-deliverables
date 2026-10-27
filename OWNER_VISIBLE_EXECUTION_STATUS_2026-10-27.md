@@ -101,3 +101,10 @@ A targeted fix was committed to the existing Shield PR branch (not main):
 - Commit 0c77897aae57c24522daead1c0c0ef8fe8e246f4 wires validation into POST /assess before the nonce is consumed, preventing malformed requests from burning a nonce and preventing nullable opportunity_id responses.
 - Commit a1b884779e2b82191252535ccccd05b4946a999b adds tests for null/array/non-object input, missing/blank required fields, normalization, and size limits.
 - CI was triggered for these commits (runs 40441695742, 40441713657, 40441729919); at the time this note was written, the newest run was queued/in progress. This fix is **not marked verified** until the run for the latest head completes successfully and its logs are inspected.
+
+
+## Verification update — Shield targeted fix CI is green
+
+The latest Shield PR head commit is a1b884779e2b82191252535ccccd05b4946a999b. CI run 40441729919 completed successfully: typecheck, unit tests, wording policy, secret scan and bundle-size check all passed. Earlier intermediate runs 40441695742 and 40441713657 also passed. This verifies the validator and unit-test changes on the PR branch; it does **not** verify a deployed HTTP endpoint or cross-repository E2E. Shield PR #2 remains draft/open and is not merged or deployed.
+
+Next Shield acceptance: add/retain a route-level test proving invalid requests return 400 before nonce insertion, confirm canonical contract compatibility in the shared-contract integration suite, then run a test deployment E2E before the risk gate can be considered production-ready.
