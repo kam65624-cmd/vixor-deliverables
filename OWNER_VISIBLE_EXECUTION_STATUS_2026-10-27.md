@@ -149,3 +149,17 @@ This closes the stale-worker completion gap for tracked rows when a claim token 
 ## Contract-copy comparison result
 
 The vendored contract files in Hunt PR #1 and tg-content-bot PR #20 were fetched from their current PR heads and compared directly. They are identical after the first repository-specific header line (Hunt file 13,352 bytes; bot file 13,306 bytes including the differing first line). This is a verified current match, but the match is not enforced automatically by cross-repository CI. The canonical @vixor/contracts package remains a draft PR, so package-to-vendored drift remains a future risk until a synchronization/compatibility gate is added.
+
+
+## New P0 repair — Telegram durable inbox before acknowledgement (2026-10-27)
+
+Source review confirmed a data-loss path: webhook acknowledged Telegram with HTTP 200 before inserting into `telegram_updates`; if that insert failed, routing continued without a durable inbox row and Telegram would not retry the acknowledged update.
+
+A fix was committed on tg-content-bot PR #20 branch:
+- `996474275510c3ddd9d35100a84b2e20eae58008`: move ledger ingestion before HTTP acknowledgement; return 503 + Retry-After when durable insert fails; return 400 if update_id is missing; duplicate ledger delivery returns 200 without routing; only after successful insert does routing move to waitUntil.
+- `b7909d53f6bbcb6202422e91c1467fbc2636e065`: update regression tests to assert inbox exists before response and database failure returns 503 without routing, then successful retry persists and processes the update.
+- `02d335d22f3844dd5e5954eae52e4a6e1d22d295`: align ledger comments/logging with fail-closed semantics.
+
+Verification state at this update: CI run 40442724388 was pending on test commit b7909d5; run 40442696334 was in progress on implementation commit 9964742. The latest documentation-only commit 02d335d must also be checked for CI status before declaring the branch green. This repair is not yet marked verified.
+
+This is a deliberate behavior change: webhook returns 503 if Supabase cannot durably store the update. Confirm Telegram retries this webhook status as expected and verify against an isolated integration environment before production deployment. No deployment performed.
