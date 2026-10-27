@@ -176,3 +176,15 @@ Latest tg-content-bot head `02d335d22f3844dd5e5954eae52e4a6e1d22d295` passed CI 
 CI: https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40442740265
 
 The Telegram durable-inbox P0 is now verified at worker/smoke-test level. It remains not production-verified: no live Telegram delivery retry or real Supabase failure-injection test was performed. PR #20 remains draft/open, not merged or deployed.
+
+
+## Cross-repository CI freshness check — 2026-10-27
+
+Current branch CI evidence:
+- Hunt `feat/test-opportunity-emitter`: last run 39535211707 succeeded on 2026-10-21; no newer run found in the latest 3 runs.
+- Packages `feat/contracts-package`: last run 39532340500 succeeded on 2026-10-21; no newer run found in the latest 3 runs.
+- Shield `feat/assess-endpoint`: latest run 40441729919 succeeded on 2026-10-27.
+- Trade `fix/ops-secret-header-20261027`: latest run 40442004448 succeeded on 2026-10-27.
+- tg-content-bot `audit-fixes/buffer-retry-20261027`: latest run 40442740265 succeeded on 2026-10-27.
+
+The older green Hunt/Packages runs are not evidence that their current contract copies and the current bot/Shield changes work together. Keep the end-to-end cross-repository acceptance gate open; refresh CI on current heads and run a deterministic Hunt → Shield → bot test in isolated infrastructure before merge/deploy.
