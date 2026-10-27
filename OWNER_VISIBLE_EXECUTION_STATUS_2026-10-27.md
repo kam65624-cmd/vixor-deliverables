@@ -144,3 +144,8 @@ The tg-content-bot PR #20 branch now includes claim-token fencing:
 - CI run 40442224906 passed all three jobs: mini-app typecheck, PostgreSQL migration integration, and bot-worker typecheck/smoke + ALERT-01 regression. Smoke output: 92 passed / 0 failed; ALERT-01: 20 passed / 0 failed. https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40442224906
 
 This closes the stale-worker completion gap for tracked rows when a claim token is available. It does **not** close the separate fail-open path when ledger ingestion itself fails and the handler continues without a durable claim; durable inbox/ack/retry design and real Supabase concurrency remain open blockers. PR #20 is still draft/open, not merged or deployed.
+
+
+## Contract-copy comparison result
+
+The vendored contract files in Hunt PR #1 and tg-content-bot PR #20 were fetched from their current PR heads and compared directly. They are identical after the first repository-specific header line (Hunt file 13,352 bytes; bot file 13,306 bytes including the differing first line). This is a verified current match, but the match is not enforced automatically by cross-repository CI. The canonical @vixor/contracts package remains a draft PR, so package-to-vendored drift remains a future risk until a synchronization/compatibility gate is added.
