@@ -63,3 +63,17 @@ No two agents may concurrently edit the same file. Cross-repository contract cha
 - No paid API/service or automatic upgrade without explicit owner approval.
 - No production migration or deployment without explicit owner approval.
 - Keep V1 as canonical until the owner explicitly approves V2.
+
+
+## 6. Current execution status (2026-10-27)
+
+The evidence-backed owner status and prioritized repair queue are maintained in [OWNER_VISIBLE_EXECUTION_STATUS_2026-10-27.md](./OWNER_VISIBLE_EXECUTION_STATUS_2026-10-27.md) on the audit branch. It distinguishes:
+- implementation present on a PR branch,
+- CI/test pass,
+- merged into default branch,
+- deployed,
+- and end-to-end verified.
+
+Current verified evidence: tg-content-bot PR #20 CI run 40440971027 passed on commit 3e79428f7774caa40648060920b7af52b6a96af7. PR #20 remains draft/open. Hunt PR #1 and Shield PR #2 also remain draft/open. These are not considered production-delivered. Full migration-chain repeatability, effective RLS/grants, cross-repository contract parity, and deployed Hunt → Shield → control-center → private test destination E2E remain open gates.
+
+The status file is documentation for owner visibility and does not authorize a merge, deployment, production migration, publishing, or live trading.
