@@ -60,3 +60,35 @@
 ## Completion rule
 
 A task may be marked **Done** only when there is an exact commit SHA, the relevant test/CI run passes, the expected behavior is verified at the appropriate integration level, and its owner-facing result is reachable. A PR or a green isolated unit test alone is not proof of production delivery.
+
+
+## Findings added during independent PR review — 2026-10-27
+
+### CONFIRMED: tg-content-bot PR overlap / stale base
+
+- tg-content-bot PR #2 (UX foundation) was based on main SHA 0bc925da9f9c474b32125f56d55465f15cd26497; current main at review time is 2d8933ed7cd92d23144099642497f32794340715.
+- PR #2 and PR #20 both modify supabase/migrations/009_multi_bot_rbac_workflows.sql. PR #2 adjusts JSON handling for workspace_members; PR #20 adjusts anonymous-policy cleanup. These changes must be reconciled, not discarded.
+- A review comment was posted to PR #2 requesting sync/rebase, preservation of both changes, and fresh typecheck/build/visual regression evidence.
+
+### CONFIRMED: Shield response can violate the shared contract
+
+- In vixor-shield PR #2, src/index.ts treats opportunity_id as optional and passes null to assessFromScan / assessEngineError.
+- src/assess.ts declares and can return opportunity_id: string | null.
+- The shared contract in vixor-packages PR #2 and the vendored contract validators in Hunt and tg-content-bot require opportunity_id to be a non-empty string.
+- Therefore a correctly signed request with a valid subject/nonce but missing opportunity_id can produce HTTP 200 with a response that downstream contract validation rejects. This is a confirmed interface mismatch from source inspection; it has not been tested against a deployed endpoint.
+- A review comment was posted to Shield PR #2 requesting required-field validation and a negative test, or an explicitly coordinated versioned contract change. It also requests validation that parsed JSON is a non-null object.
+
+### Refreshed CI evidence
+
+- vixor-APP main: commit b893b6299f3bc9cfd4e8ab0361d61e60f80cf661; CI run 40123959641 succeeded on 2026-10-24.
+- vixor-hunt PR #1: CI run 39535211707 succeeded on its PR head; main CI run 37870183208 succeeded on 2026-10-09.
+- vixor-shield PR #2: CI run 39534895611 succeeded on its PR head; main CI run 39361555785 succeeded on 2026-10-20.
+- vixor-trade: latest listed run 40432184084 succeeded on main commit 6fab976c65bedf5b351cb65307b9d38dfdd2df96, but it is the scheduled batch-compute workflow, not a full CI suite.
+- vixor-packages PR #2 is open/draft and has no current default-branch merge. Contract package and vendored copies therefore remain separate sources until consolidation is accepted and verified.
+- tg-content-bot PR #20 CI run 40440971027 passed on its head; PR remains draft/open. tg-content-bot PR #2 is also open, not merged.
+
+## Additional acceptance gates
+
+- Resolve the tg-content-bot PR #2 / #20 overlap and refresh PR #2 against current main.
+- Resolve Shield nullable opportunity_id versus shared contract mismatch, then run contract compatibility tests across package, Hunt, Shield and bot.
+- Treat green PR CI as branch-level evidence only. No production deployment, live endpoint E2E, or public content publication is established by the listed runs.
