@@ -163,3 +163,16 @@ A fix was committed on tg-content-bot PR #20 branch:
 Verification state at this update: CI run 40442724388 was pending on test commit b7909d5; run 40442696334 was in progress on implementation commit 9964742. The latest documentation-only commit 02d335d must also be checked for CI status before declaring the branch green. This repair is not yet marked verified.
 
 This is a deliberate behavior change: webhook returns 503 if Supabase cannot durably store the update. Confirm Telegram retries this webhook status as expected and verify against an isolated integration environment before production deployment. No deployment performed.
+
+
+## Verification update — durable Telegram inbox repair PASSED
+
+Latest tg-content-bot head `02d335d22f3844dd5e5954eae52e4a6e1d22d295` passed CI run 40442740265:
+- bot-worker typecheck + smoke: PASS, **92 passed / 0 failed**.
+- ALERT-01 regression: **20 passed / 0 failed**.
+- mini-app typecheck: PASS.
+- PostgreSQL migration integration (025–026): PASS.
+- New regression explicitly confirms failed `telegram_updates` ingestion returns HTTP 503, does not call routing/idempotency, and a later retry persists and processes the update.
+CI: https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40442740265
+
+The Telegram durable-inbox P0 is now verified at worker/smoke-test level. It remains not production-verified: no live Telegram delivery retry or real Supabase failure-injection test was performed. PR #20 remains draft/open, not merged or deployed.
