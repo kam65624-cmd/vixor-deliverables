@@ -108,3 +108,10 @@ A targeted fix was committed to the existing Shield PR branch (not main):
 The latest Shield PR head commit is a1b884779e2b82191252535ccccd05b4946a999b. CI run 40441729919 completed successfully: typecheck, unit tests, wording policy, secret scan and bundle-size check all passed. Earlier intermediate runs 40441695742 and 40441713657 also passed. This verifies the validator and unit-test changes on the PR branch; it does **not** verify a deployed HTTP endpoint or cross-repository E2E. Shield PR #2 remains draft/open and is not merged or deployed.
 
 Next Shield acceptance: add/retain a route-level test proving invalid requests return 400 before nonce insertion, confirm canonical contract compatibility in the shared-contract integration suite, then run a test deployment E2E before the risk gate can be considered production-ready.
+
+
+## Additional confirmed concurrency limitation — tg-content-bot
+
+Source review of PR #20 confirms that the claim lease is represented by drive_claimed_at, but completion in markUpdateProcessed is keyed only by bot_label + update_id and does not verify that the completing worker still owns the same claim. A worker that runs longer than the five-minute lease could overlap with a redrive worker after lease expiry; the stale worker can still mark the row processed. The current fake-Supabase test does not establish distributed PostgREST concurrency or stale-worker fencing.
+
+A review comment was posted on PR #20. Acceptance is blocked until a claim token/fencing generation or equivalent conditional completion is implemented and tested under real PostgreSQL concurrency. Do not mark BOT-02 complete based only on the current green CI.
