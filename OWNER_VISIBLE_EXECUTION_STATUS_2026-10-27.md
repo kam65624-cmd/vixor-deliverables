@@ -126,3 +126,8 @@ A targeted security PR was opened: https://github.com/kam65624-cmd/vixor-trade/p
 - CI run 40442004448 was queued at the time of this update; this fix is not marked verified until that exact head passes.
 - Compatibility review remains required: no in-repository caller was found in README, deploy/setup scripts, CI workflows or scheduled compute workflow, but external/manual callers have not been ruled out.
 - Follow-up security improvement: use a dedicated OPS_AUTH_SECRET rather than reusing WEBHOOK_SECRET; not included because that requires owner-approved secret provisioning.
+
+
+## Verification update — Trade ops-secret repair CI is green
+
+Trade PR #2 head 7faebe5bcc4b6b8ed81ae65b4bef4b73f4e4898a passed CI run 40442004448: typecheck, unit tests (including new bearer-auth tests), wording policy, secret scan and bundle-size check. See https://github.com/kam65624-cmd/vixor-trade/actions/runs/40442004448. The PR remains draft/open and no deployment was performed. Follow-up remains: decide whether to provision a dedicated OPS_AUTH_SECRET and check external/manual callers before merge.
