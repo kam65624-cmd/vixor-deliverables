@@ -163,3 +163,39 @@ A fix was committed on tg-content-bot PR #20 branch:
 Verification state at this update: CI run 40442724388 was pending on test commit b7909d5; run 40442696334 was in progress on implementation commit 9964742. The latest documentation-only commit 02d335d must also be checked for CI status before declaring the branch green. This repair is not yet marked verified.
 
 This is a deliberate behavior change: webhook returns 503 if Supabase cannot durably store the update. Confirm Telegram retries this webhook status as expected and verify against an isolated integration environment before production deployment. No deployment performed.
+
+
+## New audit evidence — 2026-10-27 (migration inventory and documentation drift)
+
+- **Confirmed inventory:** `tg-content-bot/supabase/migrations/` on branch `audit-fixes/buffer-retry-20261027` contains 26 numbered migrations (001–026) plus `ADD_020_auto_publisher.sql`.
+- **Confirmed duplicate:** `ADD_020_auto_publisher.sql` and `020_auto_publisher.sql` have identical blob SHA `9248e6132c840147635f11e1d41fc659212072c7` and identical size (3,295 bytes). This is a duplicate file, not a second numbered migration. **Do not delete it yet**: it may be referenced by a manual setup workflow; reference/usage search and owner decision are still required.
+- **Confirmed setup-document drift:** `README.md` still describes the migration directory as `001 → 019_revenue_engine`, and its setup instructions say to apply `019_revenue_engine.sql` for an existing project. The migration directory now contains 020–026, including security and idempotency changes. This means the documented setup path does not explain the current latest schema and is a high-risk operator/documentation gap.
+- **Confirmed misleading prerequisite message:** `020_auto_publisher.sql` raises an exception telling the operator to run `ADD_019_revenue_engine.sql`, while the numbered migration present in the repository is `019_revenue_engine.sql`. This appears to be a stale filename in the error text; do not treat the alternate file as present without evidence.
+- **Important safety note:** `supabase/NEW_PROJECT_SETUP.sql` begins with `drop schema public cascade` and recreates the schema. It is explicitly destructive and must only be used for a new/reset project. It is not a safe route for testing migrations against any existing or production database.
+- **Verification limits:** this is source inventory and text inspection only. The full ordered chain 001–026 has not been executed twice against a clean, Supabase-compatible isolated database; production grants/RLS and migration history remain unverified.
+
+### Next actions
+1. Search repository docs/scripts/CI for references to `ADD_020_auto_publisher.sql` and `ADD_019_revenue_engine.sql`; determine whether the duplicate is part of a documented manual workflow.
+2. Add an explicit migration inventory and safe upgrade path to the setup docs, including how migrations 021–026 are applied; never point existing projects to the destructive reset script.
+3. Build a Supabase-compatible isolated migration test harness for the complete ordered chain, including required Supabase auth/functions/publication dependencies, and run it twice. Record the first failing migration or both complete pass logs.
+4. Only after evidence and review, propose a documentation-only correction for stale migration references; no production edits or migrations.
+
+
+
+## P0 follow-up — Telegram 503 retry and isolated Supabase proof (2026-10-27)
+
+- **Current evidence rechecked:** tg-content-bot PR #20 remains open and unmerged. Latest known CI run is [40442740265](https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40442740265), success on commit `02d335d22f3844dd5e5954eae52e4a6e1d22d295`.
+- **What is proven in CI:** the repository's fake-Supabase smoke harness simulates a failed inbox insert and asserts webhook status 503 with no routing, then simulates a later retry after recovery. This is a deterministic unit/integration simulation, not a request delivered by Telegram servers and not a real Supabase/PostgREST test.
+- **Source behavior inspected:** `bot-worker/src/telegram/webhook.ts` calls `ingestUpdate` before returning success; `failed` returns 503 and `Retry-After: 5`; `duplicate` returns 200 without routing. `ledger.ts` uses Supabase upsert with conflict key `bot_label,update_id`.
+- **Live-retry proof remains BLOCKED:** no evidence in the repository or CI that Telegram actually retried a failed webhook delivery. A genuine proof requires a dedicated test bot token, an isolated deployed test endpoint, a test-only webhook secret, and a controllable isolated Supabase project (or a production-compatible isolated staging environment). Do not change the production bot webhook or inject failures into production.
+- **Supabase proof remains BLOCKED:** CI uses a fake Supabase server for webhook smoke tests. The PostgreSQL migration job covers focused SQL migrations, not actual Supabase/PostgREST behavior, RLS grants, unique-conflict semantics, or concurrent webhook/redrive claims.
+- **Acceptance protocol for a safe isolated run:**
+  1. Provision a separate Supabase project/schema with migration 022 and required tables/policies; use only test credentials and synthetic updates.
+  2. Deploy the candidate branch to a dedicated test Worker URL and configure a dedicated Telegram test bot to that URL; never repoint the production bot.
+  3. Inject a deterministic one-shot failure only for the test database's `telegram_updates` insert, then send a synthetic Telegram update. Capture Telegram delivery logs or webhook diagnostics showing the failed HTTP 503 attempt and a later retry.
+  4. Restore database writes; verify the retry creates exactly one ledger row, routing occurs once logically, `processed_at` is set, and no second draft/message is created.
+  5. Replay the same update and send concurrent duplicate deliveries; verify duplicates do not route twice. Race webhook with redrive and verify lease fencing under real PostgREST.
+  6. Export redacted logs, timestamps, update_id, row counts, CI SHA, and test endpoint identity; remove test webhook and credentials afterward.
+- **Safety boundary:** no secrets were read or changed, no real Telegram webhook was called, no live Supabase database was mutated, and no production code was deployed during this audit.
+- **Next owner action if no dedicated test environment is already provisioned:** provide/authorize a separate test bot and isolated Supabase project, or have the project owner run the acceptance protocol in the controlled staging account. Until then, mark live Telegram retry and real Supabase verification as **unverified / blocked**, not passed.
+
