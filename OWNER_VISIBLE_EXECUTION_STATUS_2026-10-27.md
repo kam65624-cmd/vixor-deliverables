@@ -163,3 +163,20 @@ A fix was committed on tg-content-bot PR #20 branch:
 Verification state at this update: CI run 40442724388 was pending on test commit b7909d5; run 40442696334 was in progress on implementation commit 9964742. The latest documentation-only commit 02d335d must also be checked for CI status before declaring the branch green. This repair is not yet marked verified.
 
 This is a deliberate behavior change: webhook returns 503 if Supabase cannot durably store the update. Confirm Telegram retries this webhook status as expected and verify against an isolated integration environment before production deployment. No deployment performed.
+
+
+## New audit evidence — 2026-10-27 (migration inventory and documentation drift)
+
+- **Confirmed inventory:** `tg-content-bot/supabase/migrations/` on branch `audit-fixes/buffer-retry-20261027` contains 26 numbered migrations (001–026) plus `ADD_020_auto_publisher.sql`.
+- **Confirmed duplicate:** `ADD_020_auto_publisher.sql` and `020_auto_publisher.sql` have identical blob SHA `9248e6132c840147635f11e1d41fc659212072c7` and identical size (3,295 bytes). This is a duplicate file, not a second numbered migration. **Do not delete it yet**: it may be referenced by a manual setup workflow; reference/usage search and owner decision are still required.
+- **Confirmed setup-document drift:** `README.md` still describes the migration directory as `001 → 019_revenue_engine`, and its setup instructions say to apply `019_revenue_engine.sql` for an existing project. The migration directory now contains 020–026, including security and idempotency changes. This means the documented setup path does not explain the current latest schema and is a high-risk operator/documentation gap.
+- **Confirmed misleading prerequisite message:** `020_auto_publisher.sql` raises an exception telling the operator to run `ADD_019_revenue_engine.sql`, while the numbered migration present in the repository is `019_revenue_engine.sql`. This appears to be a stale filename in the error text; do not treat the alternate file as present without evidence.
+- **Important safety note:** `supabase/NEW_PROJECT_SETUP.sql` begins with `drop schema public cascade` and recreates the schema. It is explicitly destructive and must only be used for a new/reset project. It is not a safe route for testing migrations against any existing or production database.
+- **Verification limits:** this is source inventory and text inspection only. The full ordered chain 001–026 has not been executed twice against a clean, Supabase-compatible isolated database; production grants/RLS and migration history remain unverified.
+
+### Next actions
+1. Search repository docs/scripts/CI for references to `ADD_020_auto_publisher.sql` and `ADD_019_revenue_engine.sql`; determine whether the duplicate is part of a documented manual workflow.
+2. Add an explicit migration inventory and safe upgrade path to the setup docs, including how migrations 021–026 are applied; never point existing projects to the destructive reset script.
+3. Build a Supabase-compatible isolated migration test harness for the complete ordered chain, including required Supabase auth/functions/publication dependencies, and run it twice. Record the first failing migration or both complete pass logs.
+4. Only after evidence and review, propose a documentation-only correction for stale migration references; no production edits or migrations.
+
