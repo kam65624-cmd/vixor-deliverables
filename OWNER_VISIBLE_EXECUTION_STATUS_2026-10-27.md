@@ -131,3 +131,16 @@ A targeted security PR was opened: https://github.com/kam65624-cmd/vixor-trade/p
 ## Verification update — Trade ops-secret repair CI is green
 
 Trade PR #2 head 7faebe5bcc4b6b8ed81ae65b4bef4b73f4e4898a passed CI run 40442004448: typecheck, unit tests (including new bearer-auth tests), wording policy, secret scan and bundle-size check. See https://github.com/kam65624-cmd/vixor-trade/actions/runs/40442004448. The PR remains draft/open and no deployment was performed. Follow-up remains: decide whether to provision a dedicated OPS_AUTH_SECRET and check external/manual callers before merge.
+
+
+## Verification update — Telegram stale-worker fencing CI is green
+
+The tg-content-bot PR #20 branch now includes claim-token fencing:
+- claimUpdateProcessing returns the exact lease token stored in drive_claimed_at.
+- webhook and scheduled redrive pass that token to completion/error writes.
+- markUpdateProcessed and recordProcessError condition their writes on the same token and refuse stale-worker repair-upserts when the token no longer matches.
+- A regression test replaces the lease token and proves the stale worker cannot mark the row processed.
+- Latest head: 56356a4c64e39535cb81b15b2e810c8e6e2c9681.
+- CI run 40442224906 passed all three jobs: mini-app typecheck, PostgreSQL migration integration, and bot-worker typecheck/smoke + ALERT-01 regression. Smoke output: 92 passed / 0 failed; ALERT-01: 20 passed / 0 failed. https://github.com/kam65624-cmd/tg-content-bot/actions/runs/40442224906
+
+This closes the stale-worker completion gap for tracked rows when a claim token is available. It does **not** close the separate fail-open path when ledger ingestion itself fails and the handler continues without a durable claim; durable inbox/ack/retry design and real Supabase concurrency remain open blockers. PR #20 is still draft/open, not merged or deployed.
