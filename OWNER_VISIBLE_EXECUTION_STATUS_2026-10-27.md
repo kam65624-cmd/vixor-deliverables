@@ -115,3 +115,14 @@ Next Shield acceptance: add/retain a route-level test proving invalid requests r
 Source review of PR #20 confirms that the claim lease is represented by drive_claimed_at, but completion in markUpdateProcessed is keyed only by bot_label + update_id and does not verify that the completing worker still owns the same claim. A worker that runs longer than the five-minute lease could overlap with a redrive worker after lease expiry; the stale worker can still mark the row processed. The current fake-Supabase test does not establish distributed PostgREST concurrency or stale-worker fencing.
 
 A review comment was posted on PR #20. Acceptance is blocked until a claim token/fencing generation or equivalent conditional completion is implemented and tested under real PostgreSQL concurrency. Do not mark BOT-02 complete based only on the current green CI.
+
+
+## Trade security repair started — CI pending
+
+A targeted security PR was opened: https://github.com/kam65624-cmd/vixor-trade/pull/2
+- Branch: fix/ops-secret-header-20261027
+- Head: 7faebe5bcc4b6b8ed81ae65b4bef4b73f4e4898a
+- Replaces GET /debug/brief?k=... with POST /debug/brief and Authorization: Bearer header, adds unit tests for authorization parsing, and documents the new request method.
+- CI run 40442004448 was queued at the time of this update; this fix is not marked verified until that exact head passes.
+- Compatibility review remains required: no in-repository caller was found in README, deploy/setup scripts, CI workflows or scheduled compute workflow, but external/manual callers have not been ruled out.
+- Follow-up security improvement: use a dedicated OPS_AUTH_SECRET rather than reusing WEBHOOK_SECRET; not included because that requires owner-approved secret provisioning.
