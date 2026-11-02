@@ -288,12 +288,23 @@ The following are carried forward from the owner-visible execution status and ea
 ### 8.3 APP product and runtime
 | ID | Severity | Finding / impact | Current status | Next action |
 |---|---|---|---|---|
-| APP-UI-01 | High | Published UI reported older than approved Hybrid Experience; obsolete/disagreed elements remain visible | Owner-reported; current deployed build not verified in this snapshot | Map deployed commit to routes and owner-approved workspace/navigation; prepare visible redesign backlog |
+| APP-UI-01 | High | Published UI is behind approved Hybrid Experience; old HUNT-branded Home metadata and legacy navigation remain visible | **Confirmed deployment mismatch:** Vercel production alias vixor-app.vercel.app resolves to READY deployment created 2026-09-19 from APP commit 10adce4fa21139673fd5e74e9fba1ebad02857f5; current APP main is e746c4087823bb205cafc7988c54ae4c13ea3427 (2026-10-31). Root HTML returns 200 with title “HUNT — Token Discovery Terminal” and HUNT/Solana description. No production update performed. | Build a non-production preview plan from current approved source, reconcile main vs deployed commit, map legacy navigation to 8 workspaces, and obtain owner approval before deployment |
 | APP-ROUTES-01 | High | Many legacy/overlapping routes exist alongside target workspaces | Confirmed from current APP tree enumeration; impact needs route-level review | Build route inventory: active, duplicate, legacy, redirect, feature-flagged, broken |
 | APP-DATA-01 | High | Need clear distinction between demo/mock/stale/live data | Historical audit risk; current UI state not yet fully inspected | Trace each Home/Discover/Intelligence metric to source, timestamp, freshness, and empty/error state |
 | APP-ARB-01 | Medium | Arbitrage active-vs-archived status uncertain in historical audit | Not Verified on current head | Trace current imports/routes/migrations and mark active or archived without deleting |
 | APP-PAY-01 | Critical | Stars identity/payment remediation and RLS integration | Branch-level work only | Preserve 6e65480 and 7d65524; reconcile PR #26; no live migration |
 | APP-PR-26 | High | Existing premium-payment PR overlaps payment remediation and may be stale | Open at snapshot; head c5f3c5e | Inspect full diff/base/CI; owner decision before rebase/supersede |
+
+### 8.3.1 Current Vercel production evidence (2026-11-02)
+
+- Vercel project: vixor-app; production alias includes vixor-app.vercel.app.
+- Latest listed production deployment: READY, deployment ID dpl_FRe3RW4Bqiekc2GGQTgvyMSgmGPX.
+- Deployment creation time: 2026-09-19T03:20:50.102Z.
+- Git source: repository kam65624-cmd/vixor-APP, branch main, commit 10adce4fa21139673fd5e74e9fba1ebad02857f5.
+- Current GitHub APP main at this snapshot: e746c4087823bb205cafc7988c54ae4c13ea3427, dated 2026-10-31.
+- The production alias root returned HTTP 200 on 2026-11-02 and HTML metadata identified the product as “HUNT — Token Discovery Terminal” with a Solana-only discovery description.
+- This establishes a material deployment/source lag and a branding/scope mismatch. It does not prove every runtime route or authenticated screen, and it does not authorize deployment.
+- Evidence source: Vercel project/deployment metadata and a read-only fetch of https://vixor-app.vercel.app/ on 2026-11-02.
 
 ### 8.4 Product and operations
 | ID | Severity | Finding / impact | Current status | Next action |
@@ -454,7 +465,7 @@ No overall completion percentage is published yet. The original Stage 2 G1/G4/G7
 
 | Date | Change |
 |---|---|
-| 2026-11-02 | Created canonical master vision/audit/execution register on a dedicated documentation branch. Refreshed GitHub default-branch SHAs for all seven core repositories and current open PR inventory for APP and TG-BOT. Independently inspected APP main and confirmed the G5-05 unverified Telegram ID auto-sync path in source. No application code, production environment, database, secret, or deployment changed. |
+| 2026-11-02 | Created canonical master vision/audit/execution register on a dedicated documentation branch. Refreshed GitHub default-branch SHAs and open PR inventory. Confirmed G5-05 unverified Telegram ID auto-sync in APP source and confirmed Vercel production deployment is on 2026-09-19 commit 10adce4 while APP main is e746c40; production root still exposes HUNT-branded metadata. No application code, production environment, database, secret, or deployment changed. |
 
 ### Update protocol
 Every future update must append:
