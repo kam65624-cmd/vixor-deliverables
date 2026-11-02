@@ -253,12 +253,22 @@ Statuses use: **Confirmed**, **Possible Risk**, **Not Verified**, **Blocked**, *
 | G5-01 | Critical | points_balances RLS policy without explicit TO scope allowed authenticated users to directly alter balances | Reported exploit reproduced on isolated PG16; remediation proposed on branch 7d65524 | Review migration and CI evidence; do not apply live |
 | G5-02 | High | execute_signal_transition SECURITY DEFINER executable by PUBLIC and lacked fixed search_path | Reported exploit reproduced on isolated PG16; remediation proposed on branch 7d65524 | Review exact SQL, grants, negative/positive tests |
 | G5-03 | High | Production definition/provenance of credit_points and points_reason missing from tracked migrations | Confirmed repository provenance gap; production definition unknown | Locate authoritative production DDL; do not invent a stub as production schema |
-| G5-05 | Critical | profiles.telegram_id client-write path undermines payer identity binding; self-relink/squatting risks | Reported exploit demonstrated on isolated schema; unresolved | Implement server-verifiable Telegram account linking and deny untrusted client writes |
+| G5-05 | Critical | profiles.telegram_id is writable through a client-controlled server function and an owner UPDATE policy; self-relink/squatting can undermine payer identity binding | **Confirmed by current APP main source review:** AppShell reads initDataUnsafe and sends telegramId; syncTelegramProfile accepts caller-supplied telegramId under auth-only middleware and writes it through supabaseAdmin. Migration 20260803000000 grants own-row UPDATE policy. linkTelegramAccount separately verifies signed initData. No runtime exploit test was run in this review. | Remove telegram_id from the auto-sync input/write path; enforce server-verified initData for linking; prevent authenticated direct column updates; add tests for forged ID, cross-account collision, valid link, relink and payment payer mismatch |
 | G5-08 | High | Migration chain cannot bootstrap cleanly; forward references, incompatible FK types, volatility and enum/text drift | Confirmed repository migration-chain defect; production schema provenance unresolved | Reconcile actual production schema and migration history; no blind historical rewrite |
 | G5-09 | Medium | P0004 ASSERT_FAILURE is not caught by WHEN OTHERS | Reported confirmed by PostgreSQL experiment | Decide intended error semantics and add targeted regression |
 | G5-10 | High | Actual package distribution/canonical adoption not proven across all consumers | Possible/Not Verified per prior evidence | Prove installable package distribution and consumer compatibility |
 | G5-11 | High | Freshness declarations/runtime and legacy v0.1/v1 adapters may drift | Prior declaration-only and adapter fixes reported | Refresh compatibility tests on current heads |
 | G5-12 | High | APP/TRADE access and schema provenance were previously incomplete | Not Verified/current state may have changed | Inspect current accessible repositories and record any remaining access boundary |
+
+### 8.1.1 Current-source proof for G5-05 (APP main e746c40)
+
+- File: src/components/vixor/app-shell/index.tsx. The auto-sync effect reads Telegram WebApp initDataUnsafe.user and passes tgUser.id to syncTelegramProfile.
+- File: src/domains/user/functions.ts. syncTelegramProfile uses requireSupabaseAuth, accepts telegramId as a client-supplied number, and writes String(data.telegramId) to profiles using supabaseAdmin. It does not verify Telegram initData.
+- Same file: linkTelegramAccount does verify signed initData through verifyTelegramInitData before writing telegram_id. This is the correct trust boundary to preserve.
+- Migration: supabase/migrations/20260803000000_add_missing_core_tables.sql creates an owner-scoped UPDATE policy on profiles. Row ownership does not restrict which columns the owner may update.
+- Finding: a signed-in user can submit an arbitrary Telegram ID to the sync server function; this is a source-confirmed trust-boundary defect. Direct PostgREST writeability must also be tested against effective grants/RLS in isolated PostgreSQL/Supabase-compatible tests.
+- Safe remediation direction: make syncTelegramProfile update only non-identity display metadata, derive Telegram identity only from server-verified initData, and deny direct authenticated writes to telegram_id (using a DB-enforced control compatible with actual Supabase roles). Do not assume a client-side UI restriction is sufficient.
+- Evidence reviewed: current APP main e746c4087823bb205cafc7988c54ae4c13ea3427; files above. This source review did not execute the app or database and is not production verification.
 
 ### 8.2 Control center and Telegram reliability
 The following are carried forward from the owner-visible execution status and earlier integration audit. Their current status must be refreshed against TG-BOT main 63c0c54 and current PRs.
@@ -444,7 +454,7 @@ No overall completion percentage is published yet. The original Stage 2 G1/G4/G7
 
 | Date | Change |
 |---|---|
-| 2026-11-02 | Created canonical master vision/audit/execution register on a dedicated documentation branch. Refreshed GitHub default-branch SHAs for all seven core repositories and current open PR inventory for APP and TG-BOT. No application code, production environment, database, secret, or deployment changed. |
+| 2026-11-02 | Created canonical master vision/audit/execution register on a dedicated documentation branch. Refreshed GitHub default-branch SHAs for all seven core repositories and current open PR inventory for APP and TG-BOT. Independently inspected APP main and confirmed the G5-05 unverified Telegram ID auto-sync path in source. No application code, production environment, database, secret, or deployment changed. |
 
 ### Update protocol
 Every future update must append:
