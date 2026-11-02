@@ -288,12 +288,21 @@ The following are carried forward from the owner-visible execution status and ea
 ### 8.3 APP product and runtime
 | ID | Severity | Finding / impact | Current status | Next action |
 |---|---|---|---|---|
-| APP-UI-01 | High | Published UI is behind approved Hybrid Experience; old HUNT-branded Home metadata and legacy navigation remain visible | **Confirmed deployment mismatch:** Vercel production alias vixor-app.vercel.app resolves to READY deployment created 2026-09-19 from APP commit 10adce4fa21139673fd5e74e9fba1ebad02857f5; current APP main is e746c4087823bb205cafc7988c54ae4c13ea3427 (2026-10-31). Root HTML returns 200 with title “HUNT — Token Discovery Terminal” and HUNT/Solana description. No production update performed. | Build a non-production preview plan from current approved source, reconcile main vs deployed commit, map legacy navigation to 8 workspaces, and obtain owner approval before deployment |
+| APP-UI-01 | High | Published UI is behind approved Hybrid Experience; Home remains HUNT-branded and navigation is still feature-route oriented | **Confirmed:** production alias serves 2026-09-19 deployment from 10adce4; APP main e746c40 (2026-10-31) Home route still declares title “HUNT — Token Discovery Terminal”. Current main Discover source explicitly rejects FOREX deep links and states crypto-only, so the old 2026-10-30 UI inventory (based on b893b62) is stale for this route. | Refresh route inventory against e746c40; map current dock/More entries and preserve all behaviors; align Home title/metadata and navigation with Hybrid Experience in a separate reviewed Stage 4 branch; preview only after owner approval |
 | APP-ROUTES-01 | High | Many legacy/overlapping routes exist alongside target workspaces | Confirmed from current APP tree enumeration; impact needs route-level review | Build route inventory: active, duplicate, legacy, redirect, feature-flagged, broken |
 | APP-DATA-01 | High | Need clear distinction between demo/mock/stale/live data | Historical audit risk; current UI state not yet fully inspected | Trace each Home/Discover/Intelligence metric to source, timestamp, freshness, and empty/error state |
 | APP-ARB-01 | Medium | Arbitrage active-vs-archived status uncertain in historical audit | Not Verified on current head | Trace current imports/routes/migrations and mark active or archived without deleting |
 | APP-PAY-01 | Critical | Stars identity/payment remediation and RLS integration | Branch-level work only | Preserve 6e65480 and 7d65524; reconcile PR #26; no live migration |
 | APP-PR-26 | High | Existing premium-payment PR overlaps payment remediation and may be stale | Open at snapshot; head c5f3c5e | Inspect full diff/base/CI; owner decision before rebase/supersede |
+
+### 8.3.2 Current APP source review for Stage 4 preparation
+
+- Current main Home route file src/routes/_authenticated/index.tsx still declares the document title “HUNT — Token Discovery Terminal”. This is not the approved VIXOR-wide Home identity.
+- Current main Discover component src/routes/_authenticated/_discover/index.tsx explicitly accepts only ALL/MEME/CRYPTO and rejects a crafted FOREX category. It states the forex/Markets mode was removed by Stage 1. This is current source evidence that the older page inventory is stale for at least this area.
+- The UI inventory docs/uiux/page-inventory.md is dated 2026-10-30 and declares its base as main@b893b62; it must be refreshed against current main e746c40 before it is used as the implementation map.
+- docs/uiux/feature-preservation-map.md states that no route may be removed/renamed and no feature may be hidden without explicit owner approval. Preserve this rule during Hybrid Experience consolidation.
+- Current main navigation code still exposes legacy-oriented entries including Analyze, Signals, Swap, Desk, Alpha, Portfolio and Charts, with a More panel containing Radar, Pulse, Predictions, Daily Loop, Strategy Lab, Vision AI, Trackers, PnL, Journal, Settings, Profile, Premium, Rewards and Referral. This is a confirmed information-architecture mismatch against the approved 8-workspace target, but the correct consolidation must preserve existing behavior and requires Stage 4 design/owner review.
+- No APP UI source was modified in this review. These are source findings and Stage 4 preparation, not a completed redesign.
 
 ### 8.3.1 Current Vercel production evidence (2026-11-02)
 
@@ -465,7 +474,7 @@ No overall completion percentage is published yet. The original Stage 2 G1/G4/G7
 
 | Date | Change |
 |---|---|
-| 2026-11-02 | Created canonical master vision/audit/execution register on a dedicated documentation branch. Refreshed GitHub default-branch SHAs and open PR inventory. Confirmed G5-05 unverified Telegram ID auto-sync in APP source and confirmed Vercel production deployment is on 2026-09-19 commit 10adce4 while APP main is e746c40; production root still exposes HUNT-branded metadata. No application code, production environment, database, secret, or deployment changed. |
+| 2026-11-02 | Created canonical master vision/audit/execution register on a dedicated documentation branch. Refreshed GitHub default-branch SHAs and open PR inventory. Confirmed G5-05 unverified Telegram ID auto-sync in APP source; confirmed production deployment lag (10adce4 vs main e746c40); confirmed Home HUNT metadata and Stage 4 navigation mismatch; verified current Discover source enforces crypto-only. No application code, production environment, database, secret, or deployment changed. |
 
 ### Update protocol
 Every future update must append:
