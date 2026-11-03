@@ -124,6 +124,8 @@ Fresh GitHub branch/check-run inspection against each repository's current `main
 | Packages #2 | `fda94303b4ee4efffa5e7b636c36bac887ff593e` | `d58e7268f366923c82819756466719a1bdd39315` | 3 ahead / 0 behind | 1/1 success |
 | APP #32 | `cabe8048c44bbece1a718b59d8db400ed830054e` | `77b4613df0c3dd24de8bc1a5a48ba8d760bc7864` | **37 ahead / 68 behind (diverged)** | 4/4 success on PR head |
 
+**SHIELD divergence detail:** the two commits on current main since the PR's original base are `0bf501b` (HMAC nonce replay/cleanup test) and `f21b562` (revert accidental direct-main test addition/re-add on review branch). GitHub's compare endpoint reports no net changed files for those two commits, and the PR branch already contains an equivalent nonce replay/cleanup test under a different commit. This reduces the apparent risk but does not replace a clean branch reconciliation/review; the branch remains untouched.
+
 All five PRs remain Draft/open/unmerged. Green checks are scoped to their respective PR heads; they do not prove integration with the latest main. SHIELD #2 needs its two-commit divergence reconciled before adoption. APP #32 needs a safe rebase/reconciliation and full migration-chain bootstrap before it can be considered. No existing branch was rewritten, no merge was performed, and no deployment was triggered.
 
 **Packages distinction:** current Packages PR #2 is `@vixor/contracts@0.1.0`, not TASK44's reported `0.2.0` source. It must not be treated as integration of TASK44's runtime/freshness contracts.
