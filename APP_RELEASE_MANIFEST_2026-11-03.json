@@ -16,14 +16,16 @@
     "url": "https://vixor-h9idqc3w4-goldarenax-7278s-projects.vercel.app",
     "production_aliases": [
       "https://vixor-app-goldarenax-7278s-projects.vercel.app",
-      "https://vixor-app.vercel.app"
+      "https://vixor-app-git-main-goldarenax-7278s-projects.vercel.app"
     ],
     "commit": "77b4613df0c3dd24de8bc1a5a48ba8d760bc7864",
     "runtime_errors_last_hour": 0,
     "request_path_counts_last_50m": {
       "/": 8
     },
-    "full_route_smoke_after_this_deployment": "NOT_VERIFIED"
+    "full_route_smoke_after_this_deployment": "NOT_VERIFIED",
+    "production_redis": "NOT_VERIFIED",
+    "redis_preview": "VERIFIED_IN_SEPARATE_PREVIEW_ONLY"
   },
   "supabase": {
     "expected_project_ref": "lrbgxrfvjxaixtzkutxn",
