@@ -22,6 +22,13 @@ No additional PR was merged. No production migration, production database write,
 
 The temporary diagnostics route was removed by PR #36. The diagnostic endpoint remains available only on the preserved diagnostic branch/deployment, not on mainline.
 
+### Non-blocking build / dependency warnings
+
+- Vercel build completed successfully, but emitted route-discovery warnings for files under `src/routes/_authenticated` that do not export a TanStack `Route` (token, analysis, trade-desk, and a test file). They are excluded from the route tree; confirm whether they are intentional colocated components/tests before renaming or excluding them.
+- The minified client entry was 893.08 kB, above the configured 700 kB warning threshold (273.49 kB gzip). Build succeeded; chunking/performance review remains a follow-up.
+- TG-BOT CI's `npm ci` output reported 4 high-severity dependency advisories. Advisory-level `npm audit` review was not part of this contract fix, so this is recorded as a follow-up risk rather than silently ignored.
+- These warnings did not prevent the PR #36 Production deployment from reaching READY and were not changed in this Stage 2 contract/DB work.
+
 ## 2. TASK44 contract and declaration findings
 
 ### TASK44 evidence (local staging)
