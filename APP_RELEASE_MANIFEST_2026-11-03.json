@@ -23,9 +23,31 @@
     "request_path_counts_last_50m": {
       "/": 8
     },
-    "full_route_smoke_after_this_deployment": "NOT_VERIFIED",
+    "full_route_smoke_after_this_deployment": {
+      "status": "PARTIAL_PASS",
+      "checked_at": "2026-11-03",
+      "production_alias": "https://vixor-app.vercel.app",
+      "results": {
+        "/": 200,
+        "/auth": 200,
+        "/v2": 200,
+        "/api/sol-price": 200,
+        "/api/market-data-health": 200,
+        "/api/shield-health": 200,
+        "/api/market-overview": 200,
+        "/api/echo-stats": 200,
+        "/discover": 200,
+        "/analyze": 200,
+        "/api/preview-diagnostics": 404
+      },
+      "caveats": [
+        "HTTP status checks do not prove authenticated UI flows or authorization correctness.",
+        "/api/echo-stats returned trades, netPnl, winRate and signalTracking fields; legacy scope/security finding remains open."
+      ]
+    },
     "production_redis": "NOT_VERIFIED",
-    "redis_preview": "VERIFIED_IN_SEPARATE_PREVIEW_ONLY"
+    "redis_preview": "VERIFIED_IN_SEPARATE_PREVIEW_ONLY",
+    "runtime_log_redis_query": "NOT_VERIFIED — Vercel Hobby retention/API query did not return records"
   },
   "supabase": {
     "expected_project_ref": "lrbgxrfvjxaixtzkutxn",
