@@ -75,6 +75,8 @@ The APP repo links to Supabase project ref `lrbgxrfvjxaixtzkutxn`. The connected
 
 Therefore the actual applied migration ledger, live schema, RLS policies, constraints, indexes, RPC ACLs, owners and grants remain **NOT VERIFIED**. The manifest labels every migration's applied state `NOT_VERIFIED`; it does not infer application from a Git commit, PR merge, Vercel deployment or isolated PostgreSQL test.
 
+TASK44 finding T44-06 also flagged that the earlier APP DDL proposal lacked RLS/GRANT/permission definitions. APP PR #32 now contains specific privilege hardening for points balances, profile Telegram identity and service-role-only RPC execution, but it remains unmerged and does not replace live role/policy/ACL verification.
+
 APP Draft PR #32 contains a proposed Gate 5 migration and has successful isolated CI, but it is 68 commits behind current main and the complete clean bootstrap is still not verified. Do not merge or apply this migration as-is.
 
 ## 5. Confirmed remaining Stage 2 gates
@@ -87,6 +89,17 @@ APP Draft PR #32 contains a proposed Gate 5 migration and has successful isolate
 6. **APP Gate 5:** rebase/reconcile PR #32 against current main; run the full clean migration bootstrap; review permissions and rollback before owner approval.
 7. **Production release:** run route-specific Production smoke after the PR #36 deployment and separately verify Production Redis.
 8. **Provenance / owner gates:** record approved package source, exact commit pins, consumer adoption, database evidence and release approval. No Stage 3 until these gates pass.
+
+## 6. Owner decisions D1–D6 still open
+
+| Decision | Required owner action | Why it remains open |
+|---|---|---|
+| D1 — canonical package adoption | Adopt the TASK44 `0.2.0` source branches into the actual remote `vixor-packages` repository | TASK44 branches are local staging refs, not remote branches; source archive is not available here |
+| D2 — distribution strategy | Approve A1: Git dependency pinned to an exact commit/tag | npm/pnpm local fixture proof exists, but no canonical remote source/tag has been adopted |
+| D3 — consumer integration window | Approve the controlled order for HUNT, SHIELD and TG-BOT adoption | Consumer PRs remain Draft and must pin the same source/version |
+| D4 — TG-BOT receiver | Review and approve the existing receiver plus PR #69 validator alignment | Receiver exists; PR #69 is CI-green but unmerged |
+| D5 — APP DDL permissions | Approve the final RLS/GRANT/role design after exact-project DB inspection | Correct Supabase project is inaccessible; no live ACL/RLS evidence |
+| D6 — permanent gates | Confirm the approved access, deployment and provenance process | No production deployment/migration/secret changes are authorized by this report |
 
 ## 6. Issue classification
 
