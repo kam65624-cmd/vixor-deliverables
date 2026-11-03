@@ -86,6 +86,32 @@ TASK44 finding T44-06 also flagged that the earlier APP DDL proposal lacked RLS/
 
 APP Draft PR #32 contains a proposed Gate 5 migration and has successful isolated CI, but it is 68 commits behind current main and the complete clean bootstrap is still not verified. Do not merge or apply this migration as-is.
 
+## 5. Fresh Production verification after PR #36 (2026-11-03)
+
+A fresh read-only smoke was run against the current Production alias `https://vixor-app.vercel.app` after deployment `dpl_9VP8j9DuPiHYABBcjk2yigEHjyVX` reached READY:
+
+| Path | HTTP | Result |
+|---|---:|---|
+| `/` | 200 | OK |
+| `/auth` | 200 | OK |
+| `/v2` | 200 | OK |
+| `/api/sol-price` | 200 | OK |
+| `/api/market-data-health` | 200 | Binance Ticker + DexScreener OK; Birdeye disabled (no key; fallback documented) |
+| `/api/shield-health` | 200 | GoPlus + RugCheck + Binance OK |
+| `/api/market-overview` | 200 | OK |
+| `/api/echo-stats` | 200 | HTTP healthy; payload has a scope/security concern below |
+| `/discover` | 200 | OK |
+| `/analyze` | 200 | OK |
+| `/api/preview-diagnostics` | 404 | Expected: temporary diagnostic endpoint removed |
+
+**New Confirmed scope/security finding (not a Stage 2 contract gate):** `/api/echo-stats` returns `trades`, `netPnl`, `winRate`, and `signalTracking` fields. Earlier code review recorded this endpoint as an unauthenticated service-role aggregate over all users' trading/PnL data. That payload is inconsistent with the approved crypto-only VIXOR scope (no trading execution, trade PnL, win-rate, or signal-tracking UI). HTTP 200 proves availability, not safe authorization or product-scope compliance. Keep this finding open for the appropriate scope/security remediation; do not silently treat it as a Stage 2 success.
+
+The same Production response titles still identify the root/discover pages as a HUNT / Solana Token Discovery Terminal. This is additional scope/UX drift evidence, not a regression introduced by PR #36.
+
+### TASK44 source recovery attempt
+
+The full TASK44 detailed report is present in the Library and confirms the archive SHA-256 `7f35eee01b1ee07af3aeab3636fa3eedba9c0172facab30851c65da2269f0e7e`, Phase B/C branch heads `61684b6` and `faa2adf`, and the exact evidence logs. However, the actual `TASK44-REMEDIATION.zip` is not present in the available Library inventory; only `TASK43-REMEDIATION.zip` is listed, and its raw-byte materialization is not authorized. I will not reconstruct or fabricate the missing source tree from a report. The report itself explicitly marks transfer of `faa2adf` into canonical remote `vixor-packages` and tagging `contracts-v0.2.0` as owner-gated and not executed.
+
 ## 5. Confirmed remaining Stage 2 gates
 
 1. **Package source:** provide/adopt the actual TASK44 `0.2.0` source branches into the canonical remote `vixor-packages`; the source archive is not available in the connected files.
