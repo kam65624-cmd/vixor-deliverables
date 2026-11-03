@@ -14,7 +14,8 @@
 | Deployment URL | https://vixor-h9idqc3w4-goldarenax-7278s-projects.vercel.app |
 | Runtime errors (last hour) | 0 found |
 | Request path counts (last 50m) | `/`: 8 |
-| Full route smoke after this deployment | **NOT VERIFIED** |
+| Full route smoke after this deployment | **PARTIAL PASS** — 10 application/API paths HTTP 200; diagnostics endpoint 404 expected |
+| Smoke caveat | `/api/echo-stats` returns legacy `trades`, `netPnl`, `winRate`, `signalTracking` fields; scope/security finding open |
 | Production Redis | **NOT VERIFIED** (separate Preview verification only) |
 | Production aliases | `vixor-app-goldarenax-7278s-projects.vercel.app`, `vixor-app-git-main-goldarenax-7278s-projects.vercel.app` |
 
