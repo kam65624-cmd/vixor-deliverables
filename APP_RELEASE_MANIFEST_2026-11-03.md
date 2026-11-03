@@ -15,6 +15,8 @@
 | Runtime errors (last hour) | 0 found |
 | Request path counts (last 50m) | `/`: 8 |
 | Full route smoke after this deployment | **NOT VERIFIED** |
+| Production Redis | **NOT VERIFIED** (separate Preview verification only) |
+| Production aliases | `vixor-app-goldarenax-7278s-projects.vercel.app`, `vixor-app-git-main-goldarenax-7278s-projects.vercel.app` |
 
 ## Supabase target and access
 
