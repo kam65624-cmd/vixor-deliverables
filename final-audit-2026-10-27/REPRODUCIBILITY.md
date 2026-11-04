@@ -150,3 +150,23 @@ npm ci && npm run regression && npm run typecheck && npm test
 5. **قاعدة ثابتة:** لا تُكتب بصمة ZIP داخل الحزمة أبدًا (استحالة self-reference) — تُسجل في وصف PR وفي سجل خارجي بجوار الـZIP.
 
 **فروقات الإصدار السابق:** 8 ملفات منقحة (بصمات قبل/بعد في سجل التنقيح) + MANIFEST.json (v3→v4) + 5 ملفات جديدة (سجل تنقيح، فحص توكن، ملخص عدّ، لوج اختبارات، تقرير جذر) + ملاحق توثيقية مؤرخة في 5 ملفات قائمة — **كل ما عدا ذلك مطابق بايتيًا** (سجل مقارنة آلي في الأدلة الخارجية).
+
+
+## ملحق TASK 26 — إعادة إنتاج تحقق دليل ALERT-01 خطوة بخطوة (2026-10-26T23:3x–23:5x UTC (owner note dated 2026-10-27))
+
+**الهدف:** إعادة إنتاج قناتي التحقق المستقلتين لادعاء المالك (`ALERT-01 regression: 20 passed, 0 failed` على R1–R19) وبناء الحزمة v5.
+
+**قناة أ — دليل CI على main المدموج:**
+1. `GET /repos/kam65624-cmd/tg-content-bot/actions/runs?per_page=10` → حدد run 40416117388 (head `2d8933ed…`, push, success).
+2. `GET /repos/…/actions/runs/40416117388/jobs` → job «bot-worker (typecheck + smoke tests)».
+3. نزّل لوج الـjob (نقطة النهاية تعيد توجيهًا 302 إلى URL موقع — **احذف ترويسة Authorization عند التحويل**) وابحث عن السطر الحرفي `=== ALERT-01 regression: 20 passed, 0 failed ===` ومجموعة `Run npm run regression`.
+
+**قناة ب — إعادة تشغيل محلية مثبتة البايتات (git محجوب في بيئة التدقيق):**
+1. نزّل tarball الالتزام: `GET /repos/…/tarball/2d8933ed7cd92d23144099642497f32794340715` واستخرجه في دليل نظيف.
+2. ثبت البايتات: احسب git-blob sha1 من المحتوى (`sha1("blob <len>\0" + bytes)`) لأربعة ملفات مفتاحية وقارنها بأشجار API الحية — يجب التطابق (`package.json` = `7a2c289d…`، `alert01-regression.cjs` = `52e835c9…`، `ci.yml` = `e18c7cb4…`، `smoke-test.cjs` = `f409aa5f…`).
+3. في `bot-worker/`: `npm ci` → `npm run regression` **قبل أي بناء** (`.smoke` غائب — إثبات الاكتفاء الذاتي v2) → `npm run typecheck` → `npm test` (smoke 86/0) → `npm run regression` بعد البناء. المتوقع: كل الأكواد 0، والانحدار 20/0 في المرهين.
+4. عزل النطاق: `GET /repos/…/compare/76830a72…2d8933ed…` → ملفان فقط (`ci.yml` +2/−0، `package.json` +2/−1).
+
+**بناء الحزمة v5 (نفس قواعد TASK 25):** مزامنة النسخ المحلية مع main الحي (ملفات PR #12 من blobs الحية) → ملاحق TASK 26 + 3 ملفات جديدة → MANIFEST v5 (r1 → اختبارات 10/10 داخل الحزمة → r2-final) → مدقق exit 0 → ZIP → استخراج نظيف → مدقق + اختبارات داخل المستخرَج → فحص أسرار مستقل (CLEAN بعد الإفرادات الموثقة) → سجل مقارنة آلي task25→task26 → رفع بـblobs→tree→commit→ref على فرع جديد فوق main (fast-forward بنيويًا؛ لا قوة) → فتح PR مسودة (لا دمج).
+
+**سكربتات مثبتة:** `t26_phase0.py` / `t26_phase0b.py` / `t26_phase0c.py` / `t26_clean_checkout.py` / `t26_rerun.sh` / `t26_sync_main.py` / `t26_docs_append.py` / `t26_build_package.py` / `t26_push_pr11.py` في أدلة السكربتات المرافقة للتقرير الخارجي.
