@@ -170,3 +170,18 @@ npm ci && npm run regression && npm run typecheck && npm test
 **بناء الحزمة v5 (نفس قواعد TASK 25):** مزامنة النسخ المحلية مع main الحي (ملفات PR #12 من blobs الحية) → ملاحق TASK 26 + 3 ملفات جديدة → MANIFEST v5 (r1 → اختبارات 10/10 داخل الحزمة → r2-final) → مدقق exit 0 → ZIP → استخراج نظيف → مدقق + اختبارات داخل المستخرَج → فحص أسرار مستقل (CLEAN بعد الإفرادات الموثقة) → سجل مقارنة آلي task25→task26 → رفع بـblobs→tree→commit→ref على فرع جديد فوق main (fast-forward بنيويًا؛ لا قوة) → فتح PR مسودة (لا دمج).
 
 **سكربتات مثبتة:** `t26_phase0.py` / `t26_phase0b.py` / `t26_phase0c.py` / `t26_clean_checkout.py` / `t26_rerun.sh` / `t26_sync_main.py` / `t26_docs_append.py` / `t26_build_package.py` / `t26_push_pr11.py` في أدلة السكربتات المرافقة للتقرير الخارجي.
+
+
+## ملحق TASK 27 — إعادة إنتاج فحوص اتساق دليل ALERT-08 (2026-10-26T23:4x–23:5x UTC (owner note dated 2026-10-27))
+
+**ملاحظة منهجية:** لا يمكن للمدقق إعادة تنفيذ استعلام DB (لا قناة — سبب الحجب). ما يلي قابل لإعادة الإنتاج بالكامل **بدون DB**:
+
+1. **تثبيت البايتات:** checkout tarball لـmain `2d8933ed…` (كما في ملحق TASK 26) — الملفات الخمسة المفحوصة تُثبت بمطابقة git-blob sha1 (من المحتوى) مع شجرة API الحية: `017_meme_signals.sql`، `ath-monitor.ts`، `utils/targets.ts`، `ALL_IN_ONE.sql`، `NEW_PROJECT_SETUP.sql`.
+2. **مطابقة updated_at المباشرة:** سطر 45 في `017_meme_signals.sql`: `updated_at timestamptz NOT NULL DEFAULT now()` + trigger (س55-59) = تطابق حرفي مع تقرير المالك للإنتاج.
+3. **انحراف المستودع (طازج):** عدّ تكرارات `exit_reason` و`max_multiple` في **كل** ملفات SQL تحت `supabase/` = صفر؛ `targets` المجرّد و`targets_config` كذلك؛ وأعمدة extCols المجاورة (lang/persona/pnl_style) بنفس النمط.
+4. **اتساق الأنواع مع الكود:** سطور 77-79 (أنواع الصف)، 336-348 (parseTargets + fallback + trackingPatch: max_multiple/exit_reason='tp')، سطر 234 (extCols)، و`parseTargets` في targets.ts س51.
+5. **تطابق الدليل مع الاستعلام المُعلن:** قارن حقول تقرير المالك مع `evidence/ALERT08_PREFLIGHT_READY_QUERY_2026-10-27.md` (column_name/data_type/column_default/is_nullable للأعمدة الأربعة على public.meme_signals).
+
+**بناء الحزمة v6:** نفس قواعد TASK 26 مع الأساس الجديد: مزامنة مع رأس PR #13 (103/103) → ملاحق TASK 27 + 3 ملفات جديدة → MANIFEST v6 (r1 → اختبارات → r2-final) → مدقق exit 0 → ZIP → استخراج نظيف → مدقق + اختبارات داخله → فحص أسرار مستقل → سجل مقارنة task26→task27 → رفع مكدس فوق رأس PR #13 (commit واحد؛ لا قوة) → PR مسودة جديد.
+
+**سكربتات مثبتة:** `t27_phase0.py` / `t27_schema_consistency.py` / `t27_sync_pr13.py` / `t27_docs_append.py` / `t27_build_package.py` / `t27_push_pr13.py` في أدلة السكربتات المرافقة.
